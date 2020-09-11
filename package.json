@@ -1,0 +1,27 @@
+{
+  "name": "@small-tech/whatdb",
+  "version": "1.0.0",
+  "description": "A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://source.small-tech.org/site.js/lib/whatdb"
+  },
+  "keywords": [
+    "javascript",
+    "database",
+    "transparent",
+    "small",
+    "web",
+    "json",
+    "in-memory",
+    "in-process",
+    "proxy",
+    "metaprogramming"
+  ],
+  "author": "Aral Balkan",
+  "license": "AGPL-3.0-or-later"
+}
