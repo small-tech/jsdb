@@ -34,3 +34,13 @@ A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-w
   - [filejson](https://github.com/bchr02/filejson)
   - [Declaraoids](https://github.com/Matsemann/Declaraoids/blob/master/src/declaraoids.js)
   - [ScunMEngine](https://github.com/jlvaquero/SCUNM/blob/master/SCUNMEngine/SCUNMEngine.js)
+
+## Like this? Fund us!
+
+[Small Technology Foundation](https://small-tech.org) is a tiny, independent not-for-profit.
+
+We exist in part thanks to patronage by people like you. If you share [our vision](https://small-tech.org/about/#small-technology) and want to support our work, please [become a patron or donate to us](https://small-tech.org/fund-us) today and help us continue to exist.
+
+## Copyright
+
+&copy; 2019-2020 [Aral Balkan](https://ar.al), [Small Technology Foundation](https://small-tech.org).
