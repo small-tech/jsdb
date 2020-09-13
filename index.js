@@ -13,6 +13,7 @@
 
 const fs = require('fs-extra')
 const path = require('path')
+const { isObject } = require('util')
 
 class WhatDB {
   constructor (basePath) {
@@ -28,9 +29,10 @@ class WhatDB {
   }
 
   loadTables () {
-    let tablePaths
+    this.loadingTables = true
+    let tableFiles
     try {
-      tablePaths = fs.readdirSync(this.basePath)
+      tableFiles = fs.readdirSync(this.basePath)
     } catch (error) {
       if (error.code === 'ENOENT') {
         throw new Error(`Base path does not exist.`)
@@ -38,7 +40,14 @@ class WhatDB {
         throw error
       }
     }
-    console.log(tablePaths)
+    tableFiles.forEach(tableFile => {
+      const tableName = tableFile.replace('.json', '')
+      const tablePath = path.join(this.basePath, tableFile)
+      console.log(`Loading table ${tableName} from ${tablePath}…`)
+      const serialisedTable = fs.readFileSync(tablePath, 'utf-8')
+      this.data[tableName] = JSON.parse(serialisedTable)
+    })
+    this.loadingTables = false
   }
 
   get rootHandler () {
@@ -55,11 +64,22 @@ class WhatDB {
   }
 
   setRootHandler (target, property, value, receiver) {
-    Reflect.set(target, property, value, receiver)
-    if (this.isPlainObject(value) || Array.isArray(value)) {
-      this.proxify(target, property)
+    // Only objects and arrays are allowed on the root level.
+    // Each object/array in the root can be considered a table
+    // and is kept in its own JSON file.
+    const isObjectOrArray = this.isPlainObject(value) || Array.isArray(value)
+    if (!isObjectOrArray) {
+      throw new Error(`Only objects and arrays may be added to the root .data element.`)
     }
-    this.createTable(property, value)
+
+    Reflect.set(target, property, value, receiver)
+    this.proxify(target, property)
+
+    // If we’re initially loading tables, do not attempt to recreate the files
+    // that we’re loading the tables from.
+    if (!this.loadingTables) {
+      this.createTable(property, value)
+    }
     return true
   }
 
