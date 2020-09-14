@@ -62,9 +62,13 @@ class WhatDB {
   }
 
   setHandler (target, property, value, receiver) {
+    //
     // Only objects (including custom objects) and arrays are allowed at
     // the root level. Each object/array in the root is considered a separate table
-    // (instance of WhatTable) and is kept in its own JSON file.
+    // (instance of WhatTable) and is kept in its own JSON file. For a good reference
+    // on data types supported by JSON.stringify, see:
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+    //
     const typeOfValue = typeof value
     if (value === undefined || value === null) {
       throw new TypeError(`You cannot create a table by setting a${value === undefined ? 'n': ''} ${value} value.`)
