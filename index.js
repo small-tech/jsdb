@@ -17,7 +17,6 @@
 
 const fs = require('fs-extra')
 const path = require('path')
-const { isPlainObject } = require('./lib/util')
 
 const WhatTable = require('./lib/what-table')
 
@@ -63,13 +62,18 @@ class WhatDB {
   }
 
   setHandler (target, property, value, receiver) {
-    // Only objects and arrays are allowed on the root level.
-    // Each object/array in the root can be considered a table
-    // and is kept in its own JSON file.
-    const isObjectOrArray = isPlainObject(value) || Array.isArray(value)
-    if (!isObjectOrArray) {
-      throw new Error(`Only objects and arrays may be added to the root element.`)
+    // Only objects (including custom objects) and arrays are allowed at
+    // the root level. Each object/array in the root is considered a separate table
+    // (instance of WhatTable) and is kept in its own JSON file.
+    const typeOfValue = typeof value
+    if (value === undefined || value === null) {
+      throw new TypeError(`You cannot create a table by setting a${value === undefined ? 'n': ''} ${value} value.`)
     }
+    ['function', 'symbol', 'string', 'number', 'bigint'].forEach(forbiddenType => {
+      if (typeof value === forbiddenType) {
+        throw new TypeError(`You cannot create a table by setting a value of type ${forbiddenType} (${value}).`)
+      }
+    })
 
     // If we’re initially loading tables, do not attempt to create a new table.
     if (!this.loadingTables) {
