@@ -41,7 +41,7 @@ class WhatDB {
       tableFiles = fs.readdirSync(this.basePath)
     } catch (error) {
       if (error.code === 'ENOENT') {
-        throw new Error(`Base path does not exist.`)
+        throw new Error(`Base path (${path.resolve(this.basePath)}) does not exist.`)
       } else {
         throw error
       }
