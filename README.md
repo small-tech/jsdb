@@ -68,7 +68,7 @@ A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-w
 
   - __In-memory:__ all data is kept in memory and, [without tweaks, cannot exceed 1.4GB in size](https://www.the-data-wrangler.com/nodejs-memory-limits/). If your local database is > 1 GB in size, you’re not really building a Small Web site/app and this is not the tool for you. Quite literally every other database out there is for your use case so please don’t open an issue here for this reason.
 
-  - __Write-on-update__: every update will trigger a write (unless a write is already in process, in which case updates that take place during a write will be batch written together). So this is not what you should be using for, say, logging. Use an append-only log for that instead.
+  - __Write-on-update__: every update will trigger a full flush of the database to disk (unless a write is already in process, in which case updates that take place during a write will be batch written together). So this is not what you should be using for, say, logging. Use an append-only log for that instead.
 
   - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local data. If you want schemas and migrations, take a look at nearly every other database out there. You might also want to see how well [ObjectModel](https://github.com/sylvainpolletvillard/ObjectModel) works alongside WhatDB.
 
