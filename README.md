@@ -6,7 +6,47 @@ For initial brainstorming, see [this gist](https://gist.github.com/aral/fc4115fd
 
 __Current status:__ 15 Sep, 2020: transparent JSON persistence is now functional. Next up: bring test coverage to 100% and then give the query mechanism an initial shot.
 
-__Needless to say, this is not ready for use yet. But feel free to take a look around and share your thoughts.__
+__Needless to say, this is not ready for use yet. But feel free to take a look around.__
+
+## To install
+
+Currently, you need to clone the repo as this is a work-in-progress and no releases have been made yet.
+
+## Usage
+
+Here’s a quick example to whet your appetite:
+
+```js
+const WhatDB = require('.')
+
+// Create your database in the test folder.
+// (This is where your JSON files – “tables” – will be saved.)
+const db = new WhatDB('test')
+
+// Create test/people.json with some data.
+db.people = [
+  {name: 'Aral', age: 43},
+  {name: 'Laura', age: 34}
+]
+
+// Correct Laura’s age. (This will automatically update test/people.json)
+db.people[1].age = 33
+
+// Add Oskar to the family. (This will automatically update test/people.json)
+db.people.push({name: 'Oskar', age: 8})
+```
+
+After running the above script, try this one:
+
+```js
+const WhatDB = require('.')
+
+// This will load test database with the people table we created earlier.
+const db = new WhatDB('test')
+
+// Let’s make sure Oskar’s in there… ;)
+console.log(db.people[2])
+```
 
 ## Use case
 
