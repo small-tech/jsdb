@@ -1,6 +1,6 @@
 # WhatDB?
 
-__Work in progress: __A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.
+__Work in progress:__ A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.
 
 For initial brainstorming, see [this gist](https://gist.github.com/aral/fc4115fdf338e02d735ae58e245817ce).
 
