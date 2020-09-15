@@ -1,8 +1,12 @@
 # WhatDB?
 
-A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.
+__Work in progress: __A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.
 
 For initial brainstorming, see [this gist](https://gist.github.com/aral/fc4115fdf338e02d735ae58e245817ce).
+
+__Current status:__ 15 Sep, 2020: transparent JSON persistence is now functional. Next up: bring test coverage to 100% and then give the query mechanism an initial shot.
+
+__Needless to say, this is not ready for use yet. But feel free to take a look around and share your thoughts.__
 
 ## Use case
 
@@ -43,4 +47,4 @@ We exist in part thanks to patronage by people like you. If you share [our visio
 
 ## Copyright
 
-&copy; 2019-2020 [Aral Balkan](https://ar.al), [Small Technology Foundation](https://small-tech.org).
+&copy; 2020 [Aral Balkan](https://ar.al), [Small Technology Foundation](https://small-tech.org).
