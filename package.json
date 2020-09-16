@@ -27,7 +27,8 @@
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "fast-write-atomic": "^0.2.1",
-    "fs-extra": "^9.0.1"
+    "fs-extra": "^9.0.1",
+    "write-file-atomic": "^3.0.3"
   },
   "devDependencies": {
     "nyc": "^15.1.0",
