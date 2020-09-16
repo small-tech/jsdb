@@ -26,6 +26,7 @@
   "author": "Aral Balkan",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
+    "bfj": "^7.0.2",
     "fs-extra": "^9.0.1"
   },
   "devDependencies": {

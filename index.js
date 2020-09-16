@@ -31,7 +31,7 @@ class WhatDB {
       // Load any existing data there might be.
       this.loadTables()
     } else {
-      log(`   🗃    ❨WhatDB?❩ No database found at ${basePath}; creating it.`)
+      log(`   💾    ❨WhatDB?❩ No database found at ${basePath}; creating it.`)
       fs.mkdirpSync(basePath)
     }
 
