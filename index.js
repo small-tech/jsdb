@@ -17,6 +17,7 @@
 
 const fs = require('fs-extra')
 const path = require('path')
+const { log } = require('./lib/util')
 
 const WhatTable = require('./lib/what-table')
 
@@ -26,8 +27,13 @@ class WhatDB {
 
     this.dataProxy = new Proxy({}, this.proxyHandler)
 
-    // Load any existing data there might be.
-    this.loadTables()
+    if (fs.existsSync(basePath)) {
+      // Load any existing data there might be.
+      this.loadTables()
+    } else {
+      log(`   🗃    ❨WhatDB?❩ No database found at ${basePath}; creating it.`)
+      fs.mkdirpSync(basePath)
+    }
 
     // NB. we are returning the data proxy, not an
     // instance of WhatDB. Use accordingly.
