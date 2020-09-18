@@ -28,10 +28,10 @@ test('persistence', t => {
   const databasePath = path.join(__dirname, 'db')
 
   // Ensure database does not exist.
-  fs.remove(databasePath)
+  fs.removeSync(databasePath)
 
   //
-  // Creation
+  // Database creation.
   //
 
   const people = [
@@ -43,19 +43,35 @@ test('persistence', t => {
 
   t.ok(fs.existsSync(databasePath), 'database is created')
 
+  //
+  // Table creation.
+  //
+
   db.people = people
 
-  t.doesNotEqual(db.people, people, 'the proxy and the object are different')
-  t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'the original object and the data in the table are the same')
+  t.doesNotEqual(db.people, people, 'proxy and object are different')
+  t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'original object and data in table are same')
 
   const expectedTablePath = path.join(databasePath, 'people.json')
   t.ok(fs.existsSync(expectedTablePath), 'table is created')
 
-  const persistedTable = loadTable('db', 'people')
-  t.strictEquals(persistedTable, JSON.stringify(db.people, null, 2), 'the persisted table matches the in-memory table')
+  const createdTable = loadTable('db', 'people')
+  t.strictEquals(createdTable, JSON.stringify(db.people, null, 2), 'persisted table matches in-memory table')
 
+  //
+  // Property update.
+  //
+  db.people[0].age = 21
+
+  // Since writes are asynchronous, we wait a bit to give the table time to save.
+  setTimeout(() => {
+    t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'original object and data in table are same after property update')
+
+    const updatedTable = loadTable('db', 'people')
+    t.strictEquals(updatedTable, JSON.stringify(db.people, null, 2), 'persisted table matches in-memory table after property update')
+
+    t.end()
+
+  }, 100)
   // t.strictEquals(JSON.stringify(db.settings), loadTable('database', 'settings'), 'Settings table is as expected')
-
-  t.end()
-
 })
