@@ -104,6 +104,20 @@ We currently get performance in the ballpark of:
   - Serialisation (synchronous): 0.246 ms
   - Persisting to disk (asynchronous): 800-900ms
 
+## Memory Usage
+
+The reason WhatDB is fast is because it keeps the whole database in memory. Also, to provide a transparent persistence and query API, it maintains a parallel object structure of proxies. This means that the amount of memory used will be multiples of the size of your database on disk.
+
+For example, using the simple performance example above, we clock:
+
+| Number of records | Table size on disk | Memory used |
+| ----------------- | ------------------ | ----------- |
+| 1,000             | 183K               | 6.62MB      |
+| 10,000            | 1.8MB              | 15.67MB     |
+| 100,000           | 18MB               | 89.03MB     |
+| 1,000,000         | 179MB              | 640.83MB    |
+
+
 ## Related projects, inspiration, etc.
 
   - [proxy-fun](https://github.com/mikaelbr/awesome-es2015-proxy)
