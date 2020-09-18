@@ -74,6 +74,24 @@ A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-w
 
   - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local data. If you want schemas and migrations, take a look at nearly every other database out there. You might also want to see how well [ObjectModel](https://github.com/sylvainpolletvillard/ObjectModel) works alongside WhatDB.
 
+## Events
+
+Given that a core goal for WhatDB is to be transparent, you will mostly feel like you’re working with regular JavaScript collections (objects and arrays). At times, however, it might be useful to have access to the underlying abstractions like the table object. One of those instances is if you want to be notified of events.
+
+To listen for an event, access the special `__table__` property of your collection. e.g.,
+
+```js
+db.people.__table__.addListener('save', table => {
+  console.log(`Table ${table.tableName} persisted to disk.`)
+})
+```
+
+### Table events
+
+| Event name | Description                           |
+| ---------- | ------------------------------------- |
+| save       | The table has been persisted to disk. |
+
 ## Performance characteristics
 
 With the caveat, once again, that this is __for small data sets__, it is still insightful to see the performance on my development machine (Intel i7-8550U (8) @ 4.000GHz, 16GB RAM) with what I would consider an order of magnitude larger data set than the limit you should be using with this module.

@@ -61,17 +61,46 @@ test('persistence', t => {
   //
   // Property update.
   //
+
+  // Listen for the save event.
+  let actualWriteCount = 0
+  db.people.__table__.addListener('save', table => {
+
+    actualWriteCount++
+
+    if (actualWriteCount === 1) {
+      t.strictEquals(table.tableName, 'people', 'the correct table is saved')
+      t.strictEquals(expectedWriteCount, actualWriteCount, 'write 1: expected number of writes has taken place')
+
+      t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 1: original object and data in table are same after property update')
+
+      const updatedTable = loadTable('db', 'people')
+      t.strictEquals(updatedTable, JSON.stringify(db.people, null, 2), 'write 1: persisted table matches in-memory table after property update')
+
+      //
+      // Update two properties within the same stack frame.
+      //
+      expectedWriteCount = 2
+
+      db.people[0].age = 43
+      db.people[1].age = 33
+    }
+
+    if (actualWriteCount === 2) {
+      t.strictEquals(expectedWriteCount, actualWriteCount, 'write 2: expected number of writes has taken place')
+      t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 2: original object and data in table are same after property update')
+      const updatedTable = loadTable('db', 'people')
+      t.strictEquals(updatedTable, JSON.stringify(db.people, null, 2), 'write 2: persisted table matches in-memory table after property update')
+
+      t.end()
+    }
+
+  })
+
+  // Update a property
+  let expectedWriteCount = 1
   db.people[0].age = 21
 
-  // Since writes are asynchronous, we wait a bit to give the table time to save.
-  setTimeout(() => {
-    t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'original object and data in table are same after property update')
 
-    const updatedTable = loadTable('db', 'people')
-    t.strictEquals(updatedTable, JSON.stringify(db.people, null, 2), 'persisted table matches in-memory table after property update')
-
-    t.end()
-
-  }, 100)
   // t.strictEquals(JSON.stringify(db.settings), loadTable('database', 'settings'), 'Settings table is as expected')
 })
