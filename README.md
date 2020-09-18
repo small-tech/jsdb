@@ -91,6 +91,8 @@ With `examples/performance` run to generate 1,000,000 records, taking up ~179MB 
 ]
 ```
 
+(All data randomly generated.)
+
 We currently get performance in the ballpark of:
 
 ### Reads
