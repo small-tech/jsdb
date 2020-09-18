@@ -19,7 +19,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const { log } = require('./lib/util')
 
-const WhatTable = require('./lib/what-table')
+const WhatTable = require('./lib/WhatTable')
 
 class WhatDB {
   constructor (basePath) {
