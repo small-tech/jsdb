@@ -24,9 +24,10 @@ function loadTable (databaseName, tableName) {
   return fs.readFileSync(tablePath, 'utf-8')
 }
 
-test('basic persistence', t => {
-  const databasePath = path.join(__dirname, 'db')
+const databasePath = path.join(__dirname, 'db')
 
+
+test('basic persistence', t => {
   // Ensure database does not exist.
   fs.removeSync(databasePath)
 
@@ -102,4 +103,62 @@ test('basic persistence', t => {
   // Update a property
   let expectedWriteCount = 1
   db.people[0].age = 21
+})
+
+test('concurrent updates', t => {
+  // Ensure database does not exist.
+  fs.removeSync(databasePath)
+
+  const settings = {
+    darkMode: 'auto',
+    colours: {
+      red: '#FF5555',
+      green: '#55FF55',
+      magenta: '#FF55FF'
+    }
+  }
+
+  const db = new WhatDB(databasePath)
+
+  db.settings = settings
+
+  const expectedTablePath = path.join(databasePath, 'settings.json')
+  t.ok(fs.existsSync(expectedTablePath), 'table is created')
+
+  const createdTable = loadTable('db', 'settings')
+  t.strictEquals(createdTable, JSON.stringify(db.settings, null, 2), 'persisted table matches in-memory table')
+
+  let handlerInvocationCount = 0
+
+  db.settings.__table__.addListener('save', table => {
+
+    handlerInvocationCount++
+
+    if (handlerInvocationCount === 1) {
+      // After the first save, we expect darkMode to be 'always-on' and the colours to be the original ones.
+      const persistedTable = JSON.parse(loadTable('db', 'settings'))
+      const originalColours = {red: '#FF5555', green: '#55FF55', magenta: '#FF55FF'}
+      t.strictEquals(persistedTable.darkMode, 'always-on', 'updated value is correctly saved')
+      t.strictEquals(JSON.stringify(persistedTable.colours), JSON.stringify(originalColours), 'unchanged values are unchanged as expected')
+    } else if (handlerInvocationCount === 2) {
+      // After the second save, the state of the persisted table should match the state of the in-memory one.
+      const persistedTable = loadTable('db', 'settings')
+      t.strictEquals(persistedTable, JSON.stringify(settings, null, 2), 'the final persisted table matches in-memory table')
+
+      t.end()
+    } else {
+      t.fail('save handler called too many times')
+    }
+  })
+
+  // This update should trigger a save.
+  db.settings.darkMode = 'always-on'
+
+  setImmediate(() => {
+    // This update should also trigger a single save
+    // but after the first one is done.
+    db.settings.colours.red = '#AA0000'
+    db.settings.colours.green = '#00AA00'
+    db.settings.colours.magenta = '#AA00AA'
+  })
 })
