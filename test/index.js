@@ -24,7 +24,7 @@ function loadTable (databaseName, tableName) {
   return fs.readFileSync(tablePath, 'utf-8')
 }
 
-test('persistence', t => {
+test('basic persistence', t => {
   const databasePath = path.join(__dirname, 'db')
 
   // Ensure database does not exist.
@@ -64,7 +64,7 @@ test('persistence', t => {
 
   // Listen for the save event.
   let actualWriteCount = 0
-  db.people.__table__.addListener('save', table => {
+  const tableListener = table => {
 
     actualWriteCount++
 
@@ -92,15 +92,14 @@ test('persistence', t => {
       const updatedTable = loadTable('db', 'people')
       t.strictEquals(updatedTable, JSON.stringify(db.people, null, 2), 'write 2: persisted table matches in-memory table after property update')
 
+      db.people.__table__.removeListener('save', tableListener)
+
       t.end()
     }
-
-  })
+  }
+  db.people.__table__.addListener('save', tableListener)
 
   // Update a property
   let expectedWriteCount = 1
   db.people[0].age = 21
-
-
-  // t.strictEquals(JSON.stringify(db.settings), loadTable('database', 'settings'), 'Settings table is as expected')
 })
