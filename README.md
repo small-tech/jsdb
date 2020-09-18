@@ -4,7 +4,7 @@ __Work in progress:__ A transparent, in-memory, write-on-update JavaScript datab
 
 For initial brainstorming, see [this gist](https://gist.github.com/aral/fc4115fdf338e02d735ae58e245817ce).
 
-__Current status:__ 15 Sep, 2020: transparent JSON persistence is now functional. Next up: bring test coverage to 100% and then give the query mechanism an initial shot.
+__Current status:__ 18 Sep, 2020: several refactors later, transparent JSON persistence is now about as optimised as I can make it right now. Next up: bring test coverage to 100% and then give the query mechanism an initial shot.
 
 __Needless to say, this is not ready for use yet. But feel free to take a look around.__
 
