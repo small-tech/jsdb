@@ -21,7 +21,7 @@ const WhatDB = require('.')
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
-const db = new WhatDB('test')
+const db = new WhatDB('db')
 
 // Create test/people.json with some data.
 db.people = [
@@ -42,11 +42,13 @@ After running the above script, try this one:
 const WhatDB = require('.')
 
 // This will load test database with the people table we created earlier.
-const db = new WhatDB('test')
+const db = new WhatDB('db')
 
 // Let’s make sure Oskar’s in there… ;)
 console.log(db.people[2])
 ```
+
+(You can find these in the `examples/basic` folder of the source code, in the `run-me-first.js` and `run-me-next.js` scripts, respectively.)
 
 ## Use case
 
@@ -71,6 +73,33 @@ A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-w
   - __Write-on-update__: every update will trigger a full flush of the database to disk (unless a write is already in process, in which case updates that take place during a write will be batch written together). So this is not what you should be using for, say, logging. Use an append-only log for that instead.
 
   - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local data. If you want schemas and migrations, take a look at nearly every other database out there. You might also want to see how well [ObjectModel](https://github.com/sylvainpolletvillard/ObjectModel) works alongside WhatDB.
+
+## Performance characteristics
+
+With the caveat, once again, that this is __for small data sets__, it is still insightful to see the performance on my development machine (Intel i7-8550U (8) @ 4.000GHz, 16GB RAM) with what I would consider an order of magnitude larger data set than the limit you should be using with this module.
+
+With `examples/performance` run to generate 1,000,000 records, taking up ~179MB on disk, with records similar to:
+
+```json
+[
+  {
+    "id": "b01b0c58-7b38-49f7-b2a1-06245525df57",
+    "domain": "coremax.me",
+    "email": "stephen.brandt@coremax.me",
+    "stripeId": "ff1a984b-a3a3-4332-9fc4-4f8315e8f6b7"
+  }
+]
+
+We currently get performance in the ballpark of:
+
+### Reads
+
+  - 0.00025ms (Node.js native reads clock at ~0.00005ms)
+
+### Writes
+
+  - Serialisation (synchronous): 0.246 ms
+  - Persisting to disk (asynchronous): 800-900ms
 
 ## Related projects, inspiration, etc.
 

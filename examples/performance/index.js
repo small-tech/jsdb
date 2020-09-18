@@ -2,6 +2,7 @@ const WhatDB = require('../..')
 const dummyJSON = require('dummy-json')
 const { performance } = require('perf_hooks')
 const process = require('process')
+const Time = require('../../lib/Time')
 
 const fs = require('fs-extra')
 const path = require('path')
@@ -77,6 +78,14 @@ setTimeout(() => {
   console.log(`Updating a field took ${e-s} ms for ${db.accounts.length} records.`)
   console.log('2 >>>', db.accounts[db.accounts.length/2].domain)
 }, 100)
+
+const timings = []
+for (let i = 0; i < db.accounts.length; i++) {
+  Time.mark()
+  db.accounts[i]
+  timings.push(Time.elapsed(-1))
+}
+console.log(`Gets took on average (${db.accounts.length} tries): ${(timings.reduce((p, c) => p + c, 0)/db.accounts.length).toFixed(5)}`)
 
 const used = process.memoryUsage().heapUsed / 1024 / 1024;
 console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
