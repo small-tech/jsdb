@@ -1,0 +1,14 @@
+{
+  "name": "performance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aral Balkan",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "dummy-json": "^3.0.1"
+  }
+}
