@@ -89,6 +89,7 @@ With `examples/performance` run to generate 1,000,000 records, taking up ~179MB 
     "stripeId": "ff1a984b-a3a3-4332-9fc4-4f8315e8f6b7"
   }
 ]
+```
 
 We currently get performance in the ballpark of:
 
