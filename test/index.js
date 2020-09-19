@@ -255,3 +255,32 @@ test ('Util', t => {
 
   t.end()
 })
+
+test('WhatDB', t => {
+  // Ensure database does not exist.
+  fs.removeSync(databasePath)
+
+  const db = new WhatDB(databasePath)
+
+  t.throws(() => { db.invalid = null      }, 'attempting to create null table throws')
+  t.throws(() => { db.invalid = undefined }, 'attempting to create undefined table throws')
+  t.throws(() => { db.invalid = function(){} }, 'attempting to create table with function throws')
+  t.throws(() => { db.invalid = Symbol('hello') }, 'attempting to create table with symbol throws')
+  t.throws(() => { db.invalid = 'hello' }, 'attempting to create table with string throws')
+  t.throws(() => { db.invalid = 5 }, 'attempting to create table with number throws')
+  t.throws(() => { db.invalid = 2n }, 'attempting to create table with bigint throws')
+
+  db.arrayTable = [1,2,3, [4,5,6], {a:1}, [{b:2}]]
+  db.objectTable = {a:1, b:2, c: [1,2,3, [4,5,6], {a:1}, [{b:2}]]}
+
+  const expectedArrayTablePath = path.join(databasePath, 'arrayTable.json')
+  const expectedObjectTablePath = path.join(databasePath, 'objectTable.json')
+
+  t.ok(fs.existsSync(expectedArrayTablePath), 'table from array persisted as expected')
+  t.ok(fs.existsSync(expectedObjectTablePath), 'table from object persisted as expected')
+
+  t.strictEquals(loadTable('db', 'arrayTable'), JSON.stringify(db.arrayTable, null, 2), 'persisted array table matches in-memory data')
+  t.strictEquals(loadTable('db', 'objectTable'), JSON.stringify(db.objectTable, null, 2), 'persisted object table matched in-memory data')
+
+  t.end()
+})

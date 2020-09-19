@@ -43,15 +43,7 @@ class WhatDB {
   loadTables () {
     this.loadingTables = true
     let tableFiles
-    try {
-      tableFiles = fs.readdirSync(this.basePath)
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        throw new Error(`Base path (${path.resolve(this.basePath)}) does not exist.`)
-      } else {
-        throw error
-      }
-    }
+    tableFiles = fs.readdirSync(this.basePath)
     tableFiles.forEach(tableFile => {
       const tableName = tableFile.replace('.json', '')
       const tablePath = path.join(this.basePath, tableFile)
