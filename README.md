@@ -135,6 +135,15 @@ For example, using the simple performance example above, we clock:
 | 100,000           | 18MB               | 89.03MB     |
 | 1,000,000         | 179MB              | 640.83MB    |
 
+## Developing
+
+Please open an issue before starting to work on pull requests.
+
+1. Clone this repository.
+2. `npm i`
+3. `npm test`
+
+For code coverage, run `npm run coverage`.
 
 ## Related projects, inspiration, etc.
 
