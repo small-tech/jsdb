@@ -19,6 +19,7 @@ const path = require('path')
 
 const WhatDB = require('..')
 const Time = require('../lib/Time')
+const { needsToBeProxified, log } = require('../lib/Util')
 
 function loadTable (databaseName, tableName) {
   const tablePath = path.join(__dirname, databaseName, `${tableName}.json`)
@@ -27,6 +28,7 @@ function loadTable (databaseName, tableName) {
 
 const databasePath = path.join(__dirname, 'db')
 
+class AClass {}
 
 test('basic persistence', t => {
   // Ensure database does not exist.
@@ -198,5 +200,22 @@ test('Time', t => {
   t.strictEquals(typeof t4, 'string', 'zero as argument to elapsed method returns string')
   t.strictEquals(typeof t5, 'string', 'positive number as argument to elapsed method returns string')
   t.strictEquals(typeof t6, 'string', 'default behaviour of elapsed method is to return string')
+  t.end()
+})
+
+test ('Util', t => {
+  t.strictEquals(needsToBeProxified(null), false, 'null does not need to be proxified')
+  t.strictEquals(needsToBeProxified(undefined), false, 'undefined does not need to be proxified')
+  t.strictEquals(needsToBeProxified(true), false, 'booleans do not need to be proxified')
+  t.strictEquals(needsToBeProxified(5), false, 'numbers do not need to be proxified')
+  t.strictEquals(needsToBeProxified('hello'), false, 'strings don’t need to be proxified')
+  t.strictEquals(needsToBeProxified(2n), false, 'bigints do not need to be proxified') // will this throw?
+  t.strictEquals(needsToBeProxified(Symbol('hello')), false, 'symbols do not need to be proxified')
+  t.strictEquals(needsToBeProxified(function(){}), false, 'functions do not need to be proxified')
+  t.strictEquals(needsToBeProxified(new Proxy({}, {})), false, 'proxies don’t need to be proxified')
+
+  t.strictEquals(needsToBeProxified({}), true, 'objects need to be proxified')
+  t.strictEquals(needsToBeProxified([]), true, 'arrays need to be proxified')
+  t.strictEquals(needsToBeProxified(new AClass()), true, 'custom objects need to be proxified')
   t.end()
 })

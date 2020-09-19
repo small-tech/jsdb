@@ -17,7 +17,7 @@
 
 const fs = require('fs-extra')
 const path = require('path')
-const { log } = require('./lib/util')
+const { log } = require('./lib/Util')
 
 const WhatTable = require('./lib/WhatTable')
 
