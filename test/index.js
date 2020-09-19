@@ -43,7 +43,7 @@ test('basic persistence', t => {
     {"name":"laura","age":34}
   ]
 
-  const db = new WhatDB(databasePath)
+  let db = new WhatDB(databasePath)
 
   t.ok(fs.existsSync(databasePath), 'database is created')
 
@@ -98,6 +98,18 @@ test('basic persistence', t => {
 
       db.people.__table__.removeListener('save', tableListener)
 
+      //
+      // Table loading.
+      //
+
+      const inMemoryStateOfPeopleTableFromOriginalDatabase = JSON.stringify(db.people)
+
+      db = null
+
+      db = new WhatDB(databasePath)
+
+      t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
+
       t.end()
     }
   }
@@ -133,6 +145,7 @@ test('concurrent updates', t => {
 
   let handlerInvocationCount = 0
 
+  // TODO: Pull out handler and removeListener before test end.
   db.settings.__table__.addListener('save', table => {
 
     handlerInvocationCount++
