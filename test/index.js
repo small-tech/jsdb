@@ -18,6 +18,7 @@ const fs = require('fs-extra')
 const path = require('path')
 
 const WhatDB = require('..')
+const Time = require('../lib/Time')
 
 function loadTable (databaseName, tableName) {
   const tablePath = path.join(__dirname, databaseName, `${tableName}.json`)
@@ -179,4 +180,23 @@ test('concurrent updates', t => {
     // Note: this also tests deep proxification of a changed object.
     db.settings.colours = {red: '#AA0000', green: '#00AA00', magenta: '#AA00AA'}
   })
+})
+
+
+test('Time', t => {
+  const t1 = Time.mark()
+  const t2 = Time.mark()
+  const t3 = Time.elapsed(-1)
+  const t4 = Time.elapsed(0)
+  const t5 = Time.elapsed(1)
+  const t6 = Time.elapsed()
+
+  t.ok(t2 > t1, 'time marks are in expected order')
+
+  t.strictEquals(typeof t1, 'number', 'mark method returns number')
+  t.strictEquals(typeof t3, 'number', 'negative number as argument to elapsed method returns number')
+  t.strictEquals(typeof t4, 'string', 'zero as argument to elapsed method returns string')
+  t.strictEquals(typeof t5, 'string', 'positive number as argument to elapsed method returns string')
+  t.strictEquals(typeof t6, 'string', 'default behaviour of elapsed method is to return string')
+  t.end()
 })
