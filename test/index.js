@@ -204,6 +204,9 @@ test('Time', t => {
 })
 
 test ('Util', t => {
+  //
+  // needsToBeProxified()
+  //
   t.strictEquals(needsToBeProxified(null), false, 'null does not need to be proxified')
   t.strictEquals(needsToBeProxified(undefined), false, 'undefined does not need to be proxified')
   t.strictEquals(needsToBeProxified(true), false, 'booleans do not need to be proxified')
@@ -217,5 +220,25 @@ test ('Util', t => {
   t.strictEquals(needsToBeProxified({}), true, 'objects need to be proxified')
   t.strictEquals(needsToBeProxified([]), true, 'arrays need to be proxified')
   t.strictEquals(needsToBeProxified(new AClass()), true, 'custom objects need to be proxified')
+
+  //
+  // log()
+  //
+  const _log = console.log
+  let invocationCount = 0
+  console.log = function () {
+    invocationCount++
+  }
+
+  process.env.QUIET = false
+  log('this should result in console.log being called')
+  t.strictEquals(invocationCount, 1, 'log not invoked when process.env.QUIET is true')
+
+  process.env.QUIET = true
+  log('this should not result in console.log being called')
+  t.strictEquals(invocationCount, 1, 'log not invoked when process.env.QUIET is true')
+
+  console.log = _log
+
   t.end()
 })
