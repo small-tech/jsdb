@@ -176,8 +176,7 @@ test('concurrent updates', t => {
   setImmediate(() => {
     // This update should also trigger a single save
     // but after the first one is done.
-    db.settings.colours.red = '#AA0000'
-    db.settings.colours.green = '#00AA00'
-    db.settings.colours.magenta = '#AA00AA'
+    // Note: this also tests deep proxification of a changed object.
+    db.settings.colours = {red: '#AA0000', green: '#00AA00', magenta: '#AA00AA'}
   })
 })
