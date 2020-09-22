@@ -109,9 +109,9 @@ db.people.__table__.addListener('save', table => {
 
 ## Performance characteristics
 
-With the caveat, once again, that this is __for small data sets__, it is still insightful to see the performance on my development machine (Intel i7-8550U (8) @ 4.000GHz, 16GB RAM) with what I would consider an order of magnitude larger data set than the limit you should be using with this module.
+Once again, keep in mind that WhatDB is __for small data sets__ and favours ease-of-use and data safety above all else. That said, here are priliminary performance stats on my development machine (Intel i7-8550U (8) @ 4.000GHz, 16GB RAM).
 
-With `examples/performance` run to generate 1,000,000 records, taking up ~179MB on disk, with records similar to:
+With `examples/performance` run to generate 100,000 records, taking up ~18MB on disk, with records similar to:
 
 ```json
 [
@@ -130,12 +130,12 @@ We currently get performance in the ballpark of:
 
 ### Reads
 
-  - 0.00025ms (Node.js native reads clock at ~0.00005ms)
+  - 0.00055ms (Node.js native reads clock at ~0.00005ms)
 
 ### Writes
 
-  - Serialisation (synchronous): 0.246 ms
-  - Persisting to disk (asynchronous): 800-900ms
+  - Serialisation (synchronous): 240.319 ms
+  - Persisting to disk (asynchronous): 50-140ms
 
 ## Memory Usage
 
@@ -147,8 +147,7 @@ For example, using the simple performance example above, we clock:
 | ----------------- | ------------------ | ----------- |
 | 1,000             | 183K               | 6.62MB      |
 | 10,000            | 1.8MB              | 15.67MB     |
-| 100,000           | 18MB               | 89.03MB     |
-| 1,000,000         | 179MB              | 640.83MB    |
+| 100,000           | 18MB               | 74.50MB     |
 
 ## Developing
 
