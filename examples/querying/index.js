@@ -22,3 +22,5 @@ console.log('updating first record (should trigger save)')
 peopleYoungerThan35[0].name = 'Laura Kalbag'
 
 console.log('db.people', db.people)
+
+console.log(db.people.where('age').isGreaterThan(35).and('name').is('Aral').get())
