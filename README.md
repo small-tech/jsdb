@@ -134,8 +134,8 @@ We currently get performance in the ballpark of:
 
 ### Writes
 
-  - Serialisation (synchronous): 240.319 ms
-  - Persisting to disk (asynchronous): 50-140ms
+  - Serialisation (synchronous):  ~60ms
+  - Persisting to disk (asynchronous): ~60ms
 
 ## Memory Usage
 
