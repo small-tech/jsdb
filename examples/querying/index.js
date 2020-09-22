@@ -28,4 +28,4 @@ console.log(db.people.where('age').isGreaterThan(35).and('name').is('Aral').get(
 console.log(db.people.whereIsTrue('valueOf.name === "Aral" || (valueOf.name === "Laura Kalbag" && valueOf.age > 50)').get())
 
 
-// console.log(db.people.where('name').is('Aral').or('name').is('Laura Kalbag').get())
+console.log(db.people.where('name').startsWith('a').get())
