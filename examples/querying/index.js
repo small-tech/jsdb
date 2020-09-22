@@ -29,3 +29,6 @@ console.log(db.people.whereIsTrue('valueOf.name === "Aral" || (valueOf.name === 
 
 
 console.log(db.people.where('name').startsWith('a').get())
+
+
+console.log(db.people.where('name').includes('ka').get())
