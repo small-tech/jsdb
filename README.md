@@ -4,9 +4,24 @@ __Work in progress:__ A transparent, in-memory, write-on-update JavaScript datab
 
 For initial brainstorming, see [this gist](https://gist.github.com/aral/fc4115fdf338e02d735ae58e245817ce).
 
-__Current status:__ 18 Sep, 2020: several refactors later, transparent JSON persistence is now about as optimised as I can make it right now. Next up: bring test coverage to 100% and then give the query mechanism an initial shot.
-
 __Needless to say, this is not ready for use yet. But feel free to take a look around.__
+
+## Roadmap
+
+  - [*] Implement persistence (15 Sept)
+  - [*] Add unit tests for persistence (19 Sept)
+  - [*] Document persistence (19 Sept)
+  - [*] Add persistence example (19 Sept)
+  - [*] Implement queries (22 Sept)
+  - [ ] Add unit tests for queries
+  - [ ] Document queries
+  - [ ] Add queries example
+  - [ ] Implement indices
+  - [ ] Add unit tests for indices
+  - [ ] Document indices
+  - [ ] Add indices example
+  - [ ] Use/test on upcoming small-web.org site
+  - [ ] Release version 1.0
 
 ## To install
 
