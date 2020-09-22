@@ -15,4 +15,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// const LoopBench = require('loopbench')
+
+// const loopBench = LoopBench();
+
+// setInterval(() => {
+//   console.log(`loop delay: ${loopBench.delay}`);
+//   console.log(`loop delay limit: ${loopBench.limit}`);
+//   console.log(`is loop overloaded: ${loopBench.overLimit}`);
+// }, 100)
+
 module.exports = require('./lib/WhatDB')
