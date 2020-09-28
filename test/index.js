@@ -21,9 +21,22 @@ const WhatDB = require('..')
 const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
+const readlineSync = require('@jcbuisson/readlinesync')
+
 function loadTable (databaseName, tableName) {
   const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
-  return fs.readFileSync(tablePath, 'utf-8')
+
+  console.log(tablePath)
+
+  // Load the table line by line. We don’t use require here as we don’t want it getting cached.
+  const lines = readlineSync(tablePath)
+  for (let line of lines) {
+    console.log('>>>', line)
+    eval(line)
+  }
+
+  // Note: _ is dynamically generated via the loaded file.
+  return _
 }
 
 const databasePath = path.join(__dirname, 'db')
@@ -60,7 +73,7 @@ test('basic persistence', t => {
   t.ok(fs.existsSync(expectedTablePath), 'table is created')
 
   const createdTable = loadTable('db', 'people')
-  t.strictEquals(createdTable, JSON.stringify(db.people, null, 2), 'persisted table matches in-memory table')
+  t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.people), 'persisted table matches in-memory table')
 
   //
   // Property update.
