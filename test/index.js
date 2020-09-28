@@ -22,7 +22,7 @@ const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
 function loadTable (databaseName, tableName) {
-  const tablePath = path.join(__dirname, databaseName, `${tableName}.json`)
+  const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
   return fs.readFileSync(tablePath, 'utf-8')
 }
 
@@ -56,7 +56,7 @@ test('basic persistence', t => {
   t.doesNotEqual(db.people, people, 'proxy and object are different')
   t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'original object and data in table are same')
 
-  const expectedTablePath = path.join(databasePath, 'people.json')
+  const expectedTablePath = path.join(databasePath, 'people.js')
   t.ok(fs.existsSync(expectedTablePath), 'table is created')
 
   const createdTable = loadTable('db', 'people')
@@ -137,7 +137,7 @@ test('concurrent updates', t => {
 
   db.settings = settings
 
-  const expectedTablePath = path.join(databasePath, 'settings.json')
+  const expectedTablePath = path.join(databasePath, 'settings.js')
   t.ok(fs.existsSync(expectedTablePath), 'table is created')
 
   const createdTable = loadTable('db', 'settings')
@@ -273,8 +273,8 @@ test('WhatDB', t => {
   db.arrayTable = [1,2,3, [4,5,6], {a:1}, [{b:2}]]
   db.objectTable = {a:1, b:2, c: [1,2,3, [4,5,6], {a:1}, [{b:2}]]}
 
-  const expectedArrayTablePath = path.join(databasePath, 'arrayTable.json')
-  const expectedObjectTablePath = path.join(databasePath, 'objectTable.json')
+  const expectedArrayTablePath = path.join(databasePath, 'arrayTable.js')
+  const expectedObjectTablePath = path.join(databasePath, 'objectTable.js')
 
   t.ok(fs.existsSync(expectedArrayTablePath), 'table from array persisted as expected')
   t.ok(fs.existsSync(expectedObjectTablePath), 'table from object persisted as expected')

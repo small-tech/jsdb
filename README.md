@@ -13,6 +13,7 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [*] Document persistence (19 Sept)
   - [*] Add persistence example (19 Sept)
   - [*] Implement queries (22 Sept)
+  - [ ] Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes.
   - [ ] Add unit tests for queries
   - [ ] Document queries
   - [ ] Add queries example
@@ -44,10 +45,10 @@ db.people = [
   {name: 'Laura', age: 34}
 ]
 
-// Correct Laura’s age. (This will automatically update test/people.json)
+// Correct Laura’s age. (This will automatically update db/people.js)
 db.people[1].age = 33
 
-// Add Oskar to the family. (This will automatically update test/people.json)
+// Add Oskar to the family. (This will automatically update db/people.js)
 db.people.push({name: 'Oskar', age: 8})
 ```
 
