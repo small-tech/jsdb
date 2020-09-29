@@ -2,7 +2,6 @@
 
 __Work in progress:__ A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.
 
-
 __Needless to say, this is not ready for use yet. But feel free to take a look around.__
 
 ## Roadmap
