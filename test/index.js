@@ -84,14 +84,14 @@ test('basic persistence', t => {
   // Property update.
   //
 
-  // Listen for the save event.
+  // Listen for the persist event.
   let actualWriteCount = 0
   const tableListener = table => {
 
     actualWriteCount++
 
     if (actualWriteCount === 1) {
-      t.strictEquals(table.tableName, 'people', 'the correct table is saved')
+      t.strictEquals(table.tableName, 'people', 'the correct table is persisted')
       t.strictEquals(expectedWriteCount, actualWriteCount, 'write 1: expected number of writes has taken place')
 
       t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 1: original object and data in table are same after property update')
@@ -164,7 +164,7 @@ test('concurrent updates', t => {
   let handlerInvocationCount = 0
 
   // TODO: Pull out handler and removeListener before test end.
-  db.settings.__table__.addListener('save', table => {
+  db.settings.__table__.addListener('persist', table => {
 
     handlerInvocationCount++
 
@@ -176,7 +176,7 @@ test('concurrent updates', t => {
       const persistedTable = loadTable('db', 'settings')
       const originalColours = {red: '#FF5555', green: '#55FF55', magenta: '#FF55FF'}
 
-      t.strictEquals(persistedTable.darkMode, 'always-on', 'write 1: updated value is correctly saved')
+      t.strictEquals(persistedTable.darkMode, 'always-on', 'write 1: updated value is correctly persisted')
       t.strictEquals(JSON.stringify(persistedTable.colours), JSON.stringify(originalColours), 'write 1: unchanged values are unchanged as expected')
 
     } else if (handlerInvocationCount === 2) {
@@ -200,7 +200,7 @@ test('concurrent updates', t => {
 
       t.end()
     } else {
-      t.fail('save handler called too many times')
+      t.fail('persist handler called too many times')
     }
   })
 
@@ -297,8 +297,8 @@ test('WhatDB', t => {
   t.ok(fs.existsSync(expectedArrayTablePath), 'table from array persisted as expected')
   t.ok(fs.existsSync(expectedObjectTablePath), 'table from object persisted as expected')
 
-  t.strictEquals(loadTable('db', 'arrayTable'), JSON.stringify(db.arrayTable, null, 2), 'persisted array table matches in-memory data')
-  t.strictEquals(loadTable('db', 'objectTable'), JSON.stringify(db.objectTable, null, 2), 'persisted object table matched in-memory data')
+  t.strictEquals(JSON.stringify(loadTable('db', 'arrayTable')), JSON.stringify(db.arrayTable), 'persisted array table matches in-memory data')
+  t.strictEquals(JSON.stringify(loadTable('db', 'objectTable')), JSON.stringify(db.objectTable), 'persisted object table matched in-memory data')
 
   t.end()
 })
