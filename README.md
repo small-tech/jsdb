@@ -6,12 +6,12 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
 
 ## Roadmap
 
-  - [*] Implement persistence (15 Sept)
-  - [*] Add unit tests for persistence (19 Sept)
-  - [*] Document persistence (19 Sept)
-  - [*] Add persistence example (19 Sept)
-  - [*] Implement queries (22 Sept)
-  - [*] Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes (29 Sept)
+  - [x] Implement persistence (15 Sept)
+  - [x] Add unit tests for persistence (19 Sept)
+  - [x] Document persistence (19 Sept)
+  - [x] Add persistence example (19 Sept)
+  - [x] Implement queries (22 Sept)
+  - [x] Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes (29 Sept)
   - [ ] Update documentation to reflect new persistence engine.
   - [ ] Add unit tests for queries
   - [ ] Document queries
