@@ -42,6 +42,13 @@ function loadTable (databaseName, tableName) {
   return _
 }
 
+
+function loadTableSource (databaseName, tableName) {
+  const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
+  return fs.readFileSync(tablePath)
+}
+
+
 const databasePath = path.join(__dirname, 'db')
 
 class AClass {}
@@ -164,43 +171,39 @@ test('concurrent updates', t => {
   let handlerInvocationCount = 0
 
   // TODO: Pull out handler and removeListener before test end.
-  db.settings.__table__.addListener('persist', table => {
+  const persistedChanges = []
+  db.settings.__table__.addListener('persist', (table, change) => {
 
     handlerInvocationCount++
 
-    if (handlerInvocationCount === 1) {
-      //
-      // After the first save, we expect darkMode to be 'always-on'
-      // and the colours to be the original ones.
-      //
-      const persistedTable = loadTable('db', 'settings')
-      const originalColours = {red: '#FF5555', green: '#55FF55', magenta: '#FF55FF'}
+    if (handlerInvocationCount > 3) {
+      t.fail('persist handler called too many times')
+    }
 
-      t.strictEquals(persistedTable.darkMode, 'always-on', 'write 1: updated value is correctly persisted')
-      t.strictEquals(JSON.stringify(persistedTable.colours), JSON.stringify(originalColours), 'write 1: unchanged values are unchanged as expected')
+    const expectedChanges = [
+      '_[\'darkMode\'] = `always-on`\n',
+      '_[\'colours\'] = JSON.parse(`{"red":"#AA0000","green":"#00AA00","magenta":"#AA00AA"}`)\n',
+      'delete _[\'colours\']\n'
+    ]
 
-    } else if (handlerInvocationCount === 2) {
-      //
-      // After the second save, the state of the persisted table should
-      // match the state of the in-memory one.
-      //
-      const persistedTable = loadTable('db', 'settings')
-      t.strictEquals(JSON.stringify(persistedTable), JSON.stringify(settings), 'write 2: persisted table matches in-memory table')
+    if (!expectedChanges.includes(change)) {
+      t.fail(`Unexpected change: ${change.replace('\n', '')}`)
+    }
 
+    const tableSource = loadTableSource('db', 'settings')
+
+    t.ok(tableSource.includes(change), `table source includes change #${handlerInvocationCount}`)
+
+    persistedChanges.push(change)
+
+    if (handlerInvocationCount === 2) {
       // Trigger a new change.
       delete db.settings.colours
+    }
 
-    } else if (handlerInvocationCount === 3) {
-      //
-      // After the third save, the colours object should be deleted.
-      //
-      t.strictEquals(settings.colours, undefined, 'write 3: object confirmed as deleted from in-memory table')
-      const persistedTable = loadTable('db', 'settings')
-      t.strictEquals(JSON.stringify(persistedTable), JSON.stringify(settings), 'write 3: persisted table matches in-memory table')
-
+    if (handlerInvocationCount === 3) {
+      t.strictEquals(JSON.stringify(expectedChanges), JSON.stringify(persistedChanges), 'all changes persisted')
       t.end()
-    } else {
-      t.fail('persist handler called too many times')
     }
   })
 
