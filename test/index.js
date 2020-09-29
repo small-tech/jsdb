@@ -26,12 +26,16 @@ const readlineSync = require('@jcbuisson/readlinesync')
 function loadTable (databaseName, tableName) {
   const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
 
-  console.log(tablePath)
-
   // Load the table line by line. We don’t use require here as we don’t want it getting cached.
   const lines = readlineSync(tablePath)
+
+  // Handle the header manually.
+  eval(lines.next().value) // Create the correct root object of the object graph and assign it to const _.
+  eval(lines.next().value) // Set the id of the root object.
+  lines.next()       // Skip the require() statement in the header.
+
+  // Load in the rest of the data.
   for (let line of lines) {
-    console.log('>>>', line)
     eval(line)
   }
 
