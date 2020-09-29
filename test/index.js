@@ -30,9 +30,8 @@ function loadTable (databaseName, tableName) {
   const lines = readlineSync(tablePath)
 
   // Handle the header manually.
-  eval(lines.next().value) // Create the correct root object of the object graph and assign it to const _.
-  eval(lines.next().value) // Set the id of the root object.
-  lines.next()       // Skip the require() statement in the header.
+  eval(lines.next().value) // Create the correct root object of the object graph and assign it to variable _.
+  lines.next()             // Skip the require() statement in the header.
 
   // Load in the rest of the data.
   for (let line of lines) {
@@ -65,7 +64,7 @@ test('basic persistence', t => {
   t.ok(fs.existsSync(databasePath), 'database is created')
 
   //
-  // Table creation.
+  // Table creation (synchronous).
   //
 
   db.people = people
@@ -78,6 +77,8 @@ test('basic persistence', t => {
 
   const createdTable = loadTable('db', 'people')
   t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.people), 'persisted table matches in-memory table')
+
+  // TODO: test compacting.
 
   //
   // Property update.
@@ -96,7 +97,7 @@ test('basic persistence', t => {
       t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 1: original object and data in table are same after property update')
 
       const updatedTable = loadTable('db', 'people')
-      t.strictEquals(updatedTable, JSON.stringify(db.people, null, 2), 'write 1: persisted table matches in-memory table after property update')
+      t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 1: persisted table matches in-memory table after property update')
 
       //
       // Update two properties within the same stack frame.
@@ -111,9 +112,9 @@ test('basic persistence', t => {
       t.strictEquals(expectedWriteCount, actualWriteCount, 'write 2: expected number of writes has taken place')
       t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 2: original object and data in table are same after property update')
       const updatedTable = loadTable('db', 'people')
-      t.strictEquals(updatedTable, JSON.stringify(db.people, null, 2), 'write 2: persisted table matches in-memory table after property update')
+      t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 2: persisted table matches in-memory table after property update')
 
-      db.people.__table__.removeListener('save', tableListener)
+      db.people.__table__.removeListener('persist', tableListener)
 
       //
       // Table loading.
@@ -130,7 +131,7 @@ test('basic persistence', t => {
       t.end()
     }
   }
-  db.people.__table__.addListener('save', tableListener)
+  db.people.__table__.addListener('persist', tableListener)
 
   // Update a property
   let expectedWriteCount = 1
@@ -158,7 +159,7 @@ test('concurrent updates', t => {
   t.ok(fs.existsSync(expectedTablePath), 'table is created')
 
   const createdTable = loadTable('db', 'settings')
-  t.strictEquals(createdTable, JSON.stringify(db.settings, null, 2), 'persisted table matches in-memory table')
+  t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.settings), 'persisted table matches in-memory table')
 
   let handlerInvocationCount = 0
 
@@ -172,7 +173,7 @@ test('concurrent updates', t => {
       // After the first save, we expect darkMode to be 'always-on'
       // and the colours to be the original ones.
       //
-      const persistedTable = JSON.parse(loadTable('db', 'settings'))
+      const persistedTable = loadTable('db', 'settings')
       const originalColours = {red: '#FF5555', green: '#55FF55', magenta: '#FF55FF'}
 
       t.strictEquals(persistedTable.darkMode, 'always-on', 'write 1: updated value is correctly saved')
@@ -184,7 +185,7 @@ test('concurrent updates', t => {
       // match the state of the in-memory one.
       //
       const persistedTable = loadTable('db', 'settings')
-      t.strictEquals(persistedTable, JSON.stringify(settings, null, 2), 'write 2: persisted table matches in-memory table')
+      t.strictEquals(JSON.stringify(persistedTable), JSON.stringify(settings), 'write 2: persisted table matches in-memory table')
 
       // Trigger a new change.
       delete db.settings.colours
@@ -195,7 +196,7 @@ test('concurrent updates', t => {
       //
       t.strictEquals(settings.colours, undefined, 'write 3: object confirmed as deleted from in-memory table')
       const persistedTable = loadTable('db', 'settings')
-      t.strictEquals(persistedTable, JSON.stringify(settings, null, 2), 'write 3: persisted table matches in-memory table')
+      t.strictEquals(JSON.stringify(persistedTable), JSON.stringify(settings), 'write 3: persisted table matches in-memory table')
 
       t.end()
     } else {
