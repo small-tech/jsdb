@@ -1,7 +1,7 @@
 {
-  "name": "@small-tech/whatdb",
+  "name": "@small-tech/jsdb",
   "version": "1.0.0",
-  "description": "A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.",
+  "description": "A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.",
   "main": "index.js",
   "scripts": {
     "test": "tape test/*.js | tap-spec",
