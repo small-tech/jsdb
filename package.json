@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://source.small-tech.org/site.js/lib/whatdb"
+    "url": "https://source.small-tech.org/site.js/lib/jsdb"
   },
   "keywords": [
     "javascript",
@@ -17,10 +17,11 @@
     "transparent",
     "small",
     "web",
-    "json",
     "in-memory",
     "in-process",
     "proxy",
+    "transaction log",
+    "streaming",
     "metaprogramming"
   ],
   "author": "Aral Balkan",

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// WhatDB tests.
+// JSDB tests.
 //
 // Copyright ⓒ 2020 Aral Balkan. Licensed under AGPLv3 or later.
 // Shared with ♥ by the Small Technology Foundation.
@@ -17,7 +17,7 @@ const test = require('tape')
 const fs = require('fs-extra')
 const path = require('path')
 
-const WhatDB = require('..')
+const JSDB = require('..')
 const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
@@ -66,7 +66,7 @@ test('basic persistence', t => {
     {"name":"laura","age":34}
   ]
 
-  let db = new WhatDB(databasePath)
+  let db = new JSDB(databasePath)
 
   t.ok(fs.existsSync(databasePath), 'database is created')
 
@@ -131,7 +131,7 @@ test('basic persistence', t => {
 
       db = null
 
-      db = new WhatDB(databasePath)
+      db = new JSDB(databasePath)
 
       t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
 
@@ -158,7 +158,7 @@ test('concurrent updates', t => {
     }
   }
 
-  const db = new WhatDB(databasePath)
+  const db = new JSDB(databasePath)
 
   db.settings = settings
 
@@ -277,11 +277,11 @@ test ('Util', t => {
   t.end()
 })
 
-test('WhatDB', t => {
+test('JSDB', t => {
   // Ensure database does not exist.
   fs.removeSync(databasePath)
 
-  const db = new WhatDB(databasePath)
+  const db = new JSDB(databasePath)
 
   t.throws(() => { db.invalid = null      }, 'attempting to create null table throws')
   t.throws(() => { db.invalid = undefined }, 'attempting to create undefined table throws')

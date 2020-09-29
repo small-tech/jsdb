@@ -1,4 +1,4 @@
-const WhatDB = require('../..')
+const JSDB = require('../..')
 const dummyJSON = require('dummy-json')
 const { performance } = require('perf_hooks')
 const process = require('process')
@@ -51,14 +51,14 @@ if (generate) {
   console.log(`Ensuring database does not exist.`)
   fs.removeSync(path.resolve('./db'))
 
-  db = new WhatDB('db')
+  db = new JSDB('db')
 
   s = performance.now()
   db.accounts = data
   e = performance.now()
   console.log(`Database initialisation took ${e-s} ms for ${numberOfRecordsToGenerate} records.`)
 } else {
-  db = new WhatDB('db')
+  db = new JSDB('db')
 }
 
 console.log('\n=== Testing property access. ===\n')

@@ -1,6 +1,6 @@
-const WhatDB = require('../..')
+const JSDB = require('../..')
 
-const db = new WhatDB('db')
+const db = new JSDB('db')
 
 // console.log('===>', db.people.where('name').is('Aral')[0].pet='Oskar')
 
