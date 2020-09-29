@@ -1,8 +1,8 @@
-const WhatDB = require('../..')
+const JSDB = require('../..')
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
-const db = new WhatDB('db')
+const db = new JSDB('db', /* delete if exists? */ true)
 
 // Create test/people.json with some data.
 db.people = [
@@ -10,8 +10,10 @@ db.people = [
   {name: 'Laura', age: 34}
 ]
 
-// Correct Laura’s age. (This will automatically update test/people.json)
+// Correct Laura’s age. (This will automatically update db/people.js)
 db.people[1].age = 33
 
-// Add Oskar to the family. (This will automatically update test/people.json)
+// Add Oskar to the family. (This will automatically update db/people.js)
 db.people.push({name: 'Oskar', age: 8})
+
+db.people[2].name = 'Osky'

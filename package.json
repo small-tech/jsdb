@@ -1,7 +1,7 @@
 {
-  "name": "@small-tech/whatdb",
+  "name": "@small-tech/jsdb",
   "version": "1.0.0",
-  "description": "A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.",
+  "description": "A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.",
   "main": "index.js",
   "scripts": {
     "test": "tape test/*.js | tap-spec",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://source.small-tech.org/site.js/lib/whatdb"
+    "url": "https://source.small-tech.org/site.js/lib/jsdb"
   },
   "keywords": [
     "javascript",
@@ -17,16 +17,17 @@
     "transparent",
     "small",
     "web",
-    "json",
     "in-memory",
     "in-process",
     "proxy",
+    "transaction log",
+    "streaming",
     "metaprogramming"
   ],
   "author": "Aral Balkan",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "fast-write-atomic": "^0.2.1",
+    "@jcbuisson/readlinesync": "^1.0.0",
     "fs-extra": "^9.0.1"
   },
   "devDependencies": {

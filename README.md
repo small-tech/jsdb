@@ -1,8 +1,6 @@
-# WhatDB?
+# JavaScript Database (JSDB)
 
-__Work in progress:__ A transparent, in-memory, write-on-update JavaScript database for Small Web applications that persists to JSON files.
-
-For initial brainstorming, see [this gist](https://gist.github.com/aral/fc4115fdf338e02d735ae58e245817ce).
+__Work in progress:__ A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.
 
 __Needless to say, this is not ready for use yet. But feel free to take a look around.__
 
@@ -13,6 +11,8 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [*] Document persistence (19 Sept)
   - [*] Add persistence example (19 Sept)
   - [*] Implement queries (22 Sept)
+  - [*] Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes (29 Sept)
+  - [ ] Update documentation to reflect new persistence engine.
   - [ ] Add unit tests for queries
   - [ ] Document queries
   - [ ] Add queries example
@@ -32,11 +32,11 @@ Currently, you need to clone the repo as this is a work-in-progress and no relea
 Here’s a quick example to whet your appetite:
 
 ```js
-const WhatDB = require('.')
+const JSDB = require('.')
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
-const db = new WhatDB('db')
+const db = new JSDB('db')
 
 // Create test/people.json with some data.
 db.people = [
@@ -44,26 +44,59 @@ db.people = [
   {name: 'Laura', age: 34}
 ]
 
-// Correct Laura’s age. (This will automatically update test/people.json)
+// Correct Laura’s age. (This will automatically update db/people.js)
 db.people[1].age = 33
 
-// Add Oskar to the family. (This will automatically update test/people.json)
+// Add Oskar to the family. (This will automatically update db/people.js)
 db.people.push({name: 'Oskar', age: 8})
 ```
 
-After running the above script, try this one:
+After running the above script, take a look at the resulting database table in the `./db/people.js` file.
+
+JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is a plain JavaScript file that comprises an append-only transaction log that creates the table in memory. For our example, it looks like this:
 
 ```js
-const WhatDB = require('.')
-
-// This will load test database with the people table we created earlier.
-const db = new WhatDB('db')
-
-// Let’s make sure Oskar’s in there… ;)
-console.log(db.people[2])
+globalThis._ = [];
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+_[0] = JSON.parse(`{"name":"Aral","age":43}`);
+_[1] = JSON.parse(`{"name":"Laura","age":34}`);
+_[1]['age'] = 33;
+_[2] = JSON.parse(`{"name":"Oskar","age":8}`);
+_['length'] = 3;
+_[2]['name'] = `Osky`;
 ```
 
-(You can find these in the `examples/basic` folder of the source code, in the `run-me-first.js` and `run-me-next.js` scripts, respectively.)
+Given that a JSDF file is just JavaScript, and includes a [UMD](https://github.com/umdjs/umd)-like declaration in its header (the first two lines), you can simply `require()` it as a module in Node.js or even load it in a script tag.
+
+For example, create an _index.html_ file with the following content in the same folder as the other script and serve it locally using [Site.js](https://sitejs.org) and you will see the data printed out in your browser:
+
+```html
+<script src="db/people.js"></script>
+<h1>People</h1>
+<ul>
+<script>
+  people.forEach(person => {
+    document.write(`<li>${person.name} (${person.age} years old)</li>`)
+  })
+</script>
+</ul>
+```
+
+Of course, when you load the data in directly, you are not running it inside JSDB so you cannot update the data or use the JavaScript Query Language (JSQL) to query it.
+
+To test that out, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
+
+```js
+const JSDB = require('.')
+
+// This will load test database with the people table we created earlier.
+const db = new JSDB('db')
+
+// Let’s carry out a query that should find us Osky.
+console.log(db.people.where('age').isLessThan(21).get())
+```
+
+(You can find these examples in the `examples/basic` folder of the source code.)
 
 ## Use case
 
@@ -71,7 +104,7 @@ A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-w
 
 ## Features
 
-  - __Transparent:__ if you know how to work with arrays and objects and call methods in JavaScript, you already know how to use WhatDB? It’s not called “What database?” for nothing. Database? What database?
+  - __Transparent:__ if you know how to work with arrays and objects and call methods in JavaScript, you already know how to use JSDB? It’s not called JavaScript Database for nothing.
 
   - __Automatic:__ it just works. No configuration.
 
@@ -79,25 +112,25 @@ A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-w
 
   - __Small Data:__ this is for small data, not Big Data™.
 
-  - __For Node.js:__ will not work in the browser.
+  - __For Node.js:__ will not work in the browser. (Although the data table can be loaded in the browser.)
 
   - __Runs on untrusted nodes:__ this is for data kept on untrusted (server) nodes. Use it judiciously if you must for public data, configuration data, etc. If you want to store personal data or model human communication, consider end-to-end encrypted and peer-to-peer replicating data structures instead to protect privacy and freedom of speech. Keep an eye on the work taking place around the [Hypercore Protocol](https://hypercore-protocol.org/).
 
-  - __In-memory:__ all data is kept in memory and, [without tweaks, cannot exceed 1.4GB in size](https://www.the-data-wrangler.com/nodejs-memory-limits/). If your local database is > 1 GB in size, you’re not really building a Small Web site/app and this is not the tool for you. Quite literally every other database out there is for your use case so please don’t open an issue here for this reason.
+  - __In-memory:__ all data is kept in memory and, [without tweaks, cannot exceed 1.4GB in size](https://www.the-data-wrangler.com/nodejs-memory-limits/). While JSDB will work with large datasets, that’s not its primary purpose and it’s definitely not here to help you farm people for their data, so please don’t use it for that. (If that’s what you want, quite literally every other database out there is for your use case so please use one of those instead.)
 
-  - __Write-on-update__: every update will trigger a full flush of the database to disk (unless a write is already in process, in which case updates that take place during a write will be batch written together). So this is not what you should be using for, say, logging. Use an append-only log for that instead.
+  - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on my development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
 
-  - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local data. If you want schemas and migrations, take a look at nearly every other database out there. You might also want to see how well [ObjectModel](https://github.com/sylvainpolletvillard/ObjectModel) works alongside WhatDB.
+  - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local server-side data. If you want schemas and migrations, take a look at nearly every other database out there.
 
 ## Events
 
-Given that a core goal for WhatDB is to be transparent, you will mostly feel like you’re working with regular JavaScript collections (objects and arrays). At times, however, it might be useful to have access to the underlying abstractions like the table object. One of those instances is if you want to be notified of events.
+Given that a core goal for JSDB is to be transparent, you will mostly feel like you’re working with regular JavaScript collections (objects and arrays). At times, however, it might be useful to have access to the underlying abstractions like the table object. One of those instances is if you want to be notified of events.
 
 To listen for an event, access the special `__table__` property of your collection. e.g.,
 
 ```js
-db.people.__table__.addListener('save', table => {
-  console.log(`Table ${table.tableName} persisted to disk.`)
+db.people.__table__.addListener('persist', (table, change) => {
+  console.log(`Table ${table.tableName} persisted change ${change.replace('\n', '')} to disk.`)
 })
 ```
 
@@ -105,41 +138,27 @@ db.people.__table__.addListener('save', table => {
 
 | Event name | Description                           |
 | ---------- | ------------------------------------- |
-| save       | The table has been persisted to disk. |
+| persist    | The table has been persisted to disk. |
 
 ## Performance characteristics
 
-Once again, keep in mind that WhatDB is __for small data sets__ and favours ease-of-use and data safety above all else. That said, here are priliminary performance stats on my development machine (Intel i7-8550U (8) @ 4.000GHz, 16GB RAM).
+  - Reads are fast (take fraction of a milisecond and are about an order of magnitude slower than direct memory reads).
+  - Writes are fast (in the order of a couple of miliseconds on tests on my dev machine).
 
-With `examples/performance` run to generate 100,000 records, taking up ~18MB on disk, with records similar to:
+## Limits
 
-```json
-[
-  {
-    "id": "b01b0c58-7b38-49f7-b2a1-06245525df57",
-    "domain": "coremax.me",
-    "email": "stephen.brandt@coremax.me",
-    "stripeId": "ff1a984b-a3a3-4332-9fc4-4f8315e8f6b7"
-  }
-]
-```
+  - Your database size is limited by available memory.
+  - If your database size is larger than > 1GB, you should start your node process with a larger heap size than the default (~1.4GB). E.g., to set aside 8GB of heap space:
 
-(All data randomly generated.)
-
-We currently get performance in the ballpark of:
-
-### Reads
-
-  - 0.00055ms (Node.js native reads clock at ~0.00005ms)
-
-### Writes
-
-  - Serialisation (synchronous): 240.319 ms
-  - Persisting to disk (asynchronous): 50-140ms
+  ```
+  node --max-old-space-size=8192 why-is-my-database-so-large-i-hope-im-not-doing-anything-shady.js
+  ```
 
 ## Memory Usage
 
-The reason WhatDB is fast is because it keeps the whole database in memory. Also, to provide a transparent persistence and query API, it maintains a parallel object structure of proxies. This means that the amount of memory used will be multiples of the size of your database on disk.
+__TODO: THIS SECTION NEEDS TO BE RE-WRITTEN WITH STATS FOR THE NEW STREAMING TRANSACTION LOG__
+
+<strike>The reason JSDB is fast is because it keeps the whole database in memory. Also, to provide a transparent persistence and query API, it maintains a parallel object structure of proxies. This means that the amount of memory used will be multiples of the size of your database on disk.
 
 For example, using the simple performance example above, we clock:
 
@@ -147,7 +166,7 @@ For example, using the simple performance example above, we clock:
 | ----------------- | ------------------ | ----------- |
 | 1,000             | 183K               | 6.62MB      |
 | 10,000            | 1.8MB              | 15.67MB     |
-| 100,000           | 18MB               | 74.50MB     |
+| 100,000           | 18MB               | 74.50MB     |</strike>
 
 ## Developing
 
@@ -161,6 +180,7 @@ For code coverage, run `npm run coverage`.
 
 ## Related projects, inspiration, etc.
 
+  - [Initial brainstorming (query language)](https://gist.github.com/aral/fc4115fdf338e02d735ae58e245817ce)
   - [proxy-fun](https://github.com/mikaelbr/awesome-es2015-proxy)
   - [filejson](https://github.com/bchr02/filejson)
   - [Declaraoids](https://github.com/Matsemann/Declaraoids/blob/master/src/declaraoids.js)
