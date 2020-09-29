@@ -53,6 +53,8 @@ db.people.push({name: 'Oskar', age: 8})
 
 After running the above script, take a look at the resulting database table in the `./db/people.js` file.
 
+## JavaScript Data Format (JSDF)
+
 JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is a plain JavaScript file that comprises an append-only transaction log that creates the table in memory. For our example, it looks like this:
 
 ```js
@@ -65,6 +67,10 @@ _[2] = JSON.parse(`{"name":"Oskar","age":8}`);
 _['length'] = 3;
 _[2]['name'] = `Osky`;
 ```
+
+(Note: the format is a work-in-progress like the rest of the project at the moment. I am considering cleaning up the superfluous length statements and weighing up the performance hit of maintaining state to enable that versus the potential use cases of a cleaner log – like history replay for example – and file size/initial load speed, which is really not too much of a concern given that they occur at server start for our use cases).
+
+## It’s just JavaScript!
 
 Given that a JSDF file is just JavaScript, and includes a [UMD](https://github.com/umdjs/umd)-like declaration in its header (the first two lines), you can simply `require()` it as a module in Node.js or even load it in a script tag.
 
@@ -82,6 +88,8 @@ For example, create an _index.html_ file with the following content in the same 
 </ul>
 ```
 
+## JavaScript Query Language (JSQL)
+
 Of course, when you load the data in directly, you are not running it inside JSDB so you cannot update the data or use the JavaScript Query Language (JSQL) to query it.
 
 To test that out, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
@@ -95,6 +103,31 @@ const db = new JSDB('db')
 // Let’s carry out a query that should find us Osky.
 console.log(db.people.where('age').isLessThan(21).get())
 ```
+
+## Compaction
+
+When you load in a JSDB table, by default JSDB will compact the JSDF file.
+
+Compaction is important for two reasons:
+
+  - It is when deleted data is actually deleted from disk. (Privacy.)
+  - It is when old version of updated data are actually removed. (Again, privacy.)
+
+Compaction will also reduce the size of your tables.
+
+You do have the option to override the default behaviour and keep all history. You might want to do this, for example, if you’re creating a web app that lets you create a drawing and you want to play the drawing back stroke by stroke, etc.
+
+Now that you’ve loaded the file back, look at the `./db/people.js` JSDF file again to see how it looks after compaction:
+
+```js
+globalThis._ = [];
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+_[0] = JSON.parse(`{"name":"Aral","age":43}`);
+_[1] = JSON.parse(`{"name":"Laura","age":33}`);
+_[2] = JSON.parse(`{"name":"Osky","age":8}`);
+```
+
+Ah, that is neater. You can see that Laura’s record is created with the correct age from the outset and Oskar’s name is set at Osky from the outset also.
 
 (You can find these examples in the `examples/basic` folder of the source code.)
 
@@ -166,7 +199,9 @@ For example, using the simple performance example above, we clock:
 | ----------------- | ------------------ | ----------- |
 | 1,000             | 183K               | 6.62MB      |
 | 10,000            | 1.8MB              | 15.67MB     |
-| 100,000           | 18MB               | 74.50MB     |</strike>
+| 100,000           | 18MB               | 74.50MB     |
+
+</strike>
 
 ## Developing
 
