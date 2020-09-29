@@ -181,9 +181,9 @@ test('concurrent updates', t => {
     }
 
     const expectedChanges = [
-      '_[\'darkMode\'] = `always-on`\n',
-      '_[\'colours\'] = JSON.parse(`{"red":"#AA0000","green":"#00AA00","magenta":"#AA00AA"}`)\n',
-      'delete _[\'colours\']\n'
+      '_[\'darkMode\'] = `always-on`;\n',
+      '_[\'colours\'] = JSON.parse(`{"red":"#AA0000","green":"#00AA00","magenta":"#AA00AA"}`);\n',
+      'delete _[\'colours\'];\n'
     ]
 
     if (!expectedChanges.includes(change)) {
