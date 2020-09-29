@@ -135,6 +135,8 @@ Ah, that is neater. You can see that Laura’s record is created with the correc
 
 A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) sites for basic public (e.g., anonymous comments on articles) or configuration data. Built for use in [Site.js](https://sitejs.org).
 
+__Not to farm people for their data.__ Surveillance capitalists can jog on now.
+
 ## Features
 
   - __Transparent:__ if you know how to work with arrays and objects and call methods in JavaScript, you already know how to use JSDB? It’s not called JavaScript Database for nothing.
