@@ -256,6 +256,42 @@ test('concurrent updates', t => {
 })
 
 
+test('Basic queries', t => {
+
+  const db = new JSDB(databasePath, { deleteIfExists: true })
+
+  const cars = [
+    { make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia" },
+    { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise" },
+    { make: "Honda", model: "Element", year: 2004, colour: "Orange" },
+    { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson" },
+    { make: "Hyundai", model: "Santa Fe", year: 2009, colour: "Turquoise" },
+    { make: "Toyota", model: "Avalon", year: 2005, colour: "Khaki" },
+    { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson" },
+    { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red" },
+    { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow" },
+    { make: "Lexus", model: "LX", year: 1997, colour: "Indigo" }
+  ]
+
+  db.cars = cars
+
+  //
+  // Relational operators.
+  //
+
+  // is, isEqualTo, and equals
+  const carWhereYearIs1991 = db.cars.where('year').is(1991).getFirst()
+  const carWhereYearIsEqualTo1991 = db.cars.where('year').isEqualTo(1991).getFirst()
+  const carWhereYearEquals1991 = db.cars.where('year').equals(1991).getFirst()
+
+  t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(cars[0]), 'is returns the expected result')
+  t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(carWhereYearIsEqualTo1991), 'is and isEqualTo are aliases')
+  t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(carWhereYearEquals1991), 'is and equals are aliases')
+
+  t.end()
+})
+
+
 test('Time', t => {
   const t1 = Time.mark()
   const t2 = Time.mark()
