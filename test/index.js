@@ -126,7 +126,19 @@ test('basic persistence', t => {
       // Persisted table format.
       //
 
+      const expectedTableSourceBeforeCompaction = `
+        globalThis._ = [];
+        (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+        _[0] = JSON.parse(\`{"name":"aral","age":44}\`);
+        _[1] = JSON.parse(\`{"name":"laura","age":34}\`);
+        _[0]['age'] = 21;
+        _[0]['age'] = 43;
+        _[1]['age'] = 33;
+      `
 
+      const actualTableSourceBeforeCompaction = loadTableSource('db', 'people')
+
+      t.strictEquals(dehydrate(actualTableSourceBeforeCompaction), dehydrate(expectedTableSourceBeforeCompaction), 'table source is as expected before compaction')
 
       //
       // Table loading (require).
@@ -143,10 +155,12 @@ test('basic persistence', t => {
       // Table compaction.
       //
 
-      const expectedTableSourceAfterCompaction = `globalThis._ = [];
-      (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-      _[0] = JSON.parse(\`{"name":"aral","age":43}\`);
-      _[1] = JSON.parse(\`{"name":"laura","age":33}\`);`
+      const expectedTableSourceAfterCompaction = `
+        globalThis._ = [];
+        (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+        _[0] = JSON.parse(\`{"name":"aral","age":43}\`);
+        _[1] = JSON.parse(\`{"name":"laura","age":33}\`);
+      `
 
       const actualTableSourceAfterCompaction = loadTableSource('db', 'people')
 
