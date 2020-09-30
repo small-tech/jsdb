@@ -354,6 +354,23 @@ test('Basic queries', t => {
   t.ok(carsWhereYearIsLessThanOrEqualTo1997Stringified.includes(JSON.stringify(cars[6])), '(<=) 1992 Mercedes-Benz is in results')
   t.ok(carsWhereYearIsLessThanOrEqualTo1997Stringified.includes(JSON.stringify(cars[9])), '(<=) 1997 Lexus is in results')
 
+  //
+  // Functional operators.
+  //
+
+  const carsWhereMakeStartsWithH = db.cars.where('make').startsWith('h').get()
+  const carsWhereMakeStartsWithHCaseSensitiveCorrectCase = db.cars.where('make').startsWithCaseSensitive('H').get()
+  const carsWhereMakeStartsWithHCaseSensitiveIncorrectCase = db.cars.where('make').startsWithCaseSensitive('h').get()
+
+  t.strictEquals(carsWhereMakeStartsWithH.length, 2, 'startsWith: 2 results returned')
+  t.strictEquals(carsWhereMakeStartsWithHCaseSensitiveCorrectCase.length, 2, 'startsWithCaseSensitive (correct case): 2 results returned')
+  t.strictEquals(JSON.stringify(carsWhereMakeStartsWithH), JSON.stringify(carsWhereMakeStartsWithHCaseSensitiveCorrectCase), 'startsWith and startsWithCaseSensitive (correct case) results are identical')
+
+  t.ok(JSON.stringify(carsWhereMakeStartsWithH).includes(JSON.stringify(cars[2])), 'startsWith h includes Honda')
+  t.ok(JSON.stringify(carsWhereMakeStartsWithH).includes(JSON.stringify(cars[4])), 'startsWith h includes Hyundai')
+
+  t.strictEquals(carsWhereMakeStartsWithHCaseSensitiveIncorrectCase.length, 0, 'startsWithCaseSensitive (incorrect case): no results returned')
+
   t.end()
 })
 
