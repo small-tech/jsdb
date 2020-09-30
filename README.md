@@ -13,7 +13,7 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x] Implement queries (22 Sept)
   - [x] Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes (29 Sept)
   - [x] Update documentation to reflect new persistence engine. (29 Sept)
-  - [ ] Update examples to work with new persistence engine.
+  - [x] Update examples to work with new persistence engine. (30 Sept)
   - [ ] Add unit tests for queries
   - [ ] Document queries
   - [ ] Add queries example
