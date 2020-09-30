@@ -260,17 +260,19 @@ test('Basic queries', t => {
 
   const db = new JSDB(databasePath, { deleteIfExists: true })
 
+  // Note: I know nothing about cars. This is randomly generated data. And I added the tags myself
+  // ===== to test the includes operator on an array property.
   const cars = [
-    { make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia" },
-    { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise" },
-    { make: "Honda", model: "Element", year: 2004, colour: "Orange" },
-    { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson" },
-    { make: "Hyundai", model: "Santa Fe", year: 2009, colour: "Turquoise" },
-    { make: "Toyota", model: "Avalon", year: 2005, colour: "Khaki" },
-    { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson" },
-    { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red" },
-    { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow" },
-    { make: "Lexus", model: "LX", year: 1997, colour: "Indigo" }
+    { make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia", tags: ['fun', 'sporty'] },
+    { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise", tags: ['regal', 'expensive'] },
+    { make: "Honda", model: "Element", year: 2004, colour: "Orange", tags: ['fun', 'affordable'] },
+    { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson", tags: ['sporty', 'expensive']},
+    { make: "Hyundai", model: "Santa Fe", year: 2009, colour: "Turquoise", tags: ['sensible', 'affordable'] },
+    { make: "Toyota", model: "Avalon", year: 2005, colour: "Khaki", tags: ['fun', 'affordable']},
+    { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson", tags: ['regal', 'expensive', 'fun']},
+    { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red", tags: ['fun', 'expensive', 'sporty']},
+    { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty']},
+    { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive'] }
   ]
 
   db.cars = cars
@@ -391,6 +393,25 @@ test('Basic queries', t => {
   t.ok(JSON.stringify(carsWhereMakeEndsWithBaru).includes(JSON.stringify(cars[3])), 'endsWith baru includes second Subaru')
 
   t.strictEquals(carsWhereMakeEndsWithBaruCaseSensitiveIncorrectCase.length, 0, 'endsWithCaseSensitive (incorrect case): no results returned')
+
+  //
+  // includes and includesCaseSensitive (string and object)
+  //
+
+  // String
+  const carsWhereMakeIncludesSu = db.cars.where('make').includes('SU').get()
+  const carsWhereMakeIncludesSuCaseSensitiveCorrectCase = db.cars.where('make').includesCaseSensitive('su').get()
+  const carsWhereMakeIncludesSuCaseSensitiveIncorrectCase = db.cars.where('make').includesCaseSensitive('SU').get()
+
+  t.strictEquals(carsWhereMakeIncludesSu.length, 3, 'includes: 2 results returned')
+  t.strictEquals(carsWhereMakeIncludesSuCaseSensitiveCorrectCase.length, 1, 'includesCaseSensitive (correct case): 1 result returned')
+  t.strictEquals(carsWhereMakeIncludesSuCaseSensitiveIncorrectCase.length, 0, 'includesCaseSensitive (incorrect case): no results returned')
+
+  t.ok(JSON.stringify(carsWhereMakeIncludesSu).includes(JSON.stringify(cars[0])), 'includes su includes first Subaru')
+  t.ok(JSON.stringify(carsWhereMakeIncludesSu).includes(JSON.stringify(cars[3])), 'includes su includes second Subaru')
+  t.ok(JSON.stringify(carsWhereMakeIncludesSu).includes(JSON.stringify(cars[8])), 'includes su includes Isuzu')
+
+  t.ok(JSON.stringify(carsWhereMakeIncludesSuCaseSensitiveCorrectCase).includes(JSON.stringify(cars[8])), 'includesCaseSensitive su (correct case) includes Isuzu')
 
   t.end()
 })
