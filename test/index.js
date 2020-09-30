@@ -282,6 +282,7 @@ test('Basic queries', t => {
   //
   // is, isEqualTo, and equals
   //
+
   const carWhereYearIs1991 = db.cars.where('year').is(1991).getFirst()
   const carWhereYearIsEqualTo1991 = db.cars.where('year').isEqualTo(1991).getFirst()
   const carWhereYearEquals1991 = db.cars.where('year').equals(1991).getFirst()
@@ -293,6 +294,7 @@ test('Basic queries', t => {
   //
   // isNot, doesNotEqual
   //
+
   const carsWhereYearIsNot1991 = db.cars.where('year').isNot(1991).get()
   const carsWhereYearDoesNotEqual1991 = db.cars.where('year').doesNotEqual(1991).get()
 
@@ -303,6 +305,7 @@ test('Basic queries', t => {
   //
   // isGreaterThan
   //
+
   const carsWhereYearIsGreaterThan2004 = db.cars.where('year').isGreaterThan(2004).get()
 
   t.strictEquals(carsWhereYearIsGreaterThan2004.length, 3, '(>) three results are returned')
@@ -315,6 +318,7 @@ test('Basic queries', t => {
   //
   // isGreaterThanOrEqualTo
   //
+
   const carsWhereYearIsGreaterThanOrEqualTo2005 = db.cars.where('year').isGreaterThanOrEqualTo(2005).get()
 
   t.strictEquals(carsWhereYearIsGreaterThanOrEqualTo2005.length, 3, '(>=) three results are returned')
@@ -324,6 +328,31 @@ test('Basic queries', t => {
   t.ok(carsWhereYearIsGreaterThanOrEqualTo2005Stringified.includes(JSON.stringify(cars[4])), '(>=) 2009 Hyundai is in results')
   t.ok(carsWhereYearIsGreaterThanOrEqualTo2005Stringified.includes(JSON.stringify(cars[3])), '(>=) 2011 Subaru is in results')
 
+  //
+  // isLessThan
+  //
+
+  const carsWhereYearIsLessThan2000 = db.cars.where('year').isLessThan(2000).get()
+
+  t.strictEquals(carsWhereYearIsLessThan2000.length, 3, '(<) three results are returned')
+  const carsWhereYearIsLessThan2000Stringified = JSON.stringify(carsWhereYearIsLessThan2000)
+
+  t.ok(carsWhereYearIsLessThan2000Stringified.includes(JSON.stringify(cars[0])), '(<) 1991 Subaru is in results')
+  t.ok(carsWhereYearIsLessThan2000Stringified.includes(JSON.stringify(cars[6])), '(<) 1992 Mercedes-Benz is in results')
+  t.ok(carsWhereYearIsLessThan2000Stringified.includes(JSON.stringify(cars[9])), '(<) 1997 Lexus is in results')
+
+  //
+  // isLessThanOrEqualTo
+  //
+
+  const carsWhereYearIsLessThanOrEqualTo1997 = db.cars.where('year').isLessThanOrEqualTo(1997).get()
+
+  t.strictEquals(carsWhereYearIsLessThanOrEqualTo1997.length, 3, '(=<) three results are returned')
+  const carsWhereYearIsLessThanOrEqualTo1997Stringified = JSON.stringify(carsWhereYearIsLessThanOrEqualTo1997)
+
+  t.ok(carsWhereYearIsLessThanOrEqualTo1997Stringified.includes(JSON.stringify(cars[0])), '(<=) 1991 Subaru is in results')
+  t.ok(carsWhereYearIsLessThanOrEqualTo1997Stringified.includes(JSON.stringify(cars[6])), '(<=) 1992 Mercedes-Benz is in results')
+  t.ok(carsWhereYearIsLessThanOrEqualTo1997Stringified.includes(JSON.stringify(cars[9])), '(<=) 1997 Lexus is in results')
 
   t.end()
 })
