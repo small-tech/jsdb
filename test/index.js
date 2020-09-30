@@ -436,6 +436,18 @@ test('Basic queries', t => {
 
   t.strictEquals(JSON.stringify(lastCrimsonCar), JSON.stringify(cars[6]), 'getLast(): last crimson car is the Mercedes-Benz')
 
+  //
+  // Connectives.
+  //
+
+  // and
+
+  const sportyCrimsonCars = db.cars.where('colour').is('Crimson').and('tags').includes('sporty').get()
+
+  t.strictEquals(sportyCrimsonCars.length, 1, 'connective (and): there is only one sporty crimson car')
+  t.strictEquals(JSON.stringify(sportyCrimsonCars[0]), JSON.stringify(cars[3]), 'connective (and): the sporty crimson car is the Impreza')
+
+  // or
 
   t.end()
 })
