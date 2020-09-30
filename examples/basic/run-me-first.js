@@ -2,7 +2,7 @@ const JSDB = require('../..')
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
-const db = new JSDB('db', /* delete if exists? */ true)
+const db = new JSDB('db', { deleteIfExists: true })
 
 // Create test/people.json with some data.
 db.people = [

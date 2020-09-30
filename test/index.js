@@ -54,9 +54,6 @@ const databasePath = path.join(__dirname, 'db')
 class AClass {}
 
 test('basic persistence', t => {
-  // Ensure database does not exist.
-  fs.removeSync(databasePath)
-
   //
   // Database creation.
   //
@@ -66,7 +63,7 @@ test('basic persistence', t => {
     {"name":"laura","age":34}
   ]
 
-  let db = new JSDB(databasePath)
+  let db = new JSDB(databasePath, { deleteIfExists: true })
 
   t.ok(fs.existsSync(databasePath), 'database is created')
 
@@ -146,9 +143,6 @@ test('basic persistence', t => {
 })
 
 test('concurrent updates', t => {
-  // Ensure database does not exist.
-  fs.removeSync(databasePath)
-
   const settings = {
     darkMode: 'auto',
     colours: {
@@ -158,7 +152,7 @@ test('concurrent updates', t => {
     }
   }
 
-  const db = new JSDB(databasePath)
+  const db = new JSDB(databasePath, { deleteIfExists: true })
 
   db.settings = settings
 
@@ -278,10 +272,7 @@ test ('Util', t => {
 })
 
 test('JSDB', t => {
-  // Ensure database does not exist.
-  fs.removeSync(databasePath)
-
-  const db = new JSDB(databasePath)
+  const db = new JSDB(databasePath, { deleteIfExists: true })
 
   t.throws(() => { db.invalid = null      }, 'attempting to create null table throws')
   t.throws(() => { db.invalid = undefined }, 'attempting to create undefined table throws')
