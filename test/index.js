@@ -18,6 +18,7 @@ const fs = require('fs-extra')
 const path = require('path')
 
 const JSDB = require('..')
+const JSTable = require('../lib/JSTable')
 const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
@@ -128,13 +129,12 @@ test('basic persistence', t => {
 
 
       //
-      // Table loading.
+      // Table loading (require).
       //
 
       const inMemoryStateOfPeopleTableFromOriginalDatabase = JSON.stringify(db.people)
 
       db = null
-
       db = new JSDB(databasePath)
 
       t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
@@ -142,7 +142,6 @@ test('basic persistence', t => {
       //
       // Table compaction.
       //
-
 
       const expectedTableSourceAfterCompaction = `globalThis._ = [];
       (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
@@ -152,6 +151,15 @@ test('basic persistence', t => {
       const actualTableSourceAfterCompaction = loadTableSource('db', 'people')
 
       t.strictEquals(dehydrate(actualTableSourceAfterCompaction), dehydrate(expectedTableSourceAfterCompaction), 'compaction works as expected')
+
+      //
+      // Table loading (line-by-line).
+      //
+      db = null
+      const tablePath = path.join(databasePath, 'people.js')
+      const peopleTable = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
+
+      t.strictEquals(JSON.stringify(peopleTable), inMemoryStateOfPeopleTableFromOriginalDatabase, 'line-by-line loaded data matches previous state of the in-memory table')
 
       t.end()
     }
