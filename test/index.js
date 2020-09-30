@@ -415,8 +415,7 @@ test('Basic queries', t => {
   t.ok(JSON.stringify(carsWhereMakeIncludesSuCaseSensitiveCorrectCase).includes(JSON.stringify(cars[8])), 'includesCaseSensitive su (correct case) includes Isuzu')
 
   // Object
-
-  // Note that object lookup with strings is always case sensitive since you’re looking up the actual object.
+  // (Note that object lookup with strings is always case sensitive since you’re looking up the actual object.)
   const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
   const carsThatAreRegalCaseSensitive = db.cars.where('tags').includesCaseSensitive('regal').get()
 
@@ -428,6 +427,15 @@ test('Basic queries', t => {
   t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[9])), 'includes (object) tagged with "regal" includes Lexus')
 
   t.strictEquals(JSON.stringify(carsThatAreRegal), JSON.stringify(carsThatAreRegalCaseSensitive), 'includes (object) includes and includesCaseSensitive behave the same way (case sensitive) for strings in object mode')
+
+  //
+  // getLast()
+  //
+
+  const lastCrimsonCar = db.cars.where('colour').is('Crimson').getLast()
+
+  t.strictEquals(JSON.stringify(lastCrimsonCar), JSON.stringify(cars[6]), 'getLast(): last crimson car is the Mercedes-Benz')
+
 
   t.end()
 })
