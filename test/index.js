@@ -45,9 +45,12 @@ function loadTable (databaseName, tableName) {
 
 function loadTableSource (databaseName, tableName) {
   const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
-  return fs.readFileSync(tablePath)
+  return fs.readFileSync(tablePath, 'utf-8')
 }
 
+function dehydrate (string) {
+  return string.replace(/\s/g, '')
+}
 
 const databasePath = path.join(__dirname, 'db')
 
@@ -82,9 +85,7 @@ test('basic persistence', t => {
   const createdTable = loadTable('db', 'people')
   t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.people), 'persisted table matches in-memory table')
 
-  // TODO: test compacting.
-
-  //
+   //
   // Property update.
   //
 
@@ -121,6 +122,12 @@ test('basic persistence', t => {
       db.people.__table__.removeListener('persist', tableListener)
 
       //
+      // Persisted table format.
+      //
+
+
+
+      //
       // Table loading.
       //
 
@@ -131,6 +138,20 @@ test('basic persistence', t => {
       db = new JSDB(databasePath)
 
       t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
+
+      //
+      // Table compaction.
+      //
+
+
+      const expectedTableSourceAfterCompaction = `globalThis._ = [];
+      (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+      _[0] = JSON.parse(\`{"name":"aral","age":43}\`);
+      _[1] = JSON.parse(\`{"name":"laura","age":33}\`);`
+
+      const actualTableSourceAfterCompaction = loadTableSource('db', 'people')
+
+      t.strictEquals(dehydrate(actualTableSourceAfterCompaction), dehydrate(expectedTableSourceAfterCompaction), 'compaction works as expected')
 
       t.end()
     }
