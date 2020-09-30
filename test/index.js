@@ -300,6 +300,18 @@ test('Basic queries', t => {
   t.strictEquals(carsWhereYearIsNot1991.length, 9, 'nine results are returned')
   t.notOk(JSON.stringify(carsWhereYearIsNot1991).includes('1991'), 'returned results do not include the first one')
 
+  //
+  // isGreaterThan
+  //
+  const carsWhereYearIsGreaterThan2004 = db.cars.where('year').isGreaterThan(2004).get()
+
+  t.strictEquals(carsWhereYearIsGreaterThan2004.length, 3, 'three results are returned')
+  const carsWhereYearIsGreaterThan2004Stringified = JSON.stringify(carsWhereYearIsGreaterThan2004)
+
+  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[5])), '2005 Toyota is in results')
+  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[4])), '2009 Hyundai is in results')
+  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[3])), '2011 Subaru is in results')
+
   t.end()
 })
 
