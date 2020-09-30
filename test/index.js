@@ -358,6 +358,10 @@ test('Basic queries', t => {
   // Functional operators.
   //
 
+  //
+  // startsWith and startsWithCaseSensitive
+  //
+
   const carsWhereMakeStartsWithH = db.cars.where('make').startsWith('h').get()
   const carsWhereMakeStartsWithHCaseSensitiveCorrectCase = db.cars.where('make').startsWithCaseSensitive('H').get()
   const carsWhereMakeStartsWithHCaseSensitiveIncorrectCase = db.cars.where('make').startsWithCaseSensitive('h').get()
@@ -370,6 +374,23 @@ test('Basic queries', t => {
   t.ok(JSON.stringify(carsWhereMakeStartsWithH).includes(JSON.stringify(cars[4])), 'startsWith h includes Hyundai')
 
   t.strictEquals(carsWhereMakeStartsWithHCaseSensitiveIncorrectCase.length, 0, 'startsWithCaseSensitive (incorrect case): no results returned')
+
+  //
+  // endsWith and endsWithCaseSensitive
+  //
+
+  const carsWhereMakeEndsWithBaru = db.cars.where('make').endsWith('BARU').get()
+  const carsWhereMakeEndsWithBaruCaseSensitiveCorrectCase = db.cars.where('make').endsWithCaseSensitive('baru').get()
+  const carsWhereMakeEndsWithBaruCaseSensitiveIncorrectCase = db.cars.where('make').endsWithCaseSensitive('Baru').get()
+
+  t.strictEquals(carsWhereMakeEndsWithBaru.length, 2, 'endsWith: 2 results returned')
+  t.strictEquals(carsWhereMakeEndsWithBaruCaseSensitiveCorrectCase.length, 2, 'endsWithCaseSensitive (correct case): 2 results returned')
+  t.strictEquals(JSON.stringify(carsWhereMakeEndsWithBaru), JSON.stringify(carsWhereMakeEndsWithBaruCaseSensitiveCorrectCase), 'endsWith and endsWithCaseSensitive (correct case) results are identical')
+
+  t.ok(JSON.stringify(carsWhereMakeEndsWithBaru).includes(JSON.stringify(cars[0])), 'endsWith baru includes first Subaru')
+  t.ok(JSON.stringify(carsWhereMakeEndsWithBaru).includes(JSON.stringify(cars[3])), 'endsWith baru includes second Subaru')
+
+  t.strictEquals(carsWhereMakeEndsWithBaruCaseSensitiveIncorrectCase.length, 0, 'endsWithCaseSensitive (incorrect case): no results returned')
 
   t.end()
 })
