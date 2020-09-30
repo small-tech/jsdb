@@ -459,7 +459,21 @@ test('Basic queries', t => {
   //
   // Complex custom query.
   //
-  // TODO.
+
+  // Cars that are either fun and affordable or regal and expensive.
+  const complexCustomQueryResult = db.cars.whereIsTrue(`(valueOf.tags.includes('fun') && valueOf.tags.includes('affordable')) || (valueOf.tags.includes('regal') && valueOf.tags.includes('expensive'))`).get()
+
+  t.strictEquals(complexCustomQueryResult.length, 5, 'complex custom query: returns 5 results')
+
+  const expectedResult =  [
+    { make: 'Chevrolet', model: 'Suburban 1500', year: 2004, colour: 'Turquoise', tags: [ 'regal', 'expensive' ] },
+    { make: 'Honda', model: 'Element', year: 2004, colour: 'Orange', tags: [ 'fun', 'affordable' ] },
+    { make: 'Toyota', model: 'Avalon', year: 2005, colour: 'Khaki', tags: [ 'fun', 'affordable' ] },
+    { make: 'Mercedes-Benz', model: '600SEL', year: 1992, colour: 'Crimson', tags: [ 'regal', 'expensive', 'fun' ] },
+    { make: 'Lexus', model: 'LX', year: 1997, colour: 'Indigo', tags: [ 'regal', 'expensive' ] }
+  ]
+
+  t.strictEquals(JSON.stringify(complexCustomQueryResult), JSON.stringify(expectedResult), 'complex custom query result is as expected')
 
   t.end()
 })
