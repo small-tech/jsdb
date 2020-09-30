@@ -283,6 +283,7 @@ test('Basic queries', t => {
 
   //
   // is, isEqualTo, and equals
+  // (also tests getFirst())
   //
 
   const carWhereYearIs1991 = db.cars.where('year').is(1991).getFirst()
@@ -412,6 +413,21 @@ test('Basic queries', t => {
   t.ok(JSON.stringify(carsWhereMakeIncludesSu).includes(JSON.stringify(cars[8])), 'includes su includes Isuzu')
 
   t.ok(JSON.stringify(carsWhereMakeIncludesSuCaseSensitiveCorrectCase).includes(JSON.stringify(cars[8])), 'includesCaseSensitive su (correct case) includes Isuzu')
+
+  // Object
+
+  // Note that object lookup with strings is always case sensitive since you’re looking up the actual object.
+  const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
+  const carsThatAreRegalCaseSensitive = db.cars.where('tags').includesCaseSensitive('regal').get()
+
+  t.strictEquals(carsThatAreRegal.length, 3, 'includes (object) tagged with "regal" returns 3 cars')
+  t.strictEquals(carsThatAreRegalCaseSensitive.length, 3, 'includes (object) tagged with "regal" returns 3 cars (CaseSensitive returns same result)')
+
+  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[1])), 'includes (object) tagged with "regal" includes Chevrolet')
+  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[6])), 'includes (object) tagged with "regal" includes Mercedes-Benz')
+  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[9])), 'includes (object) tagged with "regal" includes Lexus')
+
+  t.strictEquals(JSON.stringify(carsThatAreRegal), JSON.stringify(carsThatAreRegalCaseSensitive), 'includes (object) includes and includesCaseSensitive behave the same way (case sensitive) for strings in object mode')
 
   t.end()
 })
