@@ -179,8 +179,8 @@ db.people.__table__.addListener('persist', (table, change) => {
 ## Performance characteristics
 
   - The time complexity of reads and writes are both O(1).
-  - Reads are fast (take fraction of a milisecond and are about an order of magnitude slower than direct memory reads).
-  - Writes are fast (in the order of a couple of miliseconds on tests on my dev machine).
+  - Reads are fast (take fraction of a millisecond and are about an order of magnitude slower than direct memory reads).
+  - Writes are fast (in the order of a couple of milliseconds on tests on my dev machine).
 
 ## Limits
 
