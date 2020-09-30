@@ -1,6 +1,13 @@
 const JSDB = require('../..')
 
-const db = new JSDB('db')
+const db = new JSDB('db', { deleteIfExists: true })
+
+// Create test/people.json with some data.
+db.people = [
+  {name: 'Aral', age: 43},
+  {name: 'Laura', age: 34},
+  {name: 'Osky', age: 8}
+]
 
 // console.log('===>', db.people.where('name').is('Aral')[0].pet='Oskar')
 
