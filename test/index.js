@@ -297,20 +297,33 @@ test('Basic queries', t => {
   const carsWhereYearDoesNotEqual1991 = db.cars.where('year').doesNotEqual(1991).get()
 
   t.strictEquals(JSON.stringify(carsWhereYearIsNot1991), JSON.stringify(carsWhereYearDoesNotEqual1991), 'isNot and doesNotEqual are aliases')
-  t.strictEquals(carsWhereYearIsNot1991.length, 9, 'nine results are returned')
-  t.notOk(JSON.stringify(carsWhereYearIsNot1991).includes('1991'), 'returned results do not include the first one')
+  t.strictEquals(carsWhereYearIsNot1991.length, 9, 'isNot: nine results are returned')
+  t.notOk(JSON.stringify(carsWhereYearIsNot1991).includes('1991'), 'isNot: returned results do not include the first one')
 
   //
   // isGreaterThan
   //
   const carsWhereYearIsGreaterThan2004 = db.cars.where('year').isGreaterThan(2004).get()
 
-  t.strictEquals(carsWhereYearIsGreaterThan2004.length, 3, 'three results are returned')
+  t.strictEquals(carsWhereYearIsGreaterThan2004.length, 3, '(>) three results are returned')
   const carsWhereYearIsGreaterThan2004Stringified = JSON.stringify(carsWhereYearIsGreaterThan2004)
 
-  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[5])), '2005 Toyota is in results')
-  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[4])), '2009 Hyundai is in results')
-  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[3])), '2011 Subaru is in results')
+  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[5])), '(>) 2005 Toyota is in results')
+  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[4])), '(>) 2009 Hyundai is in results')
+  t.ok(carsWhereYearIsGreaterThan2004Stringified.includes(JSON.stringify(cars[3])), '(>) 2011 Subaru is in results')
+
+  //
+  // isGreaterThanOrEqualTo
+  //
+  const carsWhereYearIsGreaterThanOrEqualTo2005 = db.cars.where('year').isGreaterThanOrEqualTo(2005).get()
+
+  t.strictEquals(carsWhereYearIsGreaterThanOrEqualTo2005.length, 3, '(>=) three results are returned')
+  const carsWhereYearIsGreaterThanOrEqualTo2005Stringified = JSON.stringify(carsWhereYearIsGreaterThanOrEqualTo2005)
+
+  t.ok(carsWhereYearIsGreaterThanOrEqualTo2005Stringified.includes(JSON.stringify(cars[5])), '(>=) 2005 Toyota is in results')
+  t.ok(carsWhereYearIsGreaterThanOrEqualTo2005Stringified.includes(JSON.stringify(cars[4])), '(>=) 2009 Hyundai is in results')
+  t.ok(carsWhereYearIsGreaterThanOrEqualTo2005Stringified.includes(JSON.stringify(cars[3])), '(>=) 2011 Subaru is in results')
+
 
   t.end()
 })
