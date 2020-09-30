@@ -1,11 +1,11 @@
 const JSDB = require('../..')
-const dummyJSON = require('dummy-json')
 const { performance } = require('perf_hooks')
 const process = require('process')
 const Time = require('../../lib/Time')
 
 const fs = require('fs-extra')
 const path = require('path')
+const faker = require('faker')
 
 let generate = false
 let numberOfRecordsToGenerate = 10000
@@ -24,34 +24,15 @@ let db = null
 if (generate) {
   console.log(`Generating ${numberOfRecordsToGenerate} dummy records. Please wait…`)
 
-  const dummyDataTemplate = `
-  [
-    {{#repeat ${1000}}}
-    {
-      "id": "{{guid}}",
-      "domain": "{{domain}}",
-      "email": "{{email}}",
-      "stripeId": "{{guid}}"
-    }
-    {{/repeat}}
-  ]
-  `
-
   s = performance.now()
-  // Create only a 1,000 unique items and repeat them as generating new items is slow
-  // and fizzles out before 100,000 with the module we’re using.
-  const aThousandUniqueRecords = dummyJSON.parse(dummyDataTemplate)
-  let data = []
-  for (let j = 0; j < numberOfRecordsToGenerate/1000; j++) {
-    data = data.concat(JSON.parse(aThousandUniqueRecords))
+  const data = []
+  for (let i = 0; i < numberOfRecordsToGenerate; i++) {
+    data.push(faker.helpers.createCard())
   }
   e = performance.now()
   console.log(`Dummy data generation took ${e-s} ms for ${numberOfRecordsToGenerate} records.`)
 
-  console.log(`Ensuring database does not exist.`)
-  fs.removeSync(path.resolve('./db'))
-
-  db = new JSDB('db')
+  db = new JSDB('db', { deleteIfExists: true })
 
   s = performance.now()
   db.accounts = data
@@ -71,24 +52,21 @@ for (let i = 0; i < db.accounts.length; i++) {
 }
 console.log(`Gets took on average (${db.accounts.length} tries): ${(timings.reduce((p, c) => p + c, 0)/db.accounts.length).toFixed(5)}`)
 
+console.log(`The name on account #${db.accounts.length/2} is: ${db.accounts[db.accounts.length/2].name}`)
 
 console.log('\n=== Testing property change. ===\n')
 
 s = performance.now()
-db.accounts[db.accounts.length/2].domain = 'laurakalbag.com'
+db.accounts[db.accounts.length/2].name = 'Laura Kalbag'
 e = performance.now()
 console.log(`Updating a single field in ${db.accounts.length} records took ${e-s} ms.`)
 
-console.log('1 >>>', db.accounts[db.accounts.length/2].domain)
-
-setTimeout(() => {
-  console.log('<<<<< UPDATING THE DATABASE AGAIN, DURING A WRITE :) >>>>>>')
-  s = performance.now()
-  db.accounts[db.accounts.length/2].domain = 'ar.al'
-  e = performance.now()
-  console.log(`Updating a field took ${e-s} ms for ${db.accounts.length} records.`)
-  console.log('2 >>>', db.accounts[db.accounts.length/2].domain)
-}, 100)
+console.log('Updating table again, immediately.')
+s = performance.now()
+db.accounts[db.accounts.length/2].name = 'Aral Balkan'
+e = performance.now()
+console.log(`Updating table again took ${e-s} ms for ${db.accounts.length} records.`)
 
 const used = process.memoryUsage().heapUsed / 1024 / 1024;
+
 console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);

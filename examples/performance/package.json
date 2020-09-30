@@ -9,6 +9,6 @@
   "author": "Aral Balkan",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "dummy-json": "^3.0.1"
+    "faker": "^5.1.0"
   }
 }

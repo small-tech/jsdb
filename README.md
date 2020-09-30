@@ -178,6 +178,7 @@ db.people.__table__.addListener('persist', (table, change) => {
 
 ## Performance characteristics
 
+  - The time complexity of reads and writes are both O(1).
   - Reads are fast (take fraction of a milisecond and are about an order of magnitude slower than direct memory reads).
   - Writes are fast (in the order of a couple of miliseconds on tests on my dev machine).
 
@@ -192,19 +193,19 @@ db.people.__table__.addListener('persist', (table, change) => {
 
 ## Memory Usage
 
-__TODO: THIS SECTION NEEDS TO BE RE-WRITTEN WITH STATS FOR THE NEW STREAMING TRANSACTION LOG__
+The reason JSDB is fast is because it keeps the whole database in memory. Also, to provide a transparent persistence and query API, it maintains a parallel object structure of proxies. This means that the amount of memory used will be multiples of the size of your database on disk and exhibits O(N) memory complexity.
 
-<strike>The reason JSDB is fast is because it keeps the whole database in memory. Also, to provide a transparent persistence and query API, it maintains a parallel object structure of proxies. This means that the amount of memory used will be multiples of the size of your database on disk.
+Initial load time and full table write/compaction both exhibit O(N) time complexity.
 
-For example, using the simple performance example above, we clock:
+For example, here’s just one sample from a development laptop using the simple performance example in the examples folder which creates random records around ~2KB in size each:
 
-| Number of records | Table size on disk | Memory used |
-| ----------------- | ------------------ | ----------- |
-| 1,000             | 183K               | 6.62MB      |
-| 10,000            | 1.8MB              | 15.67MB     |
-| 100,000           | 18MB               | 74.50MB     |
+| Number of records | Table size on disk | Memory used | Initial load time | Full table write/compaction time |
+| ----------------- | ------------------ | ----------- | ----------------- | -------------------------------- |
+| 1,000             | 2.5MB              | 15.8MB      | 41.6ms            | 2.7 seconds                      |
+| 10,000            | 25MB               | 121.4MB     | 380.2ms           | 26 seconds                       |
+| 100,000           | 244MB              | 1.2GB       | 5.5 seconds       | 4.6 minutes                      |
 
-</strike>
+(The baseline app used about 14.6MB without any table in memory. The memory used column subtracts that from the total reported memory so as not to skew the smaller dataset results.)
 
 ## Developing
 
