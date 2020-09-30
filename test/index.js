@@ -279,7 +279,9 @@ test('Basic queries', t => {
   // Relational operators.
   //
 
+  //
   // is, isEqualTo, and equals
+  //
   const carWhereYearIs1991 = db.cars.where('year').is(1991).getFirst()
   const carWhereYearIsEqualTo1991 = db.cars.where('year').isEqualTo(1991).getFirst()
   const carWhereYearEquals1991 = db.cars.where('year').equals(1991).getFirst()
@@ -287,6 +289,16 @@ test('Basic queries', t => {
   t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(cars[0]), 'is returns the expected result')
   t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(carWhereYearIsEqualTo1991), 'is and isEqualTo are aliases')
   t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(carWhereYearEquals1991), 'is and equals are aliases')
+
+  //
+  // isNot, doesNotEqual
+  //
+  const carsWhereYearIsNot1991 = db.cars.where('year').isNot(1991).get()
+  const carsWhereYearDoesNotEqual1991 = db.cars.where('year').doesNotEqual(1991).get()
+
+  t.strictEquals(JSON.stringify(carsWhereYearIsNot1991), JSON.stringify(carsWhereYearDoesNotEqual1991), 'isNot and doesNotEqual are aliases')
+  t.strictEquals(carsWhereYearIsNot1991.length, 9, 'nine results are returned')
+  t.notOk(JSON.stringify(carsWhereYearIsNot1991).includes('1991'), 'returned results do not include the first one')
 
   t.end()
 })
