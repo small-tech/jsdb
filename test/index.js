@@ -449,6 +449,18 @@ test('Basic queries', t => {
 
   // or
 
+  const carsThatAreEitherTurquoiseOrOlderThan1992 = db.cars.where('colour').is('Turquoise').or('year').isLessThan(1992).get()
+
+  t.strictEquals(carsThatAreEitherTurquoiseOrOlderThan1992.length, 3, 'connective (or): there are three cars that are either turquoise or older than 1992')
+  t.strictEquals(JSON.stringify(carsThatAreEitherTurquoiseOrOlderThan1992[0]), JSON.stringify(cars[0]), 'connective (or): first result is Subaru Loyale')
+  t.strictEquals(JSON.stringify(carsThatAreEitherTurquoiseOrOlderThan1992[1]), JSON.stringify(cars[1]), 'connective (or): second result is Chevrolet Suburban 1500')
+  t.strictEquals(JSON.stringify(carsThatAreEitherTurquoiseOrOlderThan1992[2]), JSON.stringify(cars[4]), 'connective (or): third result is Hyundai Santa Fe')
+
+  //
+  // Complex custom query.
+  //
+  // TODO.
+
   t.end()
 })
 
