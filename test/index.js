@@ -362,65 +362,62 @@ test('Basic queries', t => {
   //
 
   //
-  // startsWith and startsWithCaseSensitive
+  // startsWith and startsWith
   //
 
-  const carsWhereMakeStartsWithH = db.cars.where('make').startsWith('h').get()
-  const carsWhereMakeStartsWithHCaseSensitiveCorrectCase = db.cars.where('make').startsWithCaseSensitive('H').get()
-  const carsWhereMakeStartsWithHCaseSensitiveIncorrectCase = db.cars.where('make').startsWithCaseSensitive('h').get()
+  const carsWhereMakeStartsWithCaseInsensitiveH = db.cars.where('make').startsWithCaseInsensitive('h').get()
+  const carsWhereMakeStartsWithHCorrectCase = db.cars.where('make').startsWith('H').get()
+  const carsWhereMakeStartsWithHIncorrectCase = db.cars.where('make').startsWith('h').get()
 
-  t.strictEquals(carsWhereMakeStartsWithH.length, 2, 'startsWith: 2 results returned')
-  t.strictEquals(carsWhereMakeStartsWithHCaseSensitiveCorrectCase.length, 2, 'startsWithCaseSensitive (correct case): 2 results returned')
-  t.strictEquals(JSON.stringify(carsWhereMakeStartsWithH), JSON.stringify(carsWhereMakeStartsWithHCaseSensitiveCorrectCase), 'startsWith and startsWithCaseSensitive (correct case) results are identical')
+  t.strictEquals(carsWhereMakeStartsWithCaseInsensitiveH.length, 2, 'startsWith: 2 results returned')
+  t.strictEquals(carsWhereMakeStartsWithHCorrectCase.length, 2, 'startsWith (correct case): 2 results returned')
+  t.strictEquals(JSON.stringify(carsWhereMakeStartsWithCaseInsensitiveH), JSON.stringify(carsWhereMakeStartsWithHCorrectCase), 'startsWith and startsWith (correct case) results are identical')
 
-  t.ok(JSON.stringify(carsWhereMakeStartsWithH).includes(JSON.stringify(cars[2])), 'startsWith h includes Honda')
-  t.ok(JSON.stringify(carsWhereMakeStartsWithH).includes(JSON.stringify(cars[4])), 'startsWith h includes Hyundai')
+  t.ok(JSON.stringify(carsWhereMakeStartsWithCaseInsensitiveH).includes(JSON.stringify(cars[2])), 'startsWith h includes Honda')
+  t.ok(JSON.stringify(carsWhereMakeStartsWithCaseInsensitiveH).includes(JSON.stringify(cars[4])), 'startsWith h includes Hyundai')
 
-  t.strictEquals(carsWhereMakeStartsWithHCaseSensitiveIncorrectCase.length, 0, 'startsWithCaseSensitive (incorrect case): no results returned')
-
-  //
-  // endsWith and endsWithCaseSensitive
-  //
-
-  const carsWhereMakeEndsWithBaru = db.cars.where('make').endsWith('BARU').get()
-  const carsWhereMakeEndsWithBaruCaseSensitiveCorrectCase = db.cars.where('make').endsWithCaseSensitive('baru').get()
-  const carsWhereMakeEndsWithBaruCaseSensitiveIncorrectCase = db.cars.where('make').endsWithCaseSensitive('Baru').get()
-
-  t.strictEquals(carsWhereMakeEndsWithBaru.length, 2, 'endsWith: 2 results returned')
-  t.strictEquals(carsWhereMakeEndsWithBaruCaseSensitiveCorrectCase.length, 2, 'endsWithCaseSensitive (correct case): 2 results returned')
-  t.strictEquals(JSON.stringify(carsWhereMakeEndsWithBaru), JSON.stringify(carsWhereMakeEndsWithBaruCaseSensitiveCorrectCase), 'endsWith and endsWithCaseSensitive (correct case) results are identical')
-
-  t.ok(JSON.stringify(carsWhereMakeEndsWithBaru).includes(JSON.stringify(cars[0])), 'endsWith baru includes first Subaru')
-  t.ok(JSON.stringify(carsWhereMakeEndsWithBaru).includes(JSON.stringify(cars[3])), 'endsWith baru includes second Subaru')
-
-  t.strictEquals(carsWhereMakeEndsWithBaruCaseSensitiveIncorrectCase.length, 0, 'endsWithCaseSensitive (incorrect case): no results returned')
+  t.strictEquals(carsWhereMakeStartsWithHIncorrectCase.length, 0, 'startsWith (incorrect case): no results returned')
 
   //
-  // includes and includesCaseSensitive (string and object)
+  // endsWith and endsWith
+  //
+
+  const carsWhereMakeEndsWithBaruCaseInsensitive = db.cars.where('make').endsWithCaseInsensitive('BARU').get()
+  const carsWhereMakeEndsWithBaruCorrectCase = db.cars.where('make').endsWith('baru').get()
+  const carsWhereMakeEndsWithBaruIncorrectCase = db.cars.where('make').endsWith('Baru').get()
+
+  t.strictEquals(carsWhereMakeEndsWithBaruCaseInsensitive.length, 2, 'endsWith: 2 results returned')
+  t.strictEquals(carsWhereMakeEndsWithBaruCorrectCase.length, 2, 'endsWith (correct case): 2 results returned')
+  t.strictEquals(JSON.stringify(carsWhereMakeEndsWithBaruCaseInsensitive), JSON.stringify(carsWhereMakeEndsWithBaruCorrectCase), 'endsWith and endsWith (correct case) results are identical')
+
+  t.ok(JSON.stringify(carsWhereMakeEndsWithBaruCaseInsensitive).includes(JSON.stringify(cars[0])), 'endsWith baru includes first Subaru')
+  t.ok(JSON.stringify(carsWhereMakeEndsWithBaruCaseInsensitive).includes(JSON.stringify(cars[3])), 'endsWith baru includes second Subaru')
+
+  t.strictEquals(carsWhereMakeEndsWithBaruIncorrectCase.length, 0, 'endsWith (incorrect case): no results returned')
+
+  //
+  // includes and includes (string and object)
   //
 
   // String
-  const carsWhereMakeIncludesSu = db.cars.where('make').includes('SU').get()
-  const carsWhereMakeIncludesSuCaseSensitiveCorrectCase = db.cars.where('make').includesCaseSensitive('su').get()
-  const carsWhereMakeIncludesSuCaseSensitiveIncorrectCase = db.cars.where('make').includesCaseSensitive('SU').get()
+  const carsWhereMakeIncludesSuCaseInsensitive = db.cars.where('make').includesCaseInsensitive('SU').get()
+  const carsWhereMakeIncludesSuCorrectCase = db.cars.where('make').includes('su').get()
+  const carsWhereMakeIncludesSuIncorrectCase = db.cars.where('make').includes('SU').get()
 
-  t.strictEquals(carsWhereMakeIncludesSu.length, 3, 'includes: 2 results returned')
-  t.strictEquals(carsWhereMakeIncludesSuCaseSensitiveCorrectCase.length, 1, 'includesCaseSensitive (correct case): 1 result returned')
-  t.strictEquals(carsWhereMakeIncludesSuCaseSensitiveIncorrectCase.length, 0, 'includesCaseSensitive (incorrect case): no results returned')
+  t.strictEquals(carsWhereMakeIncludesSuCaseInsensitive.length, 3, 'includes: 2 results returned')
+  t.strictEquals(carsWhereMakeIncludesSuCorrectCase.length, 1, 'includes (correct case): 1 result returned')
+  t.strictEquals(carsWhereMakeIncludesSuIncorrectCase.length, 0, 'includes (incorrect case): no results returned')
 
-  t.ok(JSON.stringify(carsWhereMakeIncludesSu).includes(JSON.stringify(cars[0])), 'includes su includes first Subaru')
-  t.ok(JSON.stringify(carsWhereMakeIncludesSu).includes(JSON.stringify(cars[3])), 'includes su includes second Subaru')
-  t.ok(JSON.stringify(carsWhereMakeIncludesSu).includes(JSON.stringify(cars[8])), 'includes su includes Isuzu')
+  t.ok(JSON.stringify(carsWhereMakeIncludesSuCaseInsensitive).includes(JSON.stringify(cars[0])), 'includes su (case insensitive): includes first Subaru')
+  t.ok(JSON.stringify(carsWhereMakeIncludesSuCaseInsensitive).includes(JSON.stringify(cars[3])), 'includes su (case insensitive): includes second Subaru')
+  t.ok(JSON.stringify(carsWhereMakeIncludesSuCaseInsensitive).includes(JSON.stringify(cars[8])), 'includes su (case insensitive): includes Isuzu')
 
-  t.ok(JSON.stringify(carsWhereMakeIncludesSuCaseSensitiveCorrectCase).includes(JSON.stringify(cars[8])), 'includesCaseSensitive su (correct case) includes Isuzu')
+  t.ok(JSON.stringify(carsWhereMakeIncludesSuCorrectCase).includes(JSON.stringify(cars[8])), 'includes su (correct case): includes Isuzu')
 
   // Object
-  // (Note that object lookup with strings is always case sensitive since you’re looking up the actual object.)
+  // (Note: attempting to use includesCaseInsensitive on an object will throw.)
   const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
   const carsThatAreRegalIncorrectCase = db.cars.where('tags').includes('REGAL').get()
-
-  const carsThatAreAmazingCorrectCase = db.cars.where('tags').includes('AMAZING').get()
-  const carsThatAreAmazingCaseSensitiveCorrectCase = db.cars.where('tags').includes('AMAZING').get()
 
   t.strictEquals(carsThatAreRegal.length, 3, 'includes (object) tagged with "regal" returns 3 cars')
 
@@ -428,9 +425,7 @@ test('Basic queries', t => {
   t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[6])), 'includes (object): tagged with "regal" includes Mercedes-Benz')
   t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[9])), 'includes (object): tagged with "regal" includes Lexus')
 
-  t.strictEquals(carsThatAreAmazingCorrectCase.length, 1, 'includes (object): includes is case sensitive with objects (1)')
-  t.strictEquals(carsThatAreRegalIncorrectCase.length, 0, 'includes (object): includes is case sensitive with objects (2)')
-  t.strictEquals(JSON.stringify(carsThatAreAmazingCorrectCase), JSON.stringify(carsThatAreAmazingCaseSensitiveCorrectCase), 'includes (object): includes and includesCaseSensitive behave the same way (case sensitive) for strings in object mode')
+  t.strictEquals(carsThatAreRegalIncorrectCase.length, 0, 'includes (object): includes is always case sensitive with objects')
 
   //
   // getLast()
