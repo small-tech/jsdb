@@ -272,7 +272,7 @@ test('Basic queries', t => {
     { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson", tags: ['regal', 'expensive', 'fun']},
     { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red", tags: ['fun', 'expensive', 'sporty']},
     { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty']},
-    { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive'] }
+    { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive', 'AMAZING'] }
   ]
 
   db.cars = cars
@@ -417,16 +417,20 @@ test('Basic queries', t => {
   // Object
   // (Note that object lookup with strings is always case sensitive since you’re looking up the actual object.)
   const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
-  const carsThatAreRegalCaseSensitive = db.cars.where('tags').includesCaseSensitive('regal').get()
+  const carsThatAreRegalIncorrectCase = db.cars.where('tags').includes('REGAL').get()
+
+  const carsThatAreAmazingCorrectCase = db.cars.where('tags').includes('AMAZING').get()
+  const carsThatAreAmazingCaseSensitiveCorrectCase = db.cars.where('tags').includes('AMAZING').get()
 
   t.strictEquals(carsThatAreRegal.length, 3, 'includes (object) tagged with "regal" returns 3 cars')
-  t.strictEquals(carsThatAreRegalCaseSensitive.length, 3, 'includes (object) tagged with "regal" returns 3 cars (CaseSensitive returns same result)')
 
-  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[1])), 'includes (object) tagged with "regal" includes Chevrolet')
-  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[6])), 'includes (object) tagged with "regal" includes Mercedes-Benz')
-  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[9])), 'includes (object) tagged with "regal" includes Lexus')
+  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[1])), 'includes (object): tagged with "regal" includes Chevrolet')
+  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[6])), 'includes (object): tagged with "regal" includes Mercedes-Benz')
+  t.ok(JSON.stringify(carsThatAreRegal).includes(JSON.stringify(cars[9])), 'includes (object): tagged with "regal" includes Lexus')
 
-  t.strictEquals(JSON.stringify(carsThatAreRegal), JSON.stringify(carsThatAreRegalCaseSensitive), 'includes (object) includes and includesCaseSensitive behave the same way (case sensitive) for strings in object mode')
+  t.strictEquals(carsThatAreAmazingCorrectCase.length, 1, 'includes (object): includes is case sensitive with objects (1)')
+  t.strictEquals(carsThatAreRegalIncorrectCase.length, 0, 'includes (object): includes is case sensitive with objects (2)')
+  t.strictEquals(JSON.stringify(carsThatAreAmazingCorrectCase), JSON.stringify(carsThatAreAmazingCaseSensitiveCorrectCase), 'includes (object): includes and includesCaseSensitive behave the same way (case sensitive) for strings in object mode')
 
   //
   // getLast()
@@ -470,10 +474,24 @@ test('Basic queries', t => {
     { make: 'Honda', model: 'Element', year: 2004, colour: 'Orange', tags: [ 'fun', 'affordable' ] },
     { make: 'Toyota', model: 'Avalon', year: 2005, colour: 'Khaki', tags: [ 'fun', 'affordable' ] },
     { make: 'Mercedes-Benz', model: '600SEL', year: 1992, colour: 'Crimson', tags: [ 'regal', 'expensive', 'fun' ] },
-    { make: 'Lexus', model: 'LX', year: 1997, colour: 'Indigo', tags: [ 'regal', 'expensive' ] }
+    { make: 'Lexus', model: 'LX', year: 1997, colour: 'Indigo', tags: [ 'regal', 'expensive', 'AMAZING' ] }
   ]
 
   t.strictEquals(JSON.stringify(complexCustomQueryResult), JSON.stringify(expectedResult), 'complex custom query result is as expected')
+
+  //
+  // Empty table, non-existent properties in queries, etc.
+  //
+
+  db.empty = []
+
+  const shouldBeEmpty = db.empty.where('non-existent').is(5).get()
+  const shouldBeUndefined = db.empty.where('non-existent').isGreaterThan(10).and('other').includes('horsey').getFirst()
+  const shouldBeUndefined2 = db.empty.where('non-existent').isGreaterThan(10).and('other').includes('horsey').getLast()
+
+  t.strictEquals(JSON.stringify(shouldBeEmpty), JSON.stringify([]), 'query.get() on empty table with non-existent property check returns empty array')
+  t.strictEquals(shouldBeUndefined, undefined, 'query.getFirst() on empty table with non-existent property check returns undefined')
+  t.strictEquals(shouldBeUndefined2, undefined, 'query.getLast() on empty table with non-existent property check returns undefined')
 
   t.end()
 })
