@@ -1,7 +1,6 @@
 const fs = require('fs')
 const JSDB = require('../..')
 
-
 // console.log(languages)
 
 const db = new JSDB('db')
@@ -14,8 +13,6 @@ if (db.countries === undefined) {
 
 // Query the data.
 
-console.log(db.countries)
-
-const countriesThatSpeakEnglish = db.countries.where('languages').includes('English').get()
+const countriesThatSpeakEnglish = db.countries.where('languages').includes('Kurdish').get()
 
 console.log(countriesThatSpeakEnglish)
