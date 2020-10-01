@@ -243,15 +243,15 @@ const completeCarYearQuery = incompleteCarYearQuery.is(1991)
 const resultOfCarYearQuery = completeCarYearQuery.get()
 ```
 
-Again, idiomatically, we chain the operator and invocation calls to the `where` call and write our queries out in a single line like this:
+Again, idiomatically, we chain the operator and invocation calls to the `where()` call and write our queries out in a single line like this:
 
 ```js
 const carsMadeIn1991 = db.cars.where('year').is(1991).get()
 ```
 
-### Connectives (`and` and `or`)
+### Connectives (`and()` and `or()`)
 
-You can chain conditions onto a query using the connectives `and` and `or`. Using a connective transforms a completed query back into an incomplete query awaiting an operator. e.g.,
+You can chain conditions onto a query using the connectives `and()` and `or()`. Using a connective transforms a completed query back into an incomplete query awaiting an operator. e.g.,
 
 ```js
 const veryOldOrOrangeCars = db.cars.where('year').isLessThan(2000).or('colour').is('Orange').get()
@@ -305,7 +305,7 @@ const customQueryResult = db.cars.whereIsTrue(`(valueOf.tags.includes('fun') && 
   - `isLessThan()`
   - `isLessThanOrEqualTo()`
 
-Note: operators listed on the same line are aliases and may be used interchangeably (e.g., `isNot` and `doesNotEqual`).
+Note: operators listed on the same line are aliases and may be used interchangeably (e.g., `isNot()` and `doesNotEqual()`).
 
 #### Example (is)
 
