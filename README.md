@@ -105,6 +105,8 @@ const db = new JSDB('db')
 console.log(db.people.where('age').isLessThan(21).get())
 ```
 
+For details, see the [JSQL Reference](#jsql-reference) section.
+
 ## Compaction
 
 When you load in a JSDB table, by default JSDB will compact the JSDF file.
@@ -175,6 +177,245 @@ db.people.__table__.addListener('persist', (table, change) => {
 | Event name | Description                           |
 | ---------- | ------------------------------------- |
 | persist    | The table has been persisted to disk. |
+
+## JSQL Reference
+
+The examples in the reference all use the following random dataset. Note, I know nothing about cars, the tags are also arbitrary. Don’t @ me ;)
+
+```js
+const cars = [
+  { make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia", tags: ['fun', 'sporty'] },
+  { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise", tags: ['regal', 'expensive'] },
+  { make: "Honda", model: "Element", year: 2004, colour: "Orange", tags: ['fun', 'affordable'] },
+  { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson", tags: ['sporty', 'expensive']},
+  { make: "Hyundai", model: "Santa Fe", year: 2009, colour: "Turquoise", tags: ['sensible', 'affordable'] },
+  { make: "Toyota", model: "Avalon", year: 2005, colour: "Khaki", tags: ['fun', 'affordable']},
+  { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson", tags: ['regal', 'expensive', 'fun']},
+  { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red", tags: ['fun', 'expensive', 'sporty']},
+  { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty']},
+  { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive', 'AMAZING'] }
+]
+```
+
+### Starting a query (the `where()` method)
+
+```js
+const carsMadeIn1991 = db.cars.where('year').is(1991).get()
+```
+
+The `where()` method starts a query.
+
+You call it on a table reference. It takes a property name (string) as its only argument and returns a query instance.
+
+On the returned query instance, you can call various operators like `is()` or `startsWith()`.
+
+Finally, to invoke the query you use one one of the invocation methods: `get()`, `getFirst()`, or `getLast()`.
+
+### The anatomy of a query.
+
+Idiomatically, we chain the operator and invocation calls to the `where` call and write our queries out in a single line as shown above. However, you can split the three parts up, should you so wish. Here’s such an example, for academic purposes.
+
+This starts the query and returns an incomplete query object:
+
+```js
+const incompleteCarYearQuery = db.cars.where('year')
+```
+
+Once you call an operator on a query, it is considered complete:
+
+```js
+const completeCarYearQuery = incompleteCarYearQuery.is(1991)
+```
+
+To execute a completed query, you can use one of the invocation methods: `get()`, `getFirst()`, or `getLast()`.
+
+Note that `get()` returns an array of results (which might be an empty array) while `getFirst()` and `getLast()` return a single result (which may be `undefined`).
+
+```js
+const resultOfCarYearQuery = completeCarYearQuery.get()
+```
+
+Here are the three parts of a query shown together:
+
+```js
+const incompleteCarYearQuery = db.cars.where('year')
+const completeCarYearQuery = incompleteCarYearQuery.is(1991)
+const resultOfCarYearQuery = completeCarYearQuery.get()
+```
+
+Again, idiomatically, we chain the operator and invocation calls to the `where` call and write our queries out in a single line like this:
+
+```js
+const carsMadeIn1991 = db.cars.where('year').is(1991).get()
+```
+
+### Connectives (`and` and `or`)
+
+You can chain conditions onto a query using the connectives `and` and `or`. Using a connective transforms a completed query back into an incomplete query awaiting an operator. e.g.,
+
+```js
+const veryOldOrOrangeCars = db.cars.where('year').isLessThan(2000).or('colour').is('Orange').get()
+```
+
+#### Example
+
+```js
+const carsThatAreFunAndSporty = db.cars.where('tags').includes('fun').and('tags').includes('sporty').get()
+```
+
+#### Result
+
+```js
+[
+  { make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia", tags: ['fun', 'sporty'] },
+  { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red", tags: ['fun', 'expensive', 'sporty']},
+]
+```
+
+### Custom queries (`whereIsTrue()`)
+
+For more complex queries – for example, if you need to include parenthetical grouping – you can compose your JSQL by hand. To do so, you call the `whereIsTrue()` method on a table instead of the `where()` method and you pass it a full JSQL query string. A completed query is returned.
+
+When writing your custom JSQL query, prefix property names with `valueOf.`.
+
+#### Example
+
+```js
+const customQueryResult = db.cars.whereIsTrue(`(valueOf.tags.includes('fun') && valueOf.tags.includes('affordable')) || (valueOf.tags.includes('regal') && valueOf.tags.includes('expensive'))`).get()
+```
+
+#### Result
+
+```js
+[
+  { make: 'Chevrolet', model: 'Suburban 1500', year: 2004, colour: 'Turquoise', tags: [ 'regal', 'expensive' ] },
+  { make: 'Honda', model: 'Element', year: 2004, colour: 'Orange', tags: [ 'fun', 'affordable' ] },
+  { make: 'Toyota', model: 'Avalon', year: 2005, colour: 'Khaki', tags: [ 'fun', 'affordable' ] },
+  { make: 'Mercedes-Benz', model: '600SEL', year: 1992, colour: 'Crimson', tags: [ 'regal', 'expensive', 'fun' ] },
+  { make: 'Lexus', model: 'LX', year: 1997, colour: 'Indigo', tags: [ 'regal', 'expensive', 'AMAZING' ] }
+]
+```
+
+### Relational operators
+
+  - `is()`, `isEqualTo()`, `equals()`
+  - `isNot()`, `doesNotEqual()`
+  - `isGreaterThan()`
+  - `isGreaterThanOrEqualTo()`
+  - `isLessThan()`
+  - `isLessThanOrEqualTo()`
+
+Note: operators listed on the same line are aliases and may be used interchangeably (e.g., `isNot` and `doesNotEqual`).
+
+#### Example (is)
+
+```js
+const carWhereYearIs1991 = db.cars.where('year').is(1991).getFirst()
+```
+
+#### Result (is)
+
+```js
+{ make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia", tags: ['fun', 'sporty'] }
+```
+
+#### Example (isNot)
+
+```js
+const carsWhereYearIsNot1991 = db.cars.where('year').isNot(1991).get()
+```
+
+#### Result (isNot)
+
+```js
+[
+  { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise", tags: ['regal', 'expensive'] },
+  { make: "Honda", model: "Element", year: 2004, colour: "Orange", tags: ['fun', 'affordable'] },
+  { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson", tags: ['sporty', 'expensive']},
+  { make: "Hyundai", model: "Santa Fe", year: 2009, colour: "Turquoise", tags: ['sensible', 'affordable'] },
+  { make: "Toyota", model: "Avalon", year: 2005, colour: "Khaki", tags: ['fun', 'affordable'] },
+  { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson", tags: ['regal', 'expensive', 'fun'] },
+  { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red", tags: ['fun', 'expensive', 'sporty'] },
+  { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty'] },
+  { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive', 'AMAZING'] }
+]
+```
+
+Note how `getFirst()` returns the first item (in this case, an _object_) whereas `get()` returns the whole _array_ of results.
+
+The other relational operators work the same way and as expected.
+
+### String subset comparison operators
+
+  - `startsWith()`
+  - `endsWith()`
+  - `includes()`
+  - `startsWithCaseInsensitive()`
+  - `endsWithCaseInsensitive()`
+  - `includesCaseInsensitive()`
+
+The string subset comparison operators carry out case sensitive string subset comparisons. They also have case insensitive versions that you can use.
+
+#### Example (`includes()` and `includesCaseInsensitive()`)
+
+```js
+const result1 = db.cars.where('make').includes('su').get()
+const result2 = db.cars.where('make').includes('SU').get()
+const result3 = db.cars.where('make').includesCaseInsensitive('SU')
+```
+
+#### Result 1
+
+```js
+[
+  { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty']}
+]
+```
+
+Since `includes()` is case sensitive, the string `'su`' matches only the make `Isuzu`.
+
+#### Result 2
+
+```js
+[]
+```
+
+Again, since `includes()` is case sensitive, the string `'SU`' doesn’t match the make of any of the entries.
+
+#### Result 3
+
+```js
+[
+  { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson", tags: ['sporty', 'expensive'] },
+  { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty'] }
+]
+```
+
+Here, `includesCaseInsensitive('SU')` matches both the `Subaru` and `Isuzu` makes due to the case-insensitive string comparison.
+
+### Array inclusion check operator
+
+  - `includes()`
+
+The `includes()` array inclusion check operator can also be used to check for the existence of an object (or scalar value) in an array.
+
+Note that the `includesCaseInsensitive()` string operator cannot be used for this purpose and will throw an error if you try.
+
+#### Example (`includes()` array inclusion check`):
+
+```js
+const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
+```
+
+#### Result (`includes()` array inclusion check`)
+
+```js
+[
+  { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise", tags: ['regal', 'expensive'] },
+  { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson", tags: ['regal', 'expensive', 'fun']},
+  { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive', 'AMAZING'] }
+]
+```
 
 ## Performance characteristics
 
