@@ -401,13 +401,13 @@ The `includes()` array inclusion check operator can also be used to check for th
 
 Note that the `includesCaseInsensitive()` string operator cannot be used for this purpose and will throw an error if you try.
 
-#### Example (`includes()` array inclusion check`):
+#### Example (`includes()` array inclusion check):
 
 ```js
 const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
 ```
 
-#### Result (`includes()` array inclusion check`)
+#### Result (`includes()` array inclusion check)
 
 ```js
 [
