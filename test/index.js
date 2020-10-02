@@ -489,11 +489,19 @@ test('Basic queries', t => {
   t.strictEquals(shouldBeUndefined2, undefined, 'query.getLast() on empty table with non-existent property check returns undefined')
 
   // Accessing a non-existent operator on an IncompleteQueryProxy should throw.
-
   t.throws(() => {
     db.cars.where('colour').isAPleasantShadeOf('Maroon')
-
   }, 'attempting to access invalid operator on an IncompleteProxyQuery throws')
+
+  // Access to an IncompleteQueryProxy’s own properties should work as expected.
+  const incompleteQueryProxy = db.cars.where('year')
+  const expectedToBeCarsTable = incompleteQueryProxy.table
+  const expectedToBeTheQuery = incompleteQueryProxy.query
+  const expectedToBeTheData = incompleteQueryProxy.data
+
+  t.strictEquals(expectedToBeCarsTable, db.cars.__table__, 'incompleteQueryProxy.table is as expected')
+  t.strictEquals(expectedToBeTheQuery, 'valueOf.year', 'incompleteQueryProxy.query is as expected')
+  t.strictEquals(JSON.stringify(expectedToBeTheData), JSON.stringify(db.cars), 'incompleteQueryProxy.data is as expected')
 
   t.end()
 })
