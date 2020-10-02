@@ -35,7 +35,11 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
 
 ## To install
 
-Currently, you need to clone the repo as this is a work-in-progress and no releases have been made yet.
+Currently, you need to clone or install from this repo as this is a work-in-progress and no releases have been made yet to npm.
+
+```
+npm i github:small-tech/jsdb
+```
 
 ## Usage
 
