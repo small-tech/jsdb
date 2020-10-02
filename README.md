@@ -46,7 +46,7 @@ npm i github:small-tech/jsdb
 Here’s a quick example to whet your appetite:
 
 ```js
-const JSDB = require('.')
+const JSDB = require('@small-tech/jsdb')
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
@@ -109,7 +109,7 @@ Of course, when you load the data in directly, you are not running it inside JSD
 To test that out, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
 
 ```js
-const JSDB = require('.')
+const JSDB = require('@small-tech/jsdb')
 
 // This will load test database with the people table we created earlier.
 const db = new JSDB('db')
