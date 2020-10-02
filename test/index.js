@@ -488,6 +488,13 @@ test('Basic queries', t => {
   t.strictEquals(shouldBeUndefined, undefined, 'query.getFirst() on empty table with non-existent property check returns undefined')
   t.strictEquals(shouldBeUndefined2, undefined, 'query.getLast() on empty table with non-existent property check returns undefined')
 
+  // Accessing a non-existent operator on an IncompleteQueryProxy should throw.
+
+  t.throws(() => {
+    db.cars.where('colour').isAPleasantShadeOf('Maroon')
+
+  }, 'attempting to access invalid operator on an IncompleteProxyQuery throws')
+
   t.end()
 })
 
