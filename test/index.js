@@ -503,6 +503,37 @@ test('Basic queries', t => {
   t.strictEquals(expectedToBeTheQuery, 'valueOf.year', 'incompleteQueryProxy.query is as expected')
   t.strictEquals(JSON.stringify(expectedToBeTheData), JSON.stringify(db.cars), 'incompleteQueryProxy.data is as expected')
 
+  // Setting, getting, and deleting values from a completed QueryProxy should work as expected.
+
+  // Note the lack of the get() call at the end.
+  const completedQuery = db.cars.where('year').is(1991)
+
+  t.strictEquals(completedQuery[0], db.cars[0], 'property access on completed query works as expected')
+
+  const newCar = { make: 'Toyota', model: 'Avalon', year: 2020, colour: 'Red', tags: [ 'fun', 'affordable' ] }
+  completedQuery.push(newCar)
+
+  const expectedResultsetAfterPush = [
+    db.cars[0],
+    newCar
+  ]
+
+  t.strictEquals(JSON.stringify(completedQuery.get()), JSON.stringify(expectedResultsetAfterPush), 'adding to the resultset array works as expected')
+
+  delete completedQuery[0]
+
+  const expectedResultsetAfterDelete = [
+    undefined,
+    newCar
+  ]
+
+  t.strictEquals(JSON.stringify(completedQuery.get()), JSON.stringify(expectedResultsetAfterDelete), 'deleting a value from the resultset array works as expected')
+
+  completedQuery[0] = db.cars[0]
+
+  // This should have restored the array to its previous state, after the push.
+  t.strictEquals(JSON.stringify(completedQuery.get()), JSON.stringify(expectedResultsetAfterPush), 'defining a property on the resultset array works as expected')
+
   t.end()
 })
 
