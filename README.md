@@ -19,16 +19,18 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x]  ╰─ Add unit tests for queries. (1 Oct)
   - [x]  ╰─ Document queries. (1 Oct)
   - [ ] __Bring code coverage back up to 100%.__ _(in progress)_
+  - [ ] __Use/test on upcoming small-web.org site__
+  - [ ] __Release version 1.0.0__
+
+## Ideas for post 1.0.0.
+
   - [ ] __Implement transactions.__
   - [ ]  ╰─ Ensure 100% code coverage for transactions.
   - [ ]  ╰─ Document transactions.
-  - [ ] __Decide whether indices are important / essential for 1.0.0.__
-  - [ ]  ╰─ Implement indices.
+  - [ ] __Implement indices.__
   - [ ]       ╰─ Ensure 100% code coverage for indices.
   - [ ]       ╰─ Document indices.
   - [ ]       ╰─ Add indices example.
-  - [ ] __Use/test on upcoming small-web.org site__
-  - [ ] __Release version 1.0.0__
 
 
 ## To install
