@@ -18,13 +18,13 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x] __Continue working on queries.__ (1 Oct)
   - [x]  ╰─ Add unit tests for queries. (1 Oct)
   - [x]  ╰─ Document queries. (1 Oct)
-  - [ ] __Bring code coverage back up to 100%.__ _(in progress)_
-  - [ ] __Use/test on upcoming small-web.org site__
+  - [x] __Bring code coverage back up to 100%.__ (2 Oct)
+  - [ ] __Use/test on upcoming small-web.org site__ _(in progress)_
   - [ ] __Release version 1.0.0__
 
 ## Ideas for post 1.0.0.
 
-  - [ ] __Implement transactions.__
+  - [ ] __Implement [transactions](https://github.com/small-tech/jsdb/issues/1).__
   - [ ]  ╰─ Ensure 100% code coverage for transactions.
   - [ ]  ╰─ Document transactions.
   - [ ] __Implement indices.__
