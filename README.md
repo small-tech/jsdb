@@ -4,25 +4,32 @@ __Work in progress:__ A transparent, in-memory, streaming write-on-update JavaSc
 
 __Needless to say, this is not ready for use yet. But feel free to take a look around.__
 
-## Roadmap
+## Roadmap to version 1.0.0.
 
-  - [x] Implement persistence (15 Sept)
-  - [x] Add unit tests for persistence (19 Sept)
-  - [x] Document persistence (19 Sept)
-  - [x] Add persistence example (19 Sept)
-  - [x] Implement queries (22 Sept)
-  - [x] Add queries example (22 Sept)
-  - [x] Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes (29 Sept)
+  - [x] Implement persistence. (15 Sept)
+  - [x]  ╰─ Add unit tests for persistence. (19 Sept)
+  - [x]  ╰─ Document persistence. (19 Sept)
+  - [x]  ╰─ Add persistence example. (19 Sept)
+  - [x] Implement queries. (22 Sept)
+  - [x]  ╰─ Add queries example. (22 Sept)
+  - [x] Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes. (29 Sept)
   - [x] Update documentation to reflect new persistence engine. (29 Sept)
   - [x] Update examples to work with new persistence engine. (30 Sept)
-  - [ ] Add unit tests for queries
-  - [ ] Document queries
-  - [ ] Implement indices
-  - [ ] Add unit tests for indices
-  - [ ] Document indices
-  - [ ] Add indices example
+  - [x] Continue working on queries. (1 Oct)
+  - [x]  ╰─ Add unit tests for queries. (1 Oct)
+  - [x]  ╰─ Document queries. (1 Oct)
+  - [ ] Bring code coverage back up to 100%. (in progress)
+  - [ ] Implement transactions.
+  - [ ]  ╰─ Ensure 100% code coverage for transactions.
+  - [ ]  ╰─ Document transactions.
+  - [ ] Decide whether indices are important / essential for 1.0.0.
+  - [ ]  ╰─ Implement indices.
+  - [ ]       ╰─ Ensure 100% code coverage for indices.
+  - [ ]       ╰─ Document indices.
+  - [ ]       ╰─ Add indices example.
   - [ ] Use/test on upcoming small-web.org site
-  - [ ] Release version 1.0
+  - [ ] Release version 1.0.0
+
 
 ## To install
 
