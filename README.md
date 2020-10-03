@@ -125,12 +125,14 @@ For details, see the [JSQL Reference](#jsql-reference) section.
 
 When you load in a JSDB table, by default JSDB will compact the JSDF file.
 
-Compaction is important for two reasons:
+Compaction is important for two reasons; during compaction:
 
-  - It is when deleted data is actually deleted from disk. (Privacy.)
-  - It is when old version of updated data are actually removed. (Again, privacy.)
+  - Deleted data is actually deleted from disk. (Privacy.)
+  - Old versions of updated data are actually removed. (Again, privacy.)
 
 Compaction will also reduce the size of your tables.
+
+That said, compaction is a relatively slow process that gets increasingly slower as the size of your database grows (it has O(N) time complexity as the whole database is recreated).
 
 You do have the option to override the default behaviour and keep all history. You might want to do this, for example, if you’re creating a web app that lets you create a drawing and you want to play the drawing back stroke by stroke, etc.
 
