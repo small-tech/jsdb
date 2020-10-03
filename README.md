@@ -53,7 +53,7 @@ const JSDB = require('@small-tech/jsdb')
 // (This is where your JSON files – “tables” – will be saved.)
 const db = new JSDB('db')
 
-// Create test/people.json with some data.
+// Create db/people.js table with some initial data.
 db.people = [
   {name: 'Aral', age: 43},
   {name: 'Laura', age: 34}
