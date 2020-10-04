@@ -10,6 +10,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+"use strict";
+
 process.env['QUIET'] = true
 
 const test = require('tape')
@@ -25,6 +27,7 @@ const { needsToBeProxified, log } = require('../lib/Util')
 const { isProxy } = require('util').types
 
 const readlineSync = require('@jcbuisson/readlinesync')
+const { debugPort } = require('process')
 
 
 function loadTable (databaseName, tableName) {
@@ -90,18 +93,6 @@ test('basic persistence', t => {
 
   const createdTable = loadTable('db', 'people')
   t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.people), 'persisted table matches in-memory table')
-
-  // //
-  // // Table replacement.
-  // //
-
-  // // Replacing the whole table should result in the table being replaced, not appended to.
-  // db.people = people
-
-  // const createdTable2 = loadTable('db', 'people')
-  // t.strictEquals(JSON.stringify(createdTable2), JSON.stringify(db.people), 'replaced table matches in-memory table')
-
-  // console.log(createdTable2)
 
   //
   // Property update.
@@ -212,6 +203,32 @@ test('basic persistence', t => {
   // Update a property
   let expectedWriteCount = 1
   db.people[0].age = 21
+})
+
+
+test('table replacement', async t => {
+  const people = [
+    {"name":"aral","age":44},
+    {"name":"laura","age":34}
+  ]
+
+  let db = JSDB.open(databasePath, { deleteIfExists: true })
+
+  db.people = people
+
+  // Attempting to replace the table without first deleting it should throw.
+  t.throws(() => db.people = people, 'attempting to replace a table without first deleting it throws')
+
+  // To replace a table, we must first delete the current one and then set the new object.
+  await db.people.__table__.delete()
+
+  // Now it should be safe to recreate the table.
+  db.people = people
+
+  const createdTable2 = loadTable('db', 'people')
+  t.strictEquals(JSON.stringify(createdTable2), JSON.stringify(db.people), 'replaced table matches in-memory table')
+
+  t.end()
 })
 
 
