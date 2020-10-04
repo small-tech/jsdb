@@ -22,6 +22,8 @@ const JSTable = require('../lib/JSTable')
 const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
+const { isProxy } = require('util').types
+
 const readlineSync = require('@jcbuisson/readlinesync')
 
 function loadTable (databaseName, tableName) {
@@ -67,7 +69,7 @@ test('basic persistence', t => {
     {"name":"laura","age":34}
   ]
 
-  let db = new JSDB(databasePath, { deleteIfExists: true })
+  let db = JSDB.open(databasePath, { deleteIfExists: true })
 
   t.ok(fs.existsSync(databasePath), 'database is created')
 
@@ -86,7 +88,19 @@ test('basic persistence', t => {
   const createdTable = loadTable('db', 'people')
   t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.people), 'persisted table matches in-memory table')
 
-   //
+  // //
+  // // Table replacement.
+  // //
+
+  // // Replacing the whole table should result in the table being replaced, not appended to.
+  // db.people = people
+
+  // const createdTable2 = loadTable('db', 'people')
+  // t.strictEquals(JSON.stringify(createdTable2), JSON.stringify(db.people), 'replaced table matches in-memory table')
+
+  // console.log(createdTable2)
+
+  //
   // Property update.
   //
 
@@ -146,8 +160,9 @@ test('basic persistence', t => {
 
       const inMemoryStateOfPeopleTableFromOriginalDatabase = JSON.stringify(db.people)
 
+      db.close()
       db = null
-      db = new JSDB(databasePath)
+      db = JSDB.open(databasePath)
 
       t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
 
@@ -169,6 +184,7 @@ test('basic persistence', t => {
       //
       // Table loading (line-by-line).
       //
+      db.close()
       db = null
       const tablePath = path.join(databasePath, 'people.js')
       const peopleTable = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
@@ -195,7 +211,7 @@ test('concurrent updates', t => {
     }
   }
 
-  const db = new JSDB(databasePath, { deleteIfExists: true })
+  const db = JSDB.open(databasePath, { deleteIfExists: true })
 
   db.settings = settings
 
@@ -258,7 +274,7 @@ test('concurrent updates', t => {
 
 test('Basic queries', t => {
 
-  const db = new JSDB(databasePath, { deleteIfExists: true })
+  const db = JSDB.open(databasePath, { deleteIfExists: true })
 
   // Note: I know nothing about cars. This is randomly generated data. And I added the tags myself
   // ===== to test the includes operator on an array property.
@@ -597,7 +613,7 @@ test ('Util', t => {
 })
 
 test('JSDB', t => {
-  const db = new JSDB(databasePath, { deleteIfExists: true })
+  const db = JSDB.open(databasePath, { deleteIfExists: true })
 
   t.throws(() => { db.invalid = null      }, 'attempting to create null table throws')
   t.throws(() => { db.invalid = undefined }, 'attempting to create undefined table throws')
