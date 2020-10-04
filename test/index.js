@@ -106,9 +106,13 @@ test('basic persistence', t => {
 
   // Listen for the persist event.
   let actualWriteCount = 0
-  const tableListener = table => {
+  const tableListener = async table => {
 
     actualWriteCount++
+
+    //
+    // First time the listener is called:
+    //
 
     if (actualWriteCount === 1) {
       t.strictEquals(table.tableName, 'people', 'the correct table is persisted')
@@ -127,6 +131,10 @@ test('basic persistence', t => {
       db.people[0].age = 43
       db.people[1].age = 33
     }
+
+    //
+    // Second time the listener is called:
+    //
 
     if (actualWriteCount === 2) {
       t.strictEquals(expectedWriteCount, actualWriteCount, 'write 2: expected number of writes has taken place')
@@ -160,8 +168,8 @@ test('basic persistence', t => {
 
       const inMemoryStateOfPeopleTableFromOriginalDatabase = JSON.stringify(db.people)
 
-      db.close()
-      db = null
+      await db.close()
+
       db = JSDB.open(databasePath)
 
       t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
@@ -184,8 +192,8 @@ test('basic persistence', t => {
       //
       // Table loading (line-by-line).
       //
-      db.close()
-      db = null
+      await db.close()
+
       const tablePath = path.join(databasePath, 'people.js')
       const peopleTable = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
 
