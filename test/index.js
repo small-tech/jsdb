@@ -199,6 +199,8 @@ test('basic persistence', t => {
 
       t.strictEquals(JSON.stringify(peopleTable), inMemoryStateOfPeopleTableFromOriginalDatabase, 'line-by-line loaded data matches previous state of the in-memory table')
 
+      await peopleTable.__table__.close()
+
       t.end()
     }
   }
