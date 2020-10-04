@@ -26,6 +26,7 @@ const { isProxy } = require('util').types
 
 const readlineSync = require('@jcbuisson/readlinesync')
 
+
 function loadTable (databaseName, tableName) {
   const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
 
@@ -51,6 +52,7 @@ function loadTableSource (databaseName, tableName) {
   return fs.readFileSync(tablePath, 'utf-8')
 }
 
+
 function dehydrate (string) {
   return string.replace(/\s/g, '')
 }
@@ -58,6 +60,7 @@ function dehydrate (string) {
 const databasePath = path.join(__dirname, 'db')
 
 class AClass {}
+
 
 test('basic persistence', t => {
   //
@@ -210,6 +213,7 @@ test('basic persistence', t => {
   let expectedWriteCount = 1
   db.people[0].age = 21
 })
+
 
 test('concurrent updates', t => {
   const settings = {
@@ -582,6 +586,7 @@ test('Time', t => {
   t.end()
 })
 
+
 test ('Util', t => {
   //
   // needsToBeProxified()
@@ -621,6 +626,7 @@ test ('Util', t => {
 
   t.end()
 })
+
 
 test('JSDB', t => {
   const db = JSDB.open(databasePath, { deleteIfExists: true })
