@@ -3,12 +3,10 @@ const { performance } = require('perf_hooks')
 const process = require('process')
 const Time = require('../../lib/Time')
 
-const fs = require('fs-extra')
-const path = require('path')
 const faker = require('faker')
 
 let generate = false
-let numberOfRecordsToGenerate = 10000
+let numberOfRecordsToGenerate = 1000
 
 if (process.argv.length > 2) {
   if (process.argv[2] === 'generate') {
@@ -32,14 +30,14 @@ if (generate) {
   e = performance.now()
   console.log(`Dummy data generation took ${e-s} ms for ${numberOfRecordsToGenerate} records.`)
 
-  db = new JSDB('db', { deleteIfExists: true })
+  db = JSDB.open('db', { deleteIfExists: true })
 
   s = performance.now()
   db.accounts = data
   e = performance.now()
   console.log(`Database initialisation took ${e-s} ms for ${numberOfRecordsToGenerate} records.`)
 } else {
-  db = new JSDB('db')
+  db = JSDB.open('db')
 }
 
 console.log('\n=== Testing property access. ===\n')

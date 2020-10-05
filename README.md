@@ -622,7 +622,7 @@ The reason JSDB is fast is because it keeps the whole database in memory. Also, 
 
 Initial load time and full table write/compaction both exhibit O(N) time complexity.
 
-For example, here’s just one sample from a development laptop using the simple performance example in the examples folder which creates random records around ~2KB in size each:
+For example, here’s just one sample from a development laptop using the simple performance example in the `examples/performance` folder of the source code which creates random records that are around ~2KB in size each:
 
 | Number of records | Table size on disk | Memory used | Initial load time | Full table write/compaction time |
 | ----------------- | ------------------ | ----------- | ----------------- | -------------------------------- |
