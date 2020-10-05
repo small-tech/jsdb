@@ -217,7 +217,7 @@ main()
 
 As mentioned earlier, JSDB writes out its tables as append-only logs of JavaScript statements in what we call JavaScript Data Format (JSDF). This is not the same as [JavaScript Object Notation (JSON)](https://www.json.org/json-en.html).
 
-JSON is not a good format for a database but it is excellent – not to mention ubiquitous – for its original use case of data exchange. You can easily find or export datasets in JSON format. And using them in JSDB is effortless. Here’s an example that you find in the `examples/json` folder of the source code:
+JSON is not a good format for a database but it is excellent – not to mention ubiquitous – for its original use case of data exchange. You can easily find or export datasets in JSON format. And using them in JSDB is effortless. Here’s an example that you can find in the `examples/json` folder of the source code:
 
 Given a JSON data file of spoken languages by country in the following format:
 
