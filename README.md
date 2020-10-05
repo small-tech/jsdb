@@ -213,6 +213,72 @@ async main () {
 main()
 ```
 
+## Working with JSON
+
+As mentioned earlier, JSDB writes out its tables as append-only logs of JavaScript statements in what we call JavaScript Data Format (JSDF). This is not the same as [JavaScript Object Notation](https://www.json.org/json-en.html).
+
+JSON is not a good format for a database but it is excellent – not to mention ubiquitous – for its original use case of data exchange. You can easily find or export datasets in JSON format. And using them in JSDB is effortless. Here’s an example that you find in the `examples/json` folder of the source code:
+
+Given a JSON data file of spoken languages by country in the following format:
+
+```json
+[
+  {
+    "country": "Aruba",
+    "languages": [
+      "Dutch",
+      "English",
+      "Papiamento",
+      "Spanish"
+    ]
+  },
+  …
+]
+```
+
+The following code will load in the file, populate a JSDB table with it, and perform a query on it:
+
+```js
+const fs = require('fs')
+const JSDB = require('@small-tech/jsdb')
+
+const db = JSDB.open('db')
+
+// If the data has not been populated yet, populate it.
+if (!db.countries) {
+  const countries = JSON.parse(fs.readFileSync('./countries.json', 'utf-8'))
+  db.countries = countries
+}
+
+// Query the data.
+const countriesThatSpeakKurdish = db.countries.where('languages').includes('Kurdish').get()
+
+console.log(countriesThatSpeakKurdish)
+```
+
+When you run it, you should see the following result:
+
+```js
+[
+  {
+    country: 'Iran',
+    languages: [
+      'Arabic',    'Azerbaijani',
+      'Bakhtyari', 'Balochi',
+      'Gilaki',    'Kurdish',
+      'Luri',      'Mazandarani',
+      'Persian',   'Turkmenian'
+    ]
+  },
+  {
+    country: 'Iraq',
+    languages: [ 'Arabic', 'Assyrian', 'Azerbaijani', 'Kurdish', 'Persian' ]
+  },
+  { country: 'Syria', languages: [ 'Arabic', 'Kurdish' ] },
+  { country: 'Turkey', languages: [ 'Arabic', 'Kurdish', 'Turkish' ] }
+]
+```
+
 
 ## Dispelling the magic and a couple of gotchas
 
@@ -235,33 +301,42 @@ Given that a core goal for JSDB is to be transparent, you will mostly feel like 
 
   2. __You cannot reassign a value to your tables without first deleting them.__ Since assignment is a synchronous action and since we cannot safely replace the existing table on disk with a different one synchronously, you must first call the asynchronous `delete()` method on a table instance before assigning a new value for it on the database, thereby creating a new table.
 
+      ```js
+      async main () {
+        // … 🠑 the earlier code from the example, above.
 
-```js
-async main () {
-  // … 🠑 the earlier code from the example, above.
+        await db.people.delete()
 
-  await db.people.delete()
+        // The people table is now deleted and we can recreate it.
 
-  // The people table is now deleted and we can recreate it.
+        // This is OK.
+        db.people = [
+          {name: 'Ed Snowden', age: 37}
+        ]
 
-  // This is OK.
-  db.people = [
-    {name: 'Ed Snowden', age: 37}
-  ]
+        // This is NOT.
+        try {
+          db.people = [
+            {name: 'Someone else', age: 100}
+          ]
+        } catch (error) {
+          console.log('This throws as we haven’t deleted the table first.')
+        }
+      }
 
-  // This is NOT.
-  try {
-    db.people = [
-      {name: 'Someone else', age: 100}
-    ]
-  } catch (error) {
-    console.log('This throws as we haven’t deleted the table first.')
-  }
-}
+      main()
+      ```
 
-main()
-```
+  3. __There are certain reserved words you cannot use in your data.__ This is a trade-off between usability and polluting the mirrored proxy structure. JSDB strives to keep reserved words to a minimum.
 
+        This is the full list:
+
+        |                            | Reserved words                                                                 |
+        | -------------------------- | ------------------------------------------------------------------------------ |
+        | __As table name__          | `close`                                                                        |
+        | __Property names in data__ | `where`, `whereIsTrue`, `addListener`, `removeListener`, `delete`, `__table__` |
+
+        Note: You can use the `__table__` property from any level of your data to get a reference to the table instance (`JSTable` instance) that it belongs to. This is mostly for internal use but it’s there if you need it.
 
 ### Table events
 
