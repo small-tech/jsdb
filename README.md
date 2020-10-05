@@ -49,6 +49,8 @@ __Not to farm people for their data.__ Surveillance capitalists can jog on now.
 
   - __Automatic:__ it just works. No configuration.
 
+  - __100% code coverage:__ meticulously tested. Note that this does not mean it is bug free ;)
+
 
 ## Limitations
 
