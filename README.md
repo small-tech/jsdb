@@ -232,7 +232,9 @@ Given a JSON data file of spoken languages by country in the following format:
       "Spanish"
     ]
   },
-  …
+  {
+    "etc.": "…"
+  }
 ]
 ```
 
