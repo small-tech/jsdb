@@ -201,7 +201,6 @@ Your database tables will be automatically closed if you exit your script. Howev
 Here’s what you’d do to close the database in the above example:
 
 ```js
-
 async main () {
   // … 🠑 the earlier code from the example, above.
 
@@ -281,7 +280,7 @@ When you run it, you should see the following result:
 ```
 
 
-## Dispelling the magic and a couple of gotchas
+## Dispelling the magic and a pointing out a couple of gotchas
 
 Here are a couple of facts to dispel the magic behind what’s going on:
 
@@ -292,9 +291,13 @@ Here are a couple of facts to dispel the magic behind what’s going on:
   - When you open a database, you get a Proxy instance back, not an instance of JSDB.
   - Similarly, when you reference a table or the data within it, you are referencing proxy objects, not the table instance or the data itself.
 
+### How the sausage is made
+
 When you open a database, JSDB loads in any `.js` files it can find in your database directory. Doing so creates the data structures defined in those files in memory. Alongside, JSDB also creates a structure of [proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) that mirrors the data structure and traps (captures) calls to get, set, or delete values. Every time you set or delete a value, the corresponding JavaScript statement is appended to your table on disk.
 
 By calling the `where()` or `whereIsTrue()` methods, you start a [query](#jsql-reference). Queries help you search for specific bits of data. They are implemented using the get traps in the proxy.
+
+### Gotchas and limitations
 
 Given that a core goal for JSDB is to be transparent, you will mostly feel like you’re working with regular JavaScript collections (objects and arrays) instead of a database. That said, there are a couple of gotchas and limitations that arise from the use of proxies and the impedance mismatch between synchronous data manipulation in JavaScript and the asynchronous nature of file handling:
 
