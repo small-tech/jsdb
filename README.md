@@ -19,7 +19,7 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x]  ╰─ Add unit tests for queries. (1 Oct)
   - [x]  ╰─ Document queries. (1 Oct)
   - [x] __Bring code coverage back up to 100%.__ (2 Oct)
-  - [x] __Implement safety controls on instantiation and table replacement.__
+  - [x] __Implement safety controls on instantiation and table replacement.__ (5 Oct)
   - [ ] __Integrate into [Site.js](https://sitejs.org)__ _(in progress)_
   - [ ] __Use/test on upcoming small-web.org site__
   - [ ] __Release version 1.0.0__
