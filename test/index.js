@@ -668,5 +668,8 @@ test('JSDB', t => {
   t.strictEquals(JSON.stringify(loadTable('db', 'arrayTable')), JSON.stringify(db.arrayTable), 'persisted array table matches in-memory data')
   t.strictEquals(JSON.stringify(loadTable('db', 'objectTable')), JSON.stringify(db.objectTable), 'persisted object table matched in-memory data')
 
+  // Attempting to instantiate the JSDB class directly throws.
+  t.throws(() => { new JSDB('someBasePath') }, 'Attempting to instantiate the JSDB class directly throws.')
+
   t.end()
 })
