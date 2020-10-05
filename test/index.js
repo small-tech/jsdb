@@ -136,7 +136,7 @@ test('basic persistence', t => {
       const updatedTable = loadTable('db', 'people')
       t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 2: persisted table matches in-memory table after property update')
 
-      db.people.__table__.removeListener('persist', tableListener)
+      db.people.removeListener('persist', tableListener)
 
       //
       // Persisted table format.
@@ -193,12 +193,13 @@ test('basic persistence', t => {
 
       t.strictEquals(JSON.stringify(peopleTable), inMemoryStateOfPeopleTableFromOriginalDatabase, 'line-by-line loaded data matches previous state of the in-memory table')
 
+      // Note: __table__ is for internal use only.
       await peopleTable.__table__.close()
 
       t.end()
     }
   }
-  db.people.__table__.addListener('persist', tableListener)
+  db.people.addListener('persist', tableListener)
 
   // Update a property
   let expectedWriteCount = 1
@@ -220,7 +221,7 @@ test('table replacement', async t => {
   t.throws(() => db.people = people, 'attempting to replace a table without first deleting it throws')
 
   // To replace a table, we must first delete the current one and then set the new object.
-  await db.people.__table__.delete()
+  await db.people.delete()
 
   // Now it should be safe to recreate the table.
   db.people = people
@@ -256,7 +257,7 @@ test('concurrent updates', t => {
 
   // TODO: Pull out handler and removeListener before test end.
   const persistedChanges = []
-  db.settings.__table__.addListener('persist', (table, change) => {
+  db.settings.addListener('persist', (table, change) => {
 
     handlerInvocationCount++
 
@@ -546,6 +547,7 @@ test('Basic queries', t => {
   const expectedToBeTheQuery = incompleteQueryProxy.query
   const expectedToBeTheData = incompleteQueryProxy.data
 
+  // Note: __table__ is for internal use only.
   t.strictEquals(expectedToBeCarsTable, db.cars.__table__, 'incompleteQueryProxy.table is as expected')
   t.strictEquals(expectedToBeTheQuery, 'valueOf.year', 'incompleteQueryProxy.query is as expected')
   t.strictEquals(JSON.stringify(expectedToBeTheData), JSON.stringify(db.cars), 'incompleteQueryProxy.data is as expected')

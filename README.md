@@ -191,7 +191,28 @@ Ah, that is neater. You can see that Laura’s record is created with the correc
 (You can find these examples in the `examples/basic` folder of the source code.)
 
 
-## Dispelling the magic and a few gotchas
+## Closing a database
+
+Your database tables will be automatically closed if you exit your script. However, there might be times when you want to manually close a database (for example, to reopen it with different settings, etc.) In that case, you can call the asynchronous `close()` method on the database proxy.
+
+Here’s what you’d do to close the database in the above example:
+
+```js
+
+async main () {
+  // … 🠑 the earlier code from the example, above.
+
+  await db.close()
+
+  // The database and all of its tables are now closed.
+  // It is now safe (and allowed) to reopen it.
+}
+
+main()
+```
+
+
+## Dispelling the magic and a couple of gotchas
 
 Here are a couple of facts to dispel the magic behind what’s going on:
 
@@ -199,8 +220,8 @@ Here are a couple of facts to dispel the magic behind what’s going on:
   - Inside that directory, you can have zero or more tables.
   - A table is a JSDF file.
   - A JSDF file is a sequence of JavaScript statements that creates a data object (either an object or an array). It is an append-only log that is compacted at load. JSDF files are valid JavaScript files and should run correctly under any JavaScript interpreter.
-  - When you open a database, you get a Proxy instance back, not an instance of JSDB. If you need to access the JSDB instance use the special `__database__` property on the proxy object.
-  - When you reference a table or the data within it, you are referencing proxy objects, not the table instance or the data itself. Similarly, if you want to access the `JSTable` instance itself, use the special `__table__` property on a table or any of its data.
+  - When you open a database, you get a Proxy instance back, not an instance of JSDB.
+  - Similarly, when you reference a table or the data within it, you are referencing proxy objects, not the table instance or the data itself.
 
 When you open a database, JSDB loads in any `.js` files it can find in your database directory. Doing so creates the data structures defined in those files in memory. Alongside, JSDB also creates a structure of [proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) that mirrors the data structure and traps (captures) calls to get, set, or delete values. Every time you set or delete a value, the corresponding JavaScript statement is appended to your table on disk.
 
@@ -212,13 +233,12 @@ Given that a core goal for JSDB is to be transparent, you will mostly feel like 
 
   2. __You cannot reassign a value to your tables without first deleting them.__ Since assignment is a synchronous action and since we cannot safely replace the existing table on disk with a different one synchronously, you must first call the asynchronous `delete()` method on a table instance before assigning a new value for it on the database, thereby creating a new table.
 
-At times, it might be useful to have access to the underlying abstractions like the table object. One of those times is if you want to delete a table, as outlined above. If you wanted to delete the `people` table we created earlier, for example, and replace it with a different one entirely, you would do this:
 
 ```js
 async main () {
   // … 🠑 the earlier code from the example, above.
 
-  await db.people.__table__.delete()
+  await db.people.delete()
 
   // The people table is now deleted and we can recreate it.
 
@@ -240,24 +260,25 @@ async main () {
 main()
 ```
 
-Another time you will need access to the table object itself instead of the proxy is if you want to be notified of events.
-
-For example:
-
-
-```js
-db.people.__table__.addListener('persist', (table, change) => {
-  console.log(`Table ${table.tableName} persisted change ${change.replace('\n', '')} to disk.`)
-})
-```
-
 
 ### Table events
+
+You can listen for the following events on tables:
 
 | Event name | Description                           |
 | ---------- | ------------------------------------- |
 | persist    | The table has been persisted to disk. |
 | delete     | The table has been deleted from disk. |
+
+#### Example
+
+The following handler will get called whenever a change is persisted to disk for the `people` table:
+
+```js
+db.people.addListener('persist', (table, change) => {
+  console.log(`Table ${table.tableName} persisted change ${change.replace('\n', '')} to disk.`)
+})
+```
 
 
 ## JSQL Reference
