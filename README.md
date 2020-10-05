@@ -63,7 +63,7 @@ __Not to farm people for their data.__ Surveillance capitalists can jog on now.
 
   - __In-memory:__ all data is kept in memory and, [without tweaks, cannot exceed 1.4GB in size](https://www.the-data-wrangler.com/nodejs-memory-limits/). While JSDB will work with large datasets, that’s not its primary purpose and it’s definitely not here to help you farm people for their data, so please don’t use it for that. (If that’s what you want, quite literally every other database out there is for your use case so please use one of those instead.)
 
-  - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on my development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
+  - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on a development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
 
   - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local server-side data. If you want schemas and migrations, take a look at nearly every other database out there.
 
@@ -125,7 +125,7 @@ _['length'] = 3;
 _[2]['name'] = `Osky`;
 ```
 
-(Note: the format is a work-in-progress like the rest of the project at the moment. I am considering cleaning up the superfluous length statements and weighing up the performance hit of maintaining state to enable that versus the potential use cases of a cleaner log – like history replay for example – and file size/initial load speed, which is really not too much of a concern given that they occur at server start for our use cases).
+(Note: the format is a work-in-progress like the rest of the project at the moment. I’m considering cleaning up the superfluous length statements and weighing up the performance hit of maintaining state to enable that versus the potential use cases of a cleaner log – like history replay for example – and file size/initial load speed, which is really not too much of a concern given that they occur at server start for our use cases).
 
 ## It’s just JavaScript!
 
@@ -364,7 +364,7 @@ db.people.addListener('persist', (table, change) => {
 
 ## JSQL Reference
 
-The examples in the reference all use the following random dataset. Note, I know nothing about cars, the tags are also arbitrary. Don’t @ me ;)
+The examples in the reference all use the following random dataset. _Note, I know nothing about cars, the tags are also arbitrary. Don’t @ me ;)_
 
 ```js
 const cars = [
@@ -605,7 +605,7 @@ const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
 
   - The time complexity of reads and writes are both O(1).
   - Reads are fast (take fraction of a millisecond and are about an order of magnitude slower than direct memory reads).
-  - Writes are fast (in the order of a couple of milliseconds on tests on my dev machine).
+  - Writes are fast (in the order of a couple of milliseconds on tests on a dev machine).
 
 ## Limits
 
