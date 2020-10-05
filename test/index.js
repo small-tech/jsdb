@@ -10,6 +10,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+"use strict";
+
 process.env['QUIET'] = true
 
 const test = require('tape')
@@ -22,7 +24,11 @@ const JSTable = require('../lib/JSTable')
 const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
+const { isProxy } = require('util').types
+
 const readlineSync = require('@jcbuisson/readlinesync')
+const { debugPort } = require('process')
+
 
 function loadTable (databaseName, tableName) {
   const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
@@ -49,6 +55,7 @@ function loadTableSource (databaseName, tableName) {
   return fs.readFileSync(tablePath, 'utf-8')
 }
 
+
 function dehydrate (string) {
   return string.replace(/\s/g, '')
 }
@@ -56,6 +63,7 @@ function dehydrate (string) {
 const databasePath = path.join(__dirname, 'db')
 
 class AClass {}
+
 
 test('basic persistence', t => {
   //
@@ -67,7 +75,7 @@ test('basic persistence', t => {
     {"name":"laura","age":34}
   ]
 
-  let db = new JSDB(databasePath, { deleteIfExists: true })
+  let db = JSDB.open(databasePath, { deleteIfExists: true })
 
   t.ok(fs.existsSync(databasePath), 'database is created')
 
@@ -86,15 +94,19 @@ test('basic persistence', t => {
   const createdTable = loadTable('db', 'people')
   t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.people), 'persisted table matches in-memory table')
 
-   //
+  //
   // Property update.
   //
 
   // Listen for the persist event.
   let actualWriteCount = 0
-  const tableListener = table => {
+  const tableListener = async table => {
 
     actualWriteCount++
+
+    //
+    // First time the listener is called:
+    //
 
     if (actualWriteCount === 1) {
       t.strictEquals(table.tableName, 'people', 'the correct table is persisted')
@@ -114,13 +126,17 @@ test('basic persistence', t => {
       db.people[1].age = 33
     }
 
+    //
+    // Second time the listener is called:
+    //
+
     if (actualWriteCount === 2) {
       t.strictEquals(expectedWriteCount, actualWriteCount, 'write 2: expected number of writes has taken place')
       t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 2: original object and data in table are same after property update')
       const updatedTable = loadTable('db', 'people')
       t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 2: persisted table matches in-memory table after property update')
 
-      db.people.__table__.removeListener('persist', tableListener)
+      db.people.removeListener('persist', tableListener)
 
       //
       // Persisted table format.
@@ -146,8 +162,9 @@ test('basic persistence', t => {
 
       const inMemoryStateOfPeopleTableFromOriginalDatabase = JSON.stringify(db.people)
 
-      db = null
-      db = new JSDB(databasePath)
+      await db.close()
+
+      db = JSDB.open(databasePath)
 
       t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
 
@@ -169,21 +186,52 @@ test('basic persistence', t => {
       //
       // Table loading (line-by-line).
       //
-      db = null
+      await db.close()
+
       const tablePath = path.join(databasePath, 'people.js')
       const peopleTable = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
 
       t.strictEquals(JSON.stringify(peopleTable), inMemoryStateOfPeopleTableFromOriginalDatabase, 'line-by-line loaded data matches previous state of the in-memory table')
 
+      // Note: __table__ is for internal use only.
+      await peopleTable.__table__.close()
+
       t.end()
     }
   }
-  db.people.__table__.addListener('persist', tableListener)
+  db.people.addListener('persist', tableListener)
 
   // Update a property
   let expectedWriteCount = 1
   db.people[0].age = 21
 })
+
+
+test('table replacement', async t => {
+  const people = [
+    {"name":"aral","age":44},
+    {"name":"laura","age":34}
+  ]
+
+  let db = JSDB.open(databasePath, { deleteIfExists: true })
+
+  db.people = people
+
+  // Attempting to replace the table without first deleting it should throw.
+  t.throws(() => db.people = people, 'attempting to replace a table without first deleting it throws')
+
+  // To replace a table, we must first delete the current one and then set the new object.
+  await db.people.delete()
+
+  // Now it should be safe to recreate the table.
+  db.people = people
+
+  const createdTable2 = loadTable('db', 'people')
+  t.strictEquals(JSON.stringify(createdTable2), JSON.stringify(db.people), 'replaced table matches in-memory table')
+
+  t.end()
+})
+
 
 test('concurrent updates', t => {
   const settings = {
@@ -195,7 +243,7 @@ test('concurrent updates', t => {
     }
   }
 
-  const db = new JSDB(databasePath, { deleteIfExists: true })
+  const db = JSDB.open(databasePath, { deleteIfExists: true })
 
   db.settings = settings
 
@@ -209,7 +257,7 @@ test('concurrent updates', t => {
 
   // TODO: Pull out handler and removeListener before test end.
   const persistedChanges = []
-  db.settings.__table__.addListener('persist', (table, change) => {
+  db.settings.addListener('persist', (table, change) => {
 
     handlerInvocationCount++
 
@@ -258,7 +306,7 @@ test('concurrent updates', t => {
 
 test('Basic queries', t => {
 
-  const db = new JSDB(databasePath, { deleteIfExists: true })
+  const db = JSDB.open(databasePath, { deleteIfExists: true })
 
   // Note: I know nothing about cars. This is randomly generated data. And I added the tags myself
   // ===== to test the includes operator on an array property.
@@ -499,6 +547,7 @@ test('Basic queries', t => {
   const expectedToBeTheQuery = incompleteQueryProxy.query
   const expectedToBeTheData = incompleteQueryProxy.data
 
+  // Note: __table__ is for internal use only.
   t.strictEquals(expectedToBeCarsTable, db.cars.__table__, 'incompleteQueryProxy.table is as expected')
   t.strictEquals(expectedToBeTheQuery, 'valueOf.year', 'incompleteQueryProxy.query is as expected')
   t.strictEquals(JSON.stringify(expectedToBeTheData), JSON.stringify(db.cars), 'incompleteQueryProxy.data is as expected')
@@ -556,6 +605,7 @@ test('Time', t => {
   t.end()
 })
 
+
 test ('Util', t => {
   //
   // needsToBeProxified()
@@ -596,8 +646,9 @@ test ('Util', t => {
   t.end()
 })
 
+
 test('JSDB', t => {
-  const db = new JSDB(databasePath, { deleteIfExists: true })
+  const db = JSDB.open(databasePath, { deleteIfExists: true })
 
   t.throws(() => { db.invalid = null      }, 'attempting to create null table throws')
   t.throws(() => { db.invalid = undefined }, 'attempting to create undefined table throws')
@@ -618,6 +669,9 @@ test('JSDB', t => {
 
   t.strictEquals(JSON.stringify(loadTable('db', 'arrayTable')), JSON.stringify(db.arrayTable), 'persisted array table matches in-memory data')
   t.strictEquals(JSON.stringify(loadTable('db', 'objectTable')), JSON.stringify(db.objectTable), 'persisted object table matched in-memory data')
+
+  // Attempting to instantiate the JSDB class directly throws.
+  t.throws(() => { new JSDB('someBasePath') }, 'Attempting to instantiate the JSDB class directly throws.')
 
   t.end()
 })

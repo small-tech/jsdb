@@ -19,9 +19,11 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x]  ╰─ Add unit tests for queries. (1 Oct)
   - [x]  ╰─ Document queries. (1 Oct)
   - [x] __Bring code coverage back up to 100%.__ (2 Oct)
-  - [ ] __Integrate into [Site.js](https://sitejs.org)__ _(in progress)_
+  - [x] __Implement safety controls on instantiation and table replacement__ _(in progress)_
+  - [ ] __Integrate into [Site.js](https://sitejs.org)__
   - [ ] __Use/test on upcoming small-web.org site__
   - [ ] __Release version 1.0.0__
+
 
 ## Ideas for post 1.0.0.
 
@@ -34,6 +36,35 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [ ]       ╰─ Add indices example.
 
 
+## Use case
+
+A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) sites for basic public (e.g., anonymous comments on articles) or configuration data. Built for use in [Site.js](https://sitejs.org).
+
+__Not to farm people for their data.__ Surveillance capitalists can jog on now.
+
+
+## Features
+
+  - __Transparent:__ if you know how to work with arrays and objects and call methods in JavaScript, you already know how to use JSDB? It’s not called JavaScript Database for nothing.
+
+  - __Automatic:__ it just works. No configuration.
+
+
+## Limitations
+
+  - __Small Data:__ this is for small data, not Big Data™.
+
+  - __For Node.js:__ will not work in the browser. (Although data tables are plain JavaScript files and can be loaded in the browser.)
+
+  - __Runs on untrusted nodes:__ this is for data kept on untrusted nodes (servers). Use it judiciously if you must for public data, configuration data, etc. If you want to store personal data or model human communication, consider end-to-end encrypted and peer-to-peer replicating data structures instead to protect privacy and freedom of speech. Keep an eye on the work taking place around the [Hypercore Protocol](https://hypercore-protocol.org/).
+
+  - __In-memory:__ all data is kept in memory and, [without tweaks, cannot exceed 1.4GB in size](https://www.the-data-wrangler.com/nodejs-memory-limits/). While JSDB will work with large datasets, that’s not its primary purpose and it’s definitely not here to help you farm people for their data, so please don’t use it for that. (If that’s what you want, quite literally every other database out there is for your use case so please use one of those instead.)
+
+  - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on my development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
+
+  - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local server-side data. If you want schemas and migrations, take a look at nearly every other database out there.
+
+
 ## To install
 
 Currently, you need to clone or install from this repo as this is a work-in-progress and no releases have been made yet to npm.
@@ -41,6 +72,7 @@ Currently, you need to clone or install from this repo as this is a work-in-prog
 ```
 npm i github:small-tech/jsdb
 ```
+
 
 ## Usage
 
@@ -51,22 +83,26 @@ const JSDB = require('@small-tech/jsdb')
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
-const db = new JSDB('db')
+//
+const db = JSDB.open('db')
 
-// Create db/people.js table with some initial data.
-db.people = [
-  {name: 'Aral', age: 43},
-  {name: 'Laura', age: 34}
-]
+// Create db/people.js table with some initial data if it
+// doesn’t already exist.
+if (!db.people) {
+  db.people = [
+    {name: 'Aral', age: 43},
+    {name: 'Laura', age: 34}
+  ]
 
-// Correct Laura’s age. (This will automatically update db/people.js)
-db.people[1].age = 33
+  // Correct Laura’s age. (This will automatically update db/people.js)
+  db.people[1].age = 33
 
-// Add Oskar to the family. (This will automatically update db/people.js)
-db.people.push({name: 'Oskar', age: 8})
+  // Add Oskar to the family. (This will automatically update db/people.js)
+  db.people.push({name: 'Oskar', age: 8})
 
-// Update Oskar’s name to use his nickname. (This will automatically update db/people.js)
-db.people[2].name = 'Osky'
+  // Update Oskar’s name to use his nickname. (This will automatically update db/people.js)
+  db.people[2].name = 'Osky'
+}
 ```
 
 After running the above script, take a look at the resulting database table in the `./db/people.js` file.
@@ -116,13 +152,14 @@ To test that out, open a Node.js command-line interface (run `node`) from the di
 const JSDB = require('@small-tech/jsdb')
 
 // This will load test database with the people table we created earlier.
-const db = new JSDB('db')
+const db = JSDB.open('db')
 
 // Let’s carry out a query that should find us Osky.
 console.log(db.people.where('age').isLessThan(21).get())
 ```
 
 For details, see the [JSQL Reference](#jsql-reference) section.
+
 
 ## Compaction
 
@@ -135,7 +172,7 @@ Compaction is important for two reasons; during compaction:
 
 Compaction will also reduce the size of your tables.
 
-That said, compaction is a relatively slow process that gets increasingly slower as the size of your database grows (it has O(N) time complexity as the whole database is recreated).
+That said, compaction is a relatively slow process that gets uniformly slower as the size of your database grows (it has O(N) time complexity as the whole database is recreated).
 
 You do have the option to override the default behaviour and keep all history. You might want to do this, for example, if you’re creating a web app that lets you create a drawing and you want to play the drawing back stroke by stroke, etc.
 
@@ -149,53 +186,100 @@ _[1] = JSON.parse(`{"name":"Laura","age":33}`);
 _[2] = JSON.parse(`{"name":"Osky","age":8}`);
 ```
 
-Ah, that is neater. You can see that Laura’s record is created with the correct age from the outset and Oskar’s name is set at Osky from the outset also.
+Ah, that is neater. You can see that Laura’s record is created with the correct age from the outset and Oskar’s name is set to its final value of Osky from the outset.
 
 (You can find these examples in the `examples/basic` folder of the source code.)
 
-## Use case
 
-A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) sites for basic public (e.g., anonymous comments on articles) or configuration data. Built for use in [Site.js](https://sitejs.org).
+## Closing a database
 
-__Not to farm people for their data.__ Surveillance capitalists can jog on now.
+Your database tables will be automatically closed if you exit your script. However, there might be times when you want to manually close a database (for example, to reopen it with different settings, etc.) In that case, you can call the asynchronous `close()` method on the database proxy.
 
-## Features
-
-  - __Transparent:__ if you know how to work with arrays and objects and call methods in JavaScript, you already know how to use JSDB? It’s not called JavaScript Database for nothing.
-
-  - __Automatic:__ it just works. No configuration.
-
-## Limitations
-
-  - __Small Data:__ this is for small data, not Big Data™.
-
-  - __For Node.js:__ will not work in the browser. (Although the data table can be loaded in the browser.)
-
-  - __Runs on untrusted nodes:__ this is for data kept on untrusted (server) nodes. Use it judiciously if you must for public data, configuration data, etc. If you want to store personal data or model human communication, consider end-to-end encrypted and peer-to-peer replicating data structures instead to protect privacy and freedom of speech. Keep an eye on the work taking place around the [Hypercore Protocol](https://hypercore-protocol.org/).
-
-  - __In-memory:__ all data is kept in memory and, [without tweaks, cannot exceed 1.4GB in size](https://www.the-data-wrangler.com/nodejs-memory-limits/). While JSDB will work with large datasets, that’s not its primary purpose and it’s definitely not here to help you farm people for their data, so please don’t use it for that. (If that’s what you want, quite literally every other database out there is for your use case so please use one of those instead.)
-
-  - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on my development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
-
-  - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local server-side data. If you want schemas and migrations, take a look at nearly every other database out there.
-
-## Events
-
-Given that a core goal for JSDB is to be transparent, you will mostly feel like you’re working with regular JavaScript collections (objects and arrays). At times, however, it might be useful to have access to the underlying abstractions like the table object. One of those instances is if you want to be notified of events.
-
-To listen for an event, access the special `__table__` property of your collection. e.g.,
+Here’s what you’d do to close the database in the above example:
 
 ```js
-db.people.__table__.addListener('persist', (table, change) => {
-  console.log(`Table ${table.tableName} persisted change ${change.replace('\n', '')} to disk.`)
-})
+
+async main () {
+  // … 🠑 the earlier code from the example, above.
+
+  await db.close()
+
+  // The database and all of its tables are now closed.
+  // It is now safe (and allowed) to reopen it.
+}
+
+main()
 ```
 
+
+## Dispelling the magic and a couple of gotchas
+
+Here are a couple of facts to dispel the magic behind what’s going on:
+
+  - What we call a _database_ in JSDB is just a regular directory on your file system.
+  - Inside that directory, you can have zero or more tables.
+  - A table is a JSDF file.
+  - A JSDF file is a sequence of JavaScript statements that creates a data object (either an object or an array). It is an append-only log that is compacted at load. JSDF files are valid JavaScript files and should run correctly under any JavaScript interpreter.
+  - When you open a database, you get a Proxy instance back, not an instance of JSDB.
+  - Similarly, when you reference a table or the data within it, you are referencing proxy objects, not the table instance or the data itself.
+
+When you open a database, JSDB loads in any `.js` files it can find in your database directory. Doing so creates the data structures defined in those files in memory. Alongside, JSDB also creates a structure of [proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) that mirrors the data structure and traps (captures) calls to get, set, or delete values. Every time you set or delete a value, the corresponding JavaScript statement is appended to your table on disk.
+
+By calling the `where()` or `whereIsTrue()` methods, you start a [query](#jsql-reference). Queries help you search for specific bits of data. They are implemented using the get traps in the proxy.
+
+Given that a core goal for JSDB is to be transparent, you will mostly feel like you’re working with regular JavaScript collections (objects and arrays) instead of a database. That said, there are a couple of gotchas and limitations that arise from the use of proxies and the impedance mismatch between synchronous data manipulation in JavaScript and the asynchronous nature of file handling:
+
+  1. __You can only have one copy of a database open at one time.__ Given that tables are append-only logs, having multiple streams writing to them would corrupt your tables. The JSDB class enforces this by forcing you to use the `open()` factory method to create or load in your databases.
+
+  2. __You cannot reassign a value to your tables without first deleting them.__ Since assignment is a synchronous action and since we cannot safely replace the existing table on disk with a different one synchronously, you must first call the asynchronous `delete()` method on a table instance before assigning a new value for it on the database, thereby creating a new table.
+
+
+```js
+async main () {
+  // … 🠑 the earlier code from the example, above.
+
+  await db.people.delete()
+
+  // The people table is now deleted and we can recreate it.
+
+  // This is OK.
+  db.people = [
+    {name: 'Ed Snowden', age: 37}
+  ]
+
+  // This is NOT.
+  try {
+    db.people = [
+      {name: 'Someone else', age: 100}
+    ]
+  } catch (error) {
+    console.log('This throws as we haven’t deleted the table first.')
+  }
+}
+
+main()
+```
+
+
 ### Table events
+
+You can listen for the following events on tables:
 
 | Event name | Description                           |
 | ---------- | ------------------------------------- |
 | persist    | The table has been persisted to disk. |
+| delete     | The table has been deleted from disk. |
+
+#### Example
+
+The following handler will get called whenever a change is persisted to disk for the `people` table:
+
+```js
+db.people.addListener('persist', (table, change) => {
+  console.log(`Table ${table.tableName} persisted change ${change.replace('\n', '')} to disk.`)
+})
+```
+
 
 ## JSQL Reference
 
