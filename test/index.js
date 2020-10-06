@@ -207,6 +207,55 @@ test('basic persistence', t => {
 })
 
 
+test('table decaching on close', async t => {
+  // Create the table initially with an empty array.
+  const messagesTablePath = path.join(databasePath, 'messages.js')
+  let messagesTable = new JSTable(messagesTablePath, [])
+
+  // Populate it with a couple of messages.
+  const message1 = {nickname: 'Aral', text: 'Hello! :)'}
+  const message2 = {nickname: 'Laura', text: 'Hey! :)'}
+  messagesTable.push(message1)
+  messagesTable.push(message2)
+
+  // Note: __table__ is for internal use only.
+  await messagesTable.__table__.close()
+
+  // Reopen the messages table. This will load the table in using require(), which is cached.
+  messagesTable = new JSTable(messagesTablePath)
+
+  t.strictEquals(JSON.stringify(messagesTable[0]), JSON.stringify(message1), 'first load: the first messages is as expected')
+  t.strictEquals(JSON.stringify(messagesTable[1]), JSON.stringify(message2), 'first load: the second messages is as expected')
+  t.strictEquals(messagesTable.length, 2, 'first load: the number of messages is as expected')
+
+  // Now, lets add two more messages.
+  const message3 = {nickname: 'Laura', text: 'So what’s up?'}
+  const message4 = {nickname: 'Aral', text: 'Nothing much, just wanted to say “hi!”'}
+  messagesTable.push(message3)
+  messagesTable.push(message4)
+
+  // Note: __table__ is for internal use only.
+  await messagesTable.__table__.close()
+
+  // Now, let’s reopen the messages table a second time. If decaching is working,
+  // a fresh copy with our latest messages will be returned. If it is not working
+  // properly, then the last two messages will be lost and the table will be returned
+  // from the require cache.
+  messagesTable = new JSTable(messagesTablePath)
+
+  t.strictEquals(JSON.stringify(messagesTable[0]), JSON.stringify(message1), 'second load: the first messages is as expected')
+  t.strictEquals(JSON.stringify(messagesTable[1]), JSON.stringify(message2), 'second load: the second messages is as expected')
+  t.strictEquals(JSON.stringify(messagesTable[2]), JSON.stringify(message3), 'second load: the third messages is as expected')
+  t.strictEquals(JSON.stringify(messagesTable[3]), JSON.stringify(message4), 'second load: the fourth messages is as expected')
+  t.strictEquals(messagesTable.length, 4, 'second load: the number of messages is as expected')
+
+  // Note: __table__ is for internal use only.
+  await messagesTable.__table__.close()
+
+  t.end()
+})
+
+
 test('table replacement', async t => {
   const people = [
     {"name":"aral","age":44},
