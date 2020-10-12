@@ -20,6 +20,7 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x]  ╰─ Document queries. (1 Oct)
   - [x] __Bring code coverage back up to 100%.__ (2 Oct)
   - [x] __Implement safety controls on instantiation and table replacement.__ (5 Oct)
+  - [ ] __Implement JSDF serialiser__ (inc. support for custom objects, and Date, etc.) _(in progress)_
   - [ ] __Integrate into [Site.js](https://sitejs.org)__ _(in progress)_
   - [ ] __Use/test on upcoming small-web.org site__
   - [ ] __Release version 1.0.0__
@@ -144,6 +145,19 @@ For example, create an _index.html_ file with the following content in the same 
 </script>
 </ul>
 ```
+
+## Important security note
+
+Note that JSDF is __not__ a data exchange format. Since it contains JavaScript code that is run, you must only load JSDF files from a domain that you own and control and have a secure connection to.
+
+__Do not load in JSDF files from third parties.__
+
+If you want a data _exchange_ format, use [JSON](https://www.json.org/json-en.html).
+
+Remember:
+
+  - JSON is a terrible format for a database but a great format for data exchange.
+  - JSDF is a terrible format for data exchange but a great format for a JavaScript database.
 
 ## JavaScript Query Language (JSQL)
 
