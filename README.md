@@ -248,9 +248,9 @@ Remember:
 
 ## JavaScript Query Language (JSQL)
 
-Of course, when you load the data in directly, you are not running it inside JSDB so you cannot update the data or use the JavaScript Query Language (JSQL) to query it.
+In the browser-based example, above, you loaded the data in directly. When you do that, of course, you are not running it inside JSDB so you cannot update the data or use the JavaScript Query Language (JSQL) to query it.
 
-To test that out, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
+To test out JSQL, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
 
 ```js
 const JSDB = require('@small-tech/jsdb')
@@ -286,10 +286,10 @@ Now that you’ve loaded the file back, look at the `./db/people.js` JSDF file a
 
 ```js
 globalThis._ = [];
-(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-_[0] = JSON.parse(`{"name":"Aral","age":43}`);
-_[1] = JSON.parse(`{"name":"Laura","age":33}`);
-_[2] = JSON.parse(`{"name":"Osky","age":8}`);
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof mo;
+_[0] = { name: `Aral`, age: 43 };
+_[1] = { name: `Laura`, age: 33 };
+_[2] = { name: `Osky`, age: 8 };
 ```
 
 Ah, that is neater. You can see that Laura’s record is created with the correct age from the outset and Oskar’s name is set to its final value of Osky from the outset.
@@ -384,6 +384,7 @@ When you run it, you should see the following result:
 ]
 ```
 
+The code for this example is in the `examples/json` folder of the source code.
 
 ## Dispelling the magic and a pointing out a couple of gotchas
 
