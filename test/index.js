@@ -143,10 +143,8 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceBeforeCompaction = `
-        globalThis._ = [];
+        globalThis._ = [ { name: \`aral\`, age: 44 }, { name: \`laura\`, age: 34 } ];
         (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-        _[0] = { name: \`aral\`, age: 44 };
-        _[1] = { name: \`laura\`, age: 34 };
         _[0]['age'] = 21;
         _[0]['age'] = 43;
         _[1]['age'] = 33;
@@ -173,10 +171,8 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceAfterCompaction = `
-        globalThis._ = [];
+        globalThis._ = [ { name: \`aral\`, age: 43 }, { name: \`laura\`, age: 33 } ];
         (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-        _[0] = { name: \`aral\`, age: 43 };
-        _[1] = { name: \`laura\`, age: 33 };
       `
 
       const actualTableSourceAfterCompaction = loadTableSource('db', 'people')

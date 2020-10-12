@@ -20,7 +20,7 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x]  ╰─ Document queries. (1 Oct)
   - [x] __Bring code coverage back up to 100%.__ (2 Oct)
   - [x] __Implement safety controls on instantiation and table replacement.__ (5 Oct)
-  - [ ] __Implement JSDF serialiser__ (inc. support for custom objects, and Date, etc.) _(in progress)_
+  - [x] __Implement JSDF serialiser__ (inc. support for custom objects, and Date, etc.) (12 Oct)
   - [ ] __Integrate into [Site.js](https://sitejs.org)__ _(in progress)_
   - [ ] __Use/test on upcoming small-web.org site__
   - [ ] __Release version 1.0.0__
@@ -116,10 +116,8 @@ After running the above script, take a look at the resulting database table in t
 JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is a plain JavaScript file that comprises an append-only transaction log that creates the table in memory. For our example, it looks like this:
 
 ```js
-globalThis._ = [];
-(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-_[0] = { name: `Aral`, age: 43 };
-_[1] = { name: `Laura`, age: 34 };
+globalThis._ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 34 } ];
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof mo;
 _[1]['age'] = 33;
 _[2] = { name: `Oskar`, age: 8 };
 _[2]['name'] = `Osky`;
@@ -152,7 +150,7 @@ Just because it’s JavaScript, it doesn’t mean that you can throw anything in
   - `Number`
   - `Boolean`
   - `String`
-  - `Object`
+  - `Object` (and `bound Object`)
   - `Array`
   - `Date`
   - `Symbol`
@@ -198,10 +196,8 @@ db.people[1].introduceYourself()
 If you look in the created `db/people.js` file, this time you’ll see:
 
 ```js
-globalThis._ = [];
+globalThis._ = [ Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Aral` })), Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Laura` })) ];
 (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-_[0] = Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Aral` }));
-_[1] = Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Laura` }));
 ```
 
 If you were to load the database in an environment where the `Person` class does not exist, you will get a regular object back.
@@ -267,8 +263,6 @@ For details, see the [JSQL Reference](#jsql-reference) section.
 
 ## Compaction
 
-___Note:__ I’m currently reviewing how compacting works. In a server setting, it __is__ important how fast the server restarts so I plan to make compaction a low-CPU background process that runs on a given interval instead of at every startup. This may have to be a post version 1.0 refactor._
-
 When you load in a JSDB table, by default JSDB will compact the JSDF file.
 
 Compaction is important for two reasons; during compaction:
@@ -285,11 +279,8 @@ You do have the option to override the default behaviour and keep all history. Y
 Now that you’ve loaded the file back, look at the `./db/people.js` JSDF file again to see how it looks after compaction:
 
 ```js
-globalThis._ = [];
-(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof mo;
-_[0] = { name: `Aral`, age: 43 };
-_[1] = { name: `Laura`, age: 33 };
-_[2] = { name: `Osky`, age: 8 };
+globalThis._ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 33 }, { name: `Osky`, age: 8 } ];
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
 ```
 
 Ah, that is neater. You can see that Laura’s record is created with the correct age from the outset and Oskar’s name is set to its final value of Osky from the outset.
