@@ -143,13 +143,13 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceBeforeCompaction = `
-      globalThis._ = [];
-      (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-      (()=>{_[0] = {}; _[0]['name'] = \`aral\`; _[0]['age'] = 44;})();
-      (()=>{_[1] = {}; _[1]['name'] = \`laura\`; _[1]['age'] = 34;})();
-      (()=>{_[0]['age'] = 21;})();
-      (()=>{_[0]['age'] = 43;})();
-      (()=>{_[1]['age'] = 33;})();
+        globalThis._ = [];
+        (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+        _[0] = { name: \`aral\`, age: 44 };
+        _[1] = { name: \`laura\`, age: 34 };
+        _[0]['age'] = 21;
+        _[0]['age'] = 43;
+        _[1]['age'] = 33;
       `
 
       const actualTableSourceBeforeCompaction = loadTableSource('db', 'people')
@@ -175,8 +175,8 @@ test('basic persistence', t => {
       const expectedTableSourceAfterCompaction = `
         globalThis._ = [];
         (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-        (()=>{_[0] = {}; _[0]['name'] = \`aral\`; _[0]['age'] = 43;})();
-        (()=>{_[1] = {}; _[1]['name'] = \`laura\`; _[1]['age'] = 33;})();
+        _[0] = { name: \`aral\`, age: 43 };
+        _[1] = { name: \`laura\`, age: 33 };
       `
 
       const actualTableSourceAfterCompaction = loadTableSource('db', 'people')
@@ -315,8 +315,8 @@ test('concurrent updates', t => {
     }
 
     const expectedChanges = [
-      `(()=>{_['darkMode'] = \`always-on\`;})();\n`,
-      `(()=>{_['colours'] = {}; _['colours']['red'] = \`#AA0000\`; _['colours']['green'] = \`#00AA00\`; _['colours']['magenta'] = \`#AA00AA\`;})();\n`,
+      `_['darkMode'] = \`always-on\`;\n`,
+      `_['colours'] = { red: \`#AA0000\`, green: \`#00AA00\`, magenta: \`#AA00AA\` };\n`,
       'delete _[\'colours\'];\n'
     ]
 
