@@ -118,15 +118,12 @@ JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is
 ```js
 globalThis._ = [];
 (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-_[0] = JSON.parse(`{"name":"Aral","age":43}`);
-_[1] = JSON.parse(`{"name":"Laura","age":34}`);
+_[0] = { name: `Aral`, age: 43 };
+_[1] = { name: `Laura`, age: 34 };
 _[1]['age'] = 33;
-_[2] = JSON.parse(`{"name":"Oskar","age":8}`);
-_['length'] = 3;
+_[2] = { name: `Oskar`, age: 8 };
 _[2]['name'] = `Osky`;
 ```
-
-(Note: the format is a work-in-progress like the rest of the project at the moment. I’m considering cleaning up the superfluous length statements and weighing up the performance hit of maintaining state to enable that versus the potential use cases of a cleaner log – like history replay for example – and file size/initial load speed, which is really not too much of a concern given that they occur at server start for our use cases).
 
 ## It’s just JavaScript!
 
@@ -197,6 +194,29 @@ if (!db.people) {
 // (On the first run and on subsequent runs when the objects are loaded from disk.)
 db.people[1].introduceYourself()
 ```
+
+If you look in the created `db/people.js` file, this time you’ll see:
+
+```js
+globalThis._ = [];
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+_[0] = Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Aral` }));
+_[1] = Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Laura` }));
+```
+
+If you were to load the database in an environment where the `Person` class does not exist, you will get a regular object back.
+
+To test this, you can run the following code:
+
+```js
+const JSDB = require('@small-tech/jsdb')
+const db = JSDB.open('db')
+
+// Prints out { name: 'Laura' }
+console.log(db.people[1])
+```
+
+You can find these examples in the `examples/custom-data-types` folder of the source code.
 
 ### Unsupported data types
 
