@@ -169,6 +169,35 @@ During serialisation, class information for custom data types will be persisted.
 
 During deserialisation, if the class in question exists in memory, your object will be correctly initialised as an instance of that class. If the class does not exist in memory, your object will be initialised as a plain JavaScript object.
 
+e.g.,
+
+```js
+const JSDB = require('@small-tech/jsdb')
+
+class Person {
+  constructor (name = 'Jane Doe') {
+    this.name = name
+  }
+  introduceYourself () {
+    console.log(`Hello, I’m ${this.name}.`)
+  }
+}
+
+const db = JSDB.open('db')
+
+// Initialise the people table if it doesn’t already exist.
+if (!db.people) {
+  db.people = [
+    new Person('Aral'),
+    new Person('Laura')
+  ]
+}
+
+// Will always print out “Hello, I’m Laura.”
+// (On the first run and on subsequent runs when the objects are loaded from disk.)
+db.people[1].introduceYourself()
+```
+
 ### Unsupported data types
 
 If you try to add an instance of an unsupported data type to a JSDB table, you will get a `TypeError`.
