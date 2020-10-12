@@ -146,6 +146,43 @@ For example, create an _index.html_ file with the following content in the same 
 </ul>
 ```
 
+## Supported and unsupported data types.
+
+Just because it’s JavaScript, it doesn’t mean that you can throw anything into JSDB and expect it to work.
+
+### Supported data types
+
+  - `Number`
+  - `Boolean`
+  - `String`
+  - `Object`
+  - `Date`
+  - `Symbol`
+  - [Custom data types](#custom-data-types) (see below).
+
+### Custom data types
+
+Custom data types (instances of your own classes) are also supported.
+
+During serialisation, class information for custom data types will be persisted.
+
+During deserialisation, if the class in question exists in memory, your object will be correctly initialised as an instance of that class. If the class does not exist in memory, your object will be initialised as a plain JavaScript object.
+
+### Unsupported data types
+
+If you try to add an instance of an unsupported data type to a JSDB table, you will get a `TypeError`.
+
+The following data types are currently unsupported but support is planned for the future:
+
+  - `Map` (and `WeakMap`)
+  - `Set` (and `WeakSet`)
+  - Binary collections (`ArrayBuffer`, `Float32Array`, `Float64Array`, `Int8Array`, `Int16Array`, `Int32Array`, `TypedArray`, `Uint8Array`, `Uint16Array`, `Uint32Array`, and `Uint8ClampedArray`)
+
+The following intrinsic objects are not supported as they don’t make sense to support:
+
+  - Intrinsic objects (`DataView`, `Function`, `Generator`, `Promise`, `Proxy`, `RegExp`)
+  - Error types (`Error`, `EvalError`, `RangeError`, `ReferenceError`, `SyntaxError`, `TypeError`, and `URIError`)
+
 ## Important security note
 
 Note that JSDF is __not__ a data exchange format. Since it contains JavaScript code that is run, you must only load JSDF files from a domain that you own and control and have a secure connection to.
@@ -179,6 +216,8 @@ For details, see the [JSQL Reference](#jsql-reference) section.
 
 
 ## Compaction
+
+___Note:__ I’m currently reviewing how compacting works. In a server setting, it __is__ important how fast the server restarts so I plan to make compaction a low-CPU background process that runs on a given interval instead of at every startup. This may have to be a post version 1.0 refactor._
 
 When you load in a JSDB table, by default JSDB will compact the JSDF file.
 
