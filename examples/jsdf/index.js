@@ -39,4 +39,10 @@ eval(serialisedPeople)
 
 folks[1].introduceYourself()
 
+// Should throw:
+// Error: You cannot store objects of type Function in JSDB.
+const naughty = [
+  function () { console.log('Do evil stuff!!!')}
+]
 
+JSDF.serialise(naughty, 'naughty')
