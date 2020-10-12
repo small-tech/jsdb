@@ -156,6 +156,7 @@ Just because it’s JavaScript, it doesn’t mean that you can throw anything in
   - `Boolean`
   - `String`
   - `Object`
+  - `Array`
   - `Date`
   - `Symbol`
   - [Custom data types](#custom-data-types) (see below).
