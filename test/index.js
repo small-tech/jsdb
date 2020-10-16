@@ -21,6 +21,7 @@ const path = require('path')
 
 const JSDB = require('..')
 const JSTable = require('../lib/JSTable')
+const JSDF = require('../lib/JSDF')
 const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
@@ -732,6 +733,30 @@ test('JSDB', t => {
 
   // Attempting to instantiate the JSDB class directly throws.
   t.throws(() => { new JSDB('someBasePath') }, 'Attempting to instantiate the JSDB class directly throws.')
+
+  t.end()
+})
+
+
+test('JSDF', t => {
+
+  // undefined key
+  t.throws(() => JSDF.serialise('something', undefined), 'undefined key throws as expected')
+
+  // null key
+  t.throws(() => JSDF.serialise('something', null), 'null key throws as expected')
+
+  // undefined value
+  const undefinedValue = JSDF.serialise(undefined, 'undefinedValue')
+  t.strictEquals(undefinedValue, 'undefinedValue = undefined;\n', 'undefined serialises correctly')
+
+  // null value
+  const nullValue = JSDF.serialise(null, 'nullValue')
+  t.strictEquals(nullValue, 'nullValue = null;\n', 'null serialises correctly')
+
+  // Date
+  const theDateThisTestWasWritten = JSDF.serialise(new Date(2020, 10, 16), 'theDateThisTestWasWritten')
+  t.strictEquals(theDateThisTestWasWritten, "theDateThisTestWasWritten = new Date('2020-11-16T00:00:00.000Z');\n", 'Date serialises correctly')
 
   t.end()
 })
