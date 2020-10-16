@@ -850,5 +850,56 @@ test('JSDF', t => {
   testSerialisation(t, 'Array with object', [{x: 1, y: 2, z: 3}])
   testSerialisation(t, 'Mixed types', [undefined, null,  1, 0, -1, Math.PI, NaN, Infinity, -Infinity, true, false, 'Hello', "'Hello'", '"Hello"', '`Hello`', `Hello\nthere!`], '😎👍', {}, {x: 1, y: 2, z: 3}, {x: {y: {z: 'deep'}}}, [], [1,2,3],  ['easy as', [1,2,3], [[[['a'], 'b'], 'c']]], new Date(), customObject, {x: {y: {z: [1,2,3]}}}, [{x: 1, y: 2, z: 3}])
 
+  //
+  // Unsupported objects.
+  //
+
+  //
+  // Might be supported in the future.
+  //
+
+  t.throws(() => JSDF.serialise(new Map(), '_'), 'Unsupported datatype (Map) throws')
+  t.throws(() => JSDF.serialise(new Set(), '_'), 'Unsupported datatype (Set) throws')
+
+  t.throws(() => JSDF.serialise(new WeakMap(), '_'), 'Unsupported datatype (WeakMap) throws')
+  t.throws(() => JSDF.serialise(new WeakSet(), '_'), 'Unsupported datatype (WeakSet) throws')
+
+  // Note TypedArray is not included as it is never directly exposed
+  // (See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
+  t.throws(() => JSDF.serialise(new ArrayBuffer(), '_'), 'Unsupported datatype (ArrayBuffer) throws')
+  t.throws(() => JSDF.serialise(new Float32Array(), '_'), 'Unsupported datatype (Float32Array) throws')
+  t.throws(() => JSDF.serialise(new Float64Array(), '_'), 'Unsupported datatype (Float64Array) throws')
+  t.throws(() => JSDF.serialise(new Int8Array(), '_'), 'Unsupported datatype (Int8Array) throws')
+  t.throws(() => JSDF.serialise(new Int16Array(), '_'), 'Unsupported datatype (Int16Array) throws')
+  t.throws(() => JSDF.serialise(new Int32Array(), '_'), 'Unsupported datatype (Int32Array) throws')
+  t.throws(() => JSDF.serialise(new Uint8Array(), '_'), 'Unsupported datatype (Uint8Array) throws')
+  t.throws(() => JSDF.serialise(new Uint16Array(), '_'), 'Unsupported datatype (Uint16Array) throws')
+  t.throws(() => JSDF.serialise(new Uint32Array(), '_'), 'Unsupported datatype (Uint32Array) throws')
+  t.throws(() => JSDF.serialise(new Uint8ClampedArray(), '_'), 'Unsupported datatype (Uint8ClampedArray) throws')
+
+  //
+  // Does not make sense to support.
+  //
+
+  t.throws(() => JSDF.serialise(new DataView(new ArrayBuffer()), '_'), 'Unsupported datatype (DataView) throws')
+  t.throws(() => JSDF.serialise(new Function(), '_'), 'Unsupported datatype (Function) throws')
+  t.throws(() => JSDF.serialise(new Promise((resolve, reject) => resolve()), '_'), 'Unsupported datatype (Promise) throws')
+  t.throws(() => JSDF.serialise(new RegExp(), '_'), 'Unsupported datatype (RegExp) throws')
+
+  // Generators.
+  function* generator () { yield 1 }
+  const generatorInstance = generator()
+
+  t.throws(() => JSDF.serialise(generator, '_'), 'Unsupported datatype (GeneratorFunction) throws')
+  t.throws(() => JSDF.serialise(generatorInstance, '_'), 'Unsupported datatype (generator instance) throws')
+
+  t.throws(() => JSDF.serialise(new Error(), '_'), 'Unsupported datatype (Error) throws')
+  t.throws(() => JSDF.serialise(new EvalError(), '_'), 'Unsupported datatype (EvalError) throws')
+  t.throws(() => JSDF.serialise(new RangeError(), '_'), 'Unsupported datatype (RangeError) throws')
+  t.throws(() => JSDF.serialise(new ReferenceError(), '_'), 'Unsupported datatype (ReferenceError) throws')
+  t.throws(() => JSDF.serialise(new SyntaxError(), '_'), 'Unsupported datatype (SyntaxError) throws')
+  t.throws(() => JSDF.serialise(new TypeError(), '_'), 'Unsupported datatype (TypeError) throws')
+  t.throws(() => JSDF.serialise(new URIError(), '_'), 'Unsupported datatype (URIError) throws')
+
   t.end()
 })
