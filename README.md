@@ -20,23 +20,10 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x]  ╰─ Document queries. (1 Oct)
   - [x] __Bring code coverage back up to 100%.__ (2 Oct)
   - [x] __Implement safety controls on instantiation and table replacement.__ (5 Oct)
-  - [x] __Implement JSDF serialiser__ (inc. support for custom objects, and Date, etc.) (12 Oct)
+  - [x] __Implement JSDF serialiser__ (inc. support for custom objects, and Date, etc.) (16 Oct)
   - [ ] __Integrate into [Site.js](https://sitejs.org)__ _(in progress)_
   - [ ] __Use/test on upcoming small-web.org site__
   - [ ] __Release version 1.0.0__
-
-
-## Ideas for post 1.0.0.
-
-  - [ ] __Implement [transactions](https://github.com/small-tech/jsdb/issues/1).__
-  - [ ]  ╰─ Ensure 100% code coverage for transactions.
-  - [ ]  ╰─ Document transactions.
-  - [ ]  ╰─ Add transaction example.
-  - [ ] __Implement indices.__
-  - [ ]  ╰─ Ensure 100% code coverage for indices.
-  - [ ]  ╰─ Document indices.
-  - [ ]  ╰─ Add indices example.
-
 
 ## Use case
 
@@ -67,6 +54,13 @@ __Not to farm people for their data.__ Surveillance capitalists can jog on now.
   - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on a development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
 
   - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local server-side data. If you want schemas and migrations, take a look at nearly every other database out there.
+
+
+## Like this? Fund us!
+
+[Small Technology Foundation](https://small-tech.org) is a tiny, independent not-for-profit.
+
+We exist in part thanks to patronage by people like you. If you share [our vision](https://small-tech.org/about/#small-technology) and want to support our work, please [become a patron or donate to us](https://small-tech.org/fund-us) today and help us continue to exist.
 
 
 ## To install
@@ -745,6 +739,17 @@ Please open an issue before starting to work on pull requests.
 3. `npm test`
 
 For code coverage, run `npm run coverage`.
+
+## Ideas for post 1.0.0.
+
+  - [ ] __Implement [transactions](https://github.com/small-tech/jsdb/issues/1).__
+  - [ ]  ╰─ Ensure 100% code coverage for transactions.
+  - [ ]  ╰─ Document transactions.
+  - [ ]  ╰─ Add transaction example.
+  - [ ] __Implement indices.__
+  - [ ]  ╰─ Ensure 100% code coverage for indices.
+  - [ ]  ╰─ Document indices.
+  - [ ]  ╰─ Add indices example.
 
 ## Related projects, inspiration, etc.
 
