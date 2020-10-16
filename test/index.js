@@ -185,12 +185,27 @@ test('basic persistence', t => {
       await db.close()
 
       const tablePath = path.join(databasePath, 'people.js')
-      const peopleTable = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
+      const peopleTable = new JSTable(tablePath)
 
-      t.strictEquals(JSON.stringify(peopleTable), inMemoryStateOfPeopleTableFromOriginalDatabase, 'line-by-line loaded data matches previous state of the in-memory table')
+      // Add another entry so we can test line-by-line loading for subsequent updates/changes.
+      peopleTable.push({name: 'osky', age: 8})
 
       // Note: __table__ is for internal use only.
       await peopleTable.__table__.close()
+
+      const tableSourceAfterClose = loadTableSource('db', 'people')
+
+      const peopleTableAfterPushInMemory = JSON.stringify(peopleTable)
+      const peopleTableLoadedLineByLine = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
+
+      const tableSourceAfterLoad = loadTableSource('db', 'people')
+
+      t.strictEquals(JSON.stringify(peopleTableLoadedLineByLine), peopleTableAfterPushInMemory, 'line-by-line loaded data matches previous state of the in-memory table')
+
+      t.strictEquals(tableSourceAfterLoad, tableSourceAfterClose, 'compaction is disabled for line-by-line load as expected')
+
+      // Note: __table__ is for internal use only.
+      await peopleTableLoadedLineByLine.__table__.close()
 
       t.end()
     }
