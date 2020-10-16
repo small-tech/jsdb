@@ -20,22 +20,10 @@ __Needless to say, this is not ready for use yet. But feel free to take a look a
   - [x]  ╰─ Document queries. (1 Oct)
   - [x] __Bring code coverage back up to 100%.__ (2 Oct)
   - [x] __Implement safety controls on instantiation and table replacement.__ (5 Oct)
+  - [x] __Implement JSDF serialiser__ (inc. support for custom objects, and Date, etc.) (16 Oct)
   - [ ] __Integrate into [Site.js](https://sitejs.org)__ _(in progress)_
   - [ ] __Use/test on upcoming small-web.org site__
   - [ ] __Release version 1.0.0__
-
-
-## Ideas for post 1.0.0.
-
-  - [ ] __Implement [transactions](https://github.com/small-tech/jsdb/issues/1).__
-  - [ ]  ╰─ Ensure 100% code coverage for transactions.
-  - [ ]  ╰─ Document transactions.
-  - [ ]  ╰─ Add transaction example.
-  - [ ] __Implement indices.__
-  - [ ]  ╰─ Ensure 100% code coverage for indices.
-  - [ ]  ╰─ Document indices.
-  - [ ]  ╰─ Add indices example.
-
 
 ## Use case
 
@@ -66,6 +54,13 @@ __Not to farm people for their data.__ Surveillance capitalists can jog on now.
   - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on a development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
 
   - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local server-side data. If you want schemas and migrations, take a look at nearly every other database out there.
+
+
+## Like this? Fund us!
+
+[Small Technology Foundation](https://small-tech.org) is a tiny, independent not-for-profit.
+
+We exist in part thanks to patronage by people like you. If you share [our vision](https://small-tech.org/about/#small-technology) and want to support our work, please [become a patron or donate to us](https://small-tech.org/fund-us) today and help us continue to exist.
 
 
 ## To install
@@ -115,17 +110,12 @@ After running the above script, take a look at the resulting database table in t
 JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is a plain JavaScript file that comprises an append-only transaction log that creates the table in memory. For our example, it looks like this:
 
 ```js
-globalThis._ = [];
-(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-_[0] = JSON.parse(`{"name":"Aral","age":43}`);
-_[1] = JSON.parse(`{"name":"Laura","age":34}`);
+globalThis._ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 34 } ];
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof mo;
 _[1]['age'] = 33;
-_[2] = JSON.parse(`{"name":"Oskar","age":8}`);
-_['length'] = 3;
+_[2] = { name: `Oskar`, age: 8 };
 _[2]['name'] = `Osky`;
 ```
-
-(Note: the format is a work-in-progress like the rest of the project at the moment. I’m considering cleaning up the superfluous length statements and weighing up the performance hit of maintaining state to enable that versus the potential use cases of a cleaner log – like history replay for example – and file size/initial load speed, which is really not too much of a concern given that they occur at server start for our use cases).
 
 ## It’s just JavaScript!
 
@@ -145,11 +135,112 @@ For example, create an _index.html_ file with the following content in the same 
 </ul>
 ```
 
+## Supported and unsupported data types.
+
+Just because it’s JavaScript, it doesn’t mean that you can throw anything into JSDB and expect it to work.
+
+### Supported data types
+
+  - `Number`
+  - `Boolean`
+  - `String`
+  - `Object`
+  - `Array`
+  - `Date`
+  - `Symbol`
+  - [Custom data types](#custom-data-types) (see below).
+
+### Custom data types
+
+Custom data types (instances of your own classes) are also supported.
+
+During serialisation, class information for custom data types will be persisted.
+
+During deserialisation, if the class in question exists in memory, your object will be correctly initialised as an instance of that class. If the class does not exist in memory, your object will be initialised as a plain JavaScript object.
+
+e.g.,
+
+```js
+const JSDB = require('@small-tech/jsdb')
+
+class Person {
+  constructor (name = 'Jane Doe') {
+    this.name = name
+  }
+  introduceYourself () {
+    console.log(`Hello, I’m ${this.name}.`)
+  }
+}
+
+const db = JSDB.open('db')
+
+// Initialise the people table if it doesn’t already exist.
+if (!db.people) {
+  db.people = [
+    new Person('Aral'),
+    new Person('Laura')
+  ]
+}
+
+// Will always print out “Hello, I’m Laura.”
+// (On the first run and on subsequent runs when the objects are loaded from disk.)
+db.people[1].introduceYourself()
+```
+
+If you look in the created `db/people.js` file, this time you’ll see:
+
+```js
+globalThis._ = [ Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Aral` })), Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Laura` })) ];
+(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+```
+
+If you were to load the database in an environment where the `Person` class does not exist, you will get a regular object back.
+
+To test this, you can run the following code:
+
+```js
+const JSDB = require('@small-tech/jsdb')
+const db = JSDB.open('db')
+
+// Prints out { name: 'Laura' }
+console.log(db.people[1])
+```
+
+You can find these examples in the `examples/custom-data-types` folder of the source code.
+
+### Unsupported data types
+
+If you try to add an instance of an unsupported data type to a JSDB table, you will get a `TypeError`.
+
+The following data types are currently unsupported but support is planned for the future:
+
+  - `Map` (and `WeakMap`)
+  - `Set` (and `WeakSet`)
+  - Binary collections (`ArrayBuffer`, `Float32Array`, `Float64Array`, `Int8Array`, `Int16Array`, `Int32Array`, `TypedArray`, `Uint8Array`, `Uint16Array`, `Uint32Array`, and `Uint8ClampedArray`)
+
+The following intrinsic objects are not supported as they don’t make sense to support:
+
+  - Intrinsic objects (`DataView`, `Function`, `Generator`, `Promise`, `Proxy`, `RegExp`)
+  - Error types (`Error`, `EvalError`, `RangeError`, `ReferenceError`, `SyntaxError`, `TypeError`, and `URIError`)
+
+## Important security note
+
+Note that JSDF is __not__ a data exchange format. Since it contains JavaScript code that is run, you must only load JSDF files from a domain that you own and control and have a secure connection to.
+
+__Do not load in JSDF files from third parties.__
+
+If you want a data _exchange_ format, use [JSON](https://www.json.org/json-en.html).
+
+Remember:
+
+  - JSON is a terrible format for a database but a great format for data exchange.
+  - JSDF is a terrible format for data exchange but a great format for a JavaScript database.
+
 ## JavaScript Query Language (JSQL)
 
-Of course, when you load the data in directly, you are not running it inside JSDB so you cannot update the data or use the JavaScript Query Language (JSQL) to query it.
+In the browser-based example, above, you loaded the data in directly. When you do that, of course, you are not running it inside JSDB so you cannot update the data or use the JavaScript Query Language (JSQL) to query it.
 
-To test that out, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
+To test out JSQL, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
 
 ```js
 const JSDB = require('@small-tech/jsdb')
@@ -182,11 +273,8 @@ You do have the option to override the default behaviour and keep all history. Y
 Now that you’ve loaded the file back, look at the `./db/people.js` JSDF file again to see how it looks after compaction:
 
 ```js
-globalThis._ = [];
+globalThis._ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 33 }, { name: `Osky`, age: 8 } ];
 (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-_[0] = JSON.parse(`{"name":"Aral","age":43}`);
-_[1] = JSON.parse(`{"name":"Laura","age":33}`);
-_[2] = JSON.parse(`{"name":"Osky","age":8}`);
 ```
 
 Ah, that is neater. You can see that Laura’s record is created with the correct age from the outset and Oskar’s name is set to its final value of Osky from the outset.
@@ -281,6 +369,7 @@ When you run it, you should see the following result:
 ]
 ```
 
+The code for this example is in the `examples/json` folder of the source code.
 
 ## Dispelling the magic and a pointing out a couple of gotchas
 
@@ -608,16 +697,21 @@ const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
   - The time complexity of reads and writes are both O(1).
   - Reads are fast (take fraction of a millisecond and are about an order of magnitude slower than direct memory reads).
   - Writes are fast (in the order of a couple of milliseconds on tests on a dev machine).
+  - Initial table load time and full table write/compaction times are O(N) and increase linearly as your table size grows.
 
-## Limits
+## Suggested limits
+
+  - Break up your database into multiple tables whenever possible.
+  - Keep your table sizes under 100MB.
+
+## Hard limits
 
   - Your database size is limited by available memory.
-  - If your database size is larger than > 1GB, you should start your node process with a larger heap size than the default (~1.4GB). E.g., to set aside 8GB of heap space:
+  - If your database size is larger than > ~1.3GB, you should start your node process with a larger heap size than the default (~1.4GB). E.g., to set aside 8GB of heap space:
 
   ```
   node --max-old-space-size=8192 why-is-my-database-so-large-i-hope-im-not-doing-anything-shady.js
   ```
-
 ## Memory Usage
 
 The reason JSDB is fast is because it keeps the whole database in memory. Also, to provide a transparent persistence and query API, it maintains a parallel object structure of proxies. This means that the amount of memory used will be multiples of the size of your database on disk and exhibits O(N) memory complexity.
@@ -628,11 +722,13 @@ For example, here’s just one sample from a development laptop using the simple
 
 | Number of records | Table size on disk | Memory used | Initial load time | Full table write/compaction time |
 | ----------------- | ------------------ | ----------- | ----------------- | -------------------------------- |
-| 1,000             | 2.5MB              | 15.8MB      | 41.6ms            | 2.7 seconds                      |
-| 10,000            | 25MB               | 121.4MB     | 380.2ms           | 26 seconds                       |
-| 100,000           | 244MB              | 1.2GB       | 5.5 seconds       | 4.6 minutes                      |
+| 1,000             | 2.5MB              | 15.8MB      | 85ms              | 45ms                             |
+| 10,000            | 25MB               | 121.4MB     | 845ms             | 400ms                            |
+| 100,000           | 250MB              | 1.2GB       | 11 seconds        | 4.9 seconds                      |
 
 (The baseline app used about 14.6MB without any table in memory. The memory used column subtracts that from the total reported memory so as not to skew the smaller dataset results.)
+
+Note: For tables > 500GB, compaction is turned off and a line-by-line streaming load strategy is implemented. If you foresee your tables being this large, you (a) are probably doing something nasty (and won’t mind me pointing it out if you’re not) and (b) should turn off compaction from the start for best performance. Keeping compaction off from the start will decrease initial table load times. Again, don’t use this to invade people’s privacy or profile them.
 
 ## Developing
 
@@ -643,6 +739,17 @@ Please open an issue before starting to work on pull requests.
 3. `npm test`
 
 For code coverage, run `npm run coverage`.
+
+## Ideas for post 1.0.0.
+
+  - [ ] __Implement [transactions](https://github.com/small-tech/jsdb/issues/1).__
+  - [ ]  ╰─ Ensure 100% code coverage for transactions.
+  - [ ]  ╰─ Document transactions.
+  - [ ]  ╰─ Add transaction example.
+  - [ ] __Implement indices.__
+  - [ ]  ╰─ Ensure 100% code coverage for indices.
+  - [ ]  ╰─ Document indices.
+  - [ ]  ╰─ Add indices example.
 
 ## Related projects, inspiration, etc.
 

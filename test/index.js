@@ -21,6 +21,7 @@ const path = require('path')
 
 const JSDB = require('..')
 const JSTable = require('../lib/JSTable')
+const JSDF = require('../lib/JSDF')
 const Time = require('../lib/Time')
 const { needsToBeProxified, log } = require('../lib/Util')
 
@@ -120,7 +121,7 @@ test('basic persistence', t => {
       //
       // Update two properties within the same stack frame.
       //
-      expectedWriteCount = 2
+      expectedWriteCount = 3
 
       db.people[0].age = 43
       db.people[1].age = 33
@@ -130,11 +131,11 @@ test('basic persistence', t => {
     // Second time the listener is called:
     //
 
-    if (actualWriteCount === 2) {
-      t.strictEquals(expectedWriteCount, actualWriteCount, 'write 2: expected number of writes has taken place')
-      t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 2: original object and data in table are same after property update')
+    if (actualWriteCount === 3) {
+      t.strictEquals(expectedWriteCount, actualWriteCount, 'write 3: expected number of writes has taken place')
+      t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 3: original object and data in table are same after property update')
       const updatedTable = loadTable('db', 'people')
-      t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 2: persisted table matches in-memory table after property update')
+      t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 3: persisted table matches in-memory table after property update')
 
       db.people.removeListener('persist', tableListener)
 
@@ -143,10 +144,8 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceBeforeCompaction = `
-        globalThis._ = [];
+        globalThis._ = [ { name: \`aral\`, age: 44 }, { name: \`laura\`, age: 34 } ];
         (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-        _[0] = JSON.parse(\`{"name":"aral","age":44}\`);
-        _[1] = JSON.parse(\`{"name":"laura","age":34}\`);
         _[0]['age'] = 21;
         _[0]['age'] = 43;
         _[1]['age'] = 33;
@@ -173,10 +172,8 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceAfterCompaction = `
-        globalThis._ = [];
+        globalThis._ = [ { name: \`aral\`, age: 43 }, { name: \`laura\`, age: 33 } ];
         (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
-        _[0] = JSON.parse(\`{"name":"aral","age":43}\`);
-        _[1] = JSON.parse(\`{"name":"laura","age":33}\`);
       `
 
       const actualTableSourceAfterCompaction = loadTableSource('db', 'people')
@@ -189,12 +186,27 @@ test('basic persistence', t => {
       await db.close()
 
       const tablePath = path.join(databasePath, 'people.js')
-      const peopleTable = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
+      const peopleTable = new JSTable(tablePath)
 
-      t.strictEquals(JSON.stringify(peopleTable), inMemoryStateOfPeopleTableFromOriginalDatabase, 'line-by-line loaded data matches previous state of the in-memory table')
+      // Add another entry so we can test line-by-line loading for subsequent updates/changes.
+      peopleTable.push({name: 'osky', age: 8})
 
       // Note: __table__ is for internal use only.
       await peopleTable.__table__.close()
+
+      const tableSourceAfterClose = loadTableSource('db', 'people')
+
+      const peopleTableAfterPushInMemory = JSON.stringify(peopleTable)
+      const peopleTableLoadedLineByLine = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
+
+      const tableSourceAfterLoad = loadTableSource('db', 'people')
+
+      t.strictEquals(JSON.stringify(peopleTableLoadedLineByLine), peopleTableAfterPushInMemory, 'line-by-line loaded data matches previous state of the in-memory table')
+
+      t.strictEquals(tableSourceAfterLoad, tableSourceAfterClose, 'compaction is disabled for line-by-line load as expected')
+
+      // Note: __table__ is for internal use only.
+      await peopleTableLoadedLineByLine.__table__.close()
 
       t.end()
     }
@@ -267,7 +279,7 @@ test('table replacement', async t => {
   db.people = people
 
   // Attempting to replace the table without first deleting it should throw.
-  t.throws(() => db.people = people, 'attempting to replace a table without first deleting it throws')
+  t.throws(() => db.people = people, 'attempting to replace table without first deleting it throws')
 
   // To replace a table, we must first delete the current one and then set the new object.
   await db.people.delete()
@@ -315,8 +327,8 @@ test('concurrent updates', t => {
     }
 
     const expectedChanges = [
-      '_[\'darkMode\'] = `always-on`;\n',
-      '_[\'colours\'] = JSON.parse(`{"red":"#AA0000","green":"#00AA00","magenta":"#AA00AA"}`);\n',
+      `_['darkMode'] = \`always-on\`;\n`,
+      `_['colours'] = { red: \`#AA0000\`, green: \`#00AA00\`, magenta: \`#AA00AA\` };\n`,
       'delete _[\'colours\'];\n'
     ]
 
@@ -637,20 +649,32 @@ test('Basic queries', t => {
 
 
 test('Time', t => {
-  const t1 = Time.mark()
-  const t2 = Time.mark()
-  const t3 = Time.elapsed(-1)
-  const t4 = Time.elapsed(0)
-  const t5 = Time.elapsed(1)
-  const t6 = Time.elapsed()
 
-  t.ok(t2 > t1, 'time marks are in expected order')
+  const labelTime1 = Time.mark('label1')
+  const labelTime2 = Time.elapsed('label1', -1)
 
-  t.strictEquals(typeof t1, 'number', 'mark method returns number')
-  t.strictEquals(typeof t3, 'number', 'negative number as argument to elapsed method returns number')
-  t.strictEquals(typeof t4, 'string', 'zero as argument to elapsed method returns string')
-  t.strictEquals(typeof t5, 'string', 'positive number as argument to elapsed method returns string')
-  t.strictEquals(typeof t6, 'string', 'default behaviour of elapsed method is to return string')
+  const globalTime1 = Time.mark()
+  const globalTime2 = Time.mark()
+  const globalTime3 = Time.elapsed('global', -1)
+  const globalTime4 = Time.elapsed('global', 0)
+  const globalTime5 = Time.elapsed('global', 1)
+  const globalTime6 = Time.elapsed()
+
+  const globalTime7 = Time.elapsed('global', -1)
+
+  const labelTime3 = Time.elapsed('label1', -1)
+
+  t.ok(globalTime2 > globalTime1, 'global time marks are in expected order')
+
+  t.strictEquals(typeof globalTime1, 'number', 'mark method returns number')
+  t.strictEquals(typeof globalTime3, 'number', 'negative number as argument to elapsed method returns number')
+  t.strictEquals(typeof globalTime4, 'string', 'zero as argument to elapsed method returns string')
+  t.strictEquals(typeof globalTime5, 'string', 'positive number as argument to elapsed method returns string')
+  t.strictEquals(typeof globalTime6, 'string', 'default behaviour of elapsed method is to return string')
+
+  t.ok(labelTime2 < labelTime3, 'label1 durations are in expected order')
+  t.ok(labelTime3 > globalTime7, 'global and label1 durations are in expected order')
+
   t.end()
 })
 
@@ -721,6 +745,170 @@ test('JSDB', t => {
 
   // Attempting to instantiate the JSDB class directly throws.
   t.throws(() => { new JSDB('someBasePath') }, 'Attempting to instantiate the JSDB class directly throws.')
+
+  t.end()
+})
+
+
+function testSerialisation (t, name, value) {
+  let serialisedValue
+  let deserialisedValue
+  t.doesNotThrow(() => serialisedValue = JSDF.serialise(value, 'deserialisedValue'), `${name}: serialisation does not throw`)
+  t.doesNotThrow(() => eval(serialisedValue), `${name}: serialised value does not throw on deserialisation`)
+  t.strictEquals(JSON.stringify(deserialisedValue), JSON.stringify(value), `${name}: deserialised value matches original value`)
+}
+
+
+test('JSDF', t => {
+
+  // undefined key.
+  t.throws(() => JSDF.serialise('something', undefined), 'undefined key throws as expected')
+
+  // null key.
+  t.throws(() => JSDF.serialise('something', null), 'null key throws as expected')
+
+  testSerialisation(t, 'undefined', undefined)
+  testSerialisation(t, 'null', null)
+
+  //
+  // Number.
+  //
+
+  testSerialisation(t, 'negative number', -1)
+  testSerialisation(t, 'zero', 0)
+  testSerialisation(t, 'positive number', 1)
+  testSerialisation(t, 'floating-point number', Math.PI)
+  testSerialisation(t, 'NaN', NaN)
+  testSerialisation(t, 'Infinity', Infinity)
+  testSerialisation(t, '-Infinity', -Infinity)
+
+  //
+  // Boolean.
+  //
+
+  testSerialisation(t, 'Boolean (true)', true)
+  testSerialisation(t, 'Boolean (false)', false)
+
+  //
+  // String.
+  //
+
+  testSerialisation(t, 'String', 'Hello')
+  testSerialisation(t, 'String with single quotes', "'Hello'")
+  testSerialisation(t, 'String with double quotes', '"Hello"')
+  testSerialisation(t, 'String with backticks', "`Hello`")
+  testSerialisation(t, 'String with newlines', `Hello\nthere!`)
+  testSerialisation(t, 'String with emoji', '😎👍')
+
+  //
+  // Plain objects.
+  //
+
+  testSerialisation(t, 'Empty object', {})
+  testSerialisation(t, 'Object with properties', {x: 1, y: 2, z: 3})
+  testSerialisation(t, 'Deep object', {x: {y: {z: 'deep'}}})
+
+  //
+  // Arrays.
+  //
+
+  testSerialisation(t, 'Empty array', [])
+  testSerialisation(t, 'Array with items', [1,2,3])
+  testSerialisation(t, 'Deep array', ['easy as', [1,2,3], [[[['a'], 'b'], 'c']]])
+
+  //
+  // Date.
+  //
+
+  testSerialisation(t, 'Date', new Date())
+
+  //
+  // Symbol.
+  //
+
+  testSerialisation(t, 'Symbol', Symbol.for('hello'))
+
+  // Custom object.
+
+  class CustomObject {
+    x = 1
+    y = 2
+    sum() {
+      return this.x + this.y
+    }
+  }
+
+  const customObject = new CustomObject()
+
+  // Tests custom object being deserialised in an environment where the custom
+  // class does NOT exist (which should result in a regular object being created).
+  testSerialisation(t, 'Custom object', customObject)
+
+  // Tests custom object being deserialised in an environment where the custom
+  // class does exist.
+  let deserialisedCustomObject
+  const serialisedCustomObject = JSDF.serialise(customObject, 'deserialisedCustomObject')
+  eval(serialisedCustomObject)
+
+  t.strictEquals(deserialisedCustomObject.sum(), 3, 'custom object is deserialised as instance of correct class when class exists')
+
+  //
+  // Mixed objects.
+  //
+  testSerialisation(t, 'Object with array', {x: {y: {z: [1,2,3]}}})
+  testSerialisation(t, 'Array with object', [{x: 1, y: 2, z: 3}])
+  testSerialisation(t, 'Mixed types', [undefined, null,  1, 0, -1, Math.PI, NaN, Infinity, -Infinity, true, false, 'Hello', "'Hello'", '"Hello"', '`Hello`', `Hello\nthere!`], '😎👍', {}, {x: 1, y: 2, z: 3}, {x: {y: {z: 'deep'}}}, [], [1,2,3],  ['easy as', [1,2,3], [[[['a'], 'b'], 'c']]], new Date(), customObject, {x: {y: {z: [1,2,3]}}}, [{x: 1, y: 2, z: 3}])
+
+  //
+  // Unsupported objects.
+  //
+
+  //
+  // Might be supported in the future.
+  //
+
+  t.throws(() => JSDF.serialise(new Map(), '_'), 'Unsupported datatype (Map) throws')
+  t.throws(() => JSDF.serialise(new Set(), '_'), 'Unsupported datatype (Set) throws')
+
+  t.throws(() => JSDF.serialise(new WeakMap(), '_'), 'Unsupported datatype (WeakMap) throws')
+  t.throws(() => JSDF.serialise(new WeakSet(), '_'), 'Unsupported datatype (WeakSet) throws')
+
+  // Note TypedArray is not included as it is never directly exposed
+  // (See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
+  t.throws(() => JSDF.serialise(new ArrayBuffer(), '_'), 'Unsupported datatype (ArrayBuffer) throws')
+  t.throws(() => JSDF.serialise(new Float32Array(), '_'), 'Unsupported datatype (Float32Array) throws')
+  t.throws(() => JSDF.serialise(new Float64Array(), '_'), 'Unsupported datatype (Float64Array) throws')
+  t.throws(() => JSDF.serialise(new Int8Array(), '_'), 'Unsupported datatype (Int8Array) throws')
+  t.throws(() => JSDF.serialise(new Int16Array(), '_'), 'Unsupported datatype (Int16Array) throws')
+  t.throws(() => JSDF.serialise(new Int32Array(), '_'), 'Unsupported datatype (Int32Array) throws')
+  t.throws(() => JSDF.serialise(new Uint8Array(), '_'), 'Unsupported datatype (Uint8Array) throws')
+  t.throws(() => JSDF.serialise(new Uint16Array(), '_'), 'Unsupported datatype (Uint16Array) throws')
+  t.throws(() => JSDF.serialise(new Uint32Array(), '_'), 'Unsupported datatype (Uint32Array) throws')
+  t.throws(() => JSDF.serialise(new Uint8ClampedArray(), '_'), 'Unsupported datatype (Uint8ClampedArray) throws')
+
+  //
+  // Does not make sense to support.
+  //
+
+  t.throws(() => JSDF.serialise(new DataView(new ArrayBuffer()), '_'), 'Unsupported datatype (DataView) throws')
+  t.throws(() => JSDF.serialise(new Function(), '_'), 'Unsupported datatype (Function) throws')
+  t.throws(() => JSDF.serialise(new Promise((resolve, reject) => resolve()), '_'), 'Unsupported datatype (Promise) throws')
+  t.throws(() => JSDF.serialise(new RegExp(), '_'), 'Unsupported datatype (RegExp) throws')
+
+  // Generators.
+  function* generator () { yield 1 }
+  const generatorInstance = generator()
+
+  t.throws(() => JSDF.serialise(generator, '_'), 'Unsupported datatype (GeneratorFunction) throws')
+  t.throws(() => JSDF.serialise(generatorInstance, '_'), 'Unsupported datatype (generator instance) throws')
+
+  t.throws(() => JSDF.serialise(new Error(), '_'), 'Unsupported datatype (Error) throws')
+  t.throws(() => JSDF.serialise(new EvalError(), '_'), 'Unsupported datatype (EvalError) throws')
+  t.throws(() => JSDF.serialise(new RangeError(), '_'), 'Unsupported datatype (RangeError) throws')
+  t.throws(() => JSDF.serialise(new ReferenceError(), '_'), 'Unsupported datatype (ReferenceError) throws')
+  t.throws(() => JSDF.serialise(new SyntaxError(), '_'), 'Unsupported datatype (SyntaxError) throws')
+  t.throws(() => JSDF.serialise(new TypeError(), '_'), 'Unsupported datatype (TypeError) throws')
+  t.throws(() => JSDF.serialise(new URIError(), '_'), 'Unsupported datatype (URIError) throws')
 
   t.end()
 })
