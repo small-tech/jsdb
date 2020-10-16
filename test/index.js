@@ -752,26 +752,37 @@ function testSerialisation (t, name, value) {
 
 test('JSDF', t => {
 
-  // undefined key
+  // undefined key.
   t.throws(() => JSDF.serialise('something', undefined), 'undefined key throws as expected')
 
-  // null key
+  // null key.
   t.throws(() => JSDF.serialise('something', null), 'null key throws as expected')
 
   testSerialisation(t, 'undefined', undefined)
   testSerialisation(t, 'null', null)
 
-  // Number
+  //
+  // Number.
+  //
+
   testSerialisation(t, 'negative number', -1)
-  testSerialisation(t, 'positive number', 1)
   testSerialisation(t, 'zero', 0)
+  testSerialisation(t, 'positive number', 1)
   testSerialisation(t, 'floating-point number', Math.PI)
   testSerialisation(t, 'NaN', NaN)
   testSerialisation(t, 'Infinity', Infinity)
   testSerialisation(t, '-Infinity', -Infinity)
 
+  //
+  // Boolean.
+  //
+
   testSerialisation(t, 'Boolean (true)', true)
   testSerialisation(t, 'Boolean (false)', false)
+
+  //
+  // String.
+  //
 
   testSerialisation(t, 'String', 'Hello')
   testSerialisation(t, 'String with single quotes', "'Hello'")
@@ -780,15 +791,33 @@ test('JSDF', t => {
   testSerialisation(t, 'String with newlines', `Hello\nthere!`)
   testSerialisation(t, 'String with emoji', '😎👍')
 
+  //
+  // Plain objects.
+  //
+
   testSerialisation(t, 'Empty object', {})
   testSerialisation(t, 'Object with properties', {x: 1, y: 2, z: 3})
   testSerialisation(t, 'Deep object', {x: {y: {z: 'deep'}}})
 
-  // testSerialisation(t, 'Bound object', {hello: 'there'}.bind())
+  //
+  // Arrays.
+  //
 
-  testSerialisation(t, 'Object with array', {x: {y: {z: [1,2,3]}}})
+  testSerialisation(t, 'Empty array', [])
+  testSerialisation(t, 'Array with items', [1,2,3])
+  testSerialisation(t, 'Deep array', ['easy as', [1,2,3], [[[['a'], 'b'], 'c']]])
+
+  //
+  // Date.
+  //
 
   testSerialisation(t, 'Date', new Date())
+
+  //
+  // Symbol.
+  //
+
+  testSerialisation(t, 'Symbol', Symbol.for('hello'))
 
   // Custom object.
 
@@ -813,6 +842,13 @@ test('JSDF', t => {
   eval(serialisedCustomObject)
 
   t.strictEquals(deserialisedCustomObject.sum(), 3, 'custom object is deserialised as instance of correct class when class exists')
+
+  //
+  // Mixed objects.
+  //
+  testSerialisation(t, 'Object with array', {x: {y: {z: [1,2,3]}}})
+  testSerialisation(t, 'Array with object', [{x: 1, y: 2, z: 3}])
+  testSerialisation(t, 'Mixed types', [undefined, null,  1, 0, -1, Math.PI, NaN, Infinity, -Infinity, true, false, 'Hello', "'Hello'", '"Hello"', '`Hello`', `Hello\nthere!`], '😎👍', {}, {x: 1, y: 2, z: 3}, {x: {y: {z: 'deep'}}}, [], [1,2,3],  ['easy as', [1,2,3], [[[['a'], 'b'], 'c']]], new Date(), customObject, {x: {y: {z: [1,2,3]}}}, [{x: 1, y: 2, z: 3}])
 
   t.end()
 })
