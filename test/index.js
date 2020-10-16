@@ -754,9 +754,21 @@ test('JSDF', t => {
   const nullValue = JSDF.serialise(null, 'nullValue')
   t.strictEquals(nullValue, 'nullValue = null;\n', 'null serialises correctly')
 
+  // Number
+  t.strictEquals(JSDF.serialise(-1, 'negativeNumber'), 'negativeNumber = -1;\n', 'negative integer serialises correctly')
+  t.strictEquals(JSDF.serialise(0, 'zero'), 'zero = 0;\n', 'zero serialises correctly')
+  t.strictEquals(JSDF.serialise(1, 'positiveNumber'), 'positiveNumber = 1;\n', 'positive integer serialises correctly')
+  t.strictEquals(JSDF.serialise(Math.PI, 'float'), `float = ${Math.PI};\n`, 'floating point number serialises correctly')
+  t.strictEquals(JSDF.serialise(NaN, 'notANumber'), 'notANumber = NaN;\n', 'NaN serialises correctly')
+  t.strictEquals(JSDF.serialise(Infinity, 'infinity'), 'infinity = Infinity;\n', 'Infinity serialises correctly')
+  t.strictEquals(JSDF.serialise(-Infinity, 'negativeInfinity'), 'negativeInfinity = -Infinity;\n', '-Infinity serialises correctly')
+
+
   // Date
   const theDateThisTestWasWritten = JSDF.serialise(new Date(2020, 10, 16), 'theDateThisTestWasWritten')
   t.strictEquals(theDateThisTestWasWritten, "theDateThisTestWasWritten = new Date('2020-11-16T00:00:00.000Z');\n", 'Date serialises correctly')
+
+
 
   t.end()
 })
