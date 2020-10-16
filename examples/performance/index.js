@@ -46,7 +46,7 @@ const timings = []
 for (let i = 0; i < db.accounts.length; i++) {
   Time.mark()
   db.accounts[i]
-  timings.push(Time.elapsed(-1))
+  timings.push(Time.elapsed('global', -1))
 }
 console.log(`Gets took on average (${db.accounts.length} tries): ${(timings.reduce((p, c) => p + c, 0)/db.accounts.length).toFixed(5)}`)
 

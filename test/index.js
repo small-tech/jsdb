@@ -652,20 +652,21 @@ test('Basic queries', t => {
 
 
 test('Time', t => {
-  const t1 = Time.mark()
-  const t2 = Time.mark()
-  const t3 = Time.elapsed(-1)
-  const t4 = Time.elapsed(0)
-  const t5 = Time.elapsed(1)
-  const t6 = Time.elapsed()
+  const globalTime1 = Time.mark()
+  const globalTime2 = Time.mark()
+  const globalTime3 = Time.elapsed('global', -1)
+  const globalTime4 = Time.elapsed('global', 0)
+  const globalTime5 = Time.elapsed('global', 1)
+  const globalTime6 = Time.elapsed()
 
-  t.ok(t2 > t1, 'time marks are in expected order')
+  t.ok(globalTime2 > globalTime1, 'global time marks are in expected order')
 
-  t.strictEquals(typeof t1, 'number', 'mark method returns number')
-  t.strictEquals(typeof t3, 'number', 'negative number as argument to elapsed method returns number')
-  t.strictEquals(typeof t4, 'string', 'zero as argument to elapsed method returns string')
-  t.strictEquals(typeof t5, 'string', 'positive number as argument to elapsed method returns string')
-  t.strictEquals(typeof t6, 'string', 'default behaviour of elapsed method is to return string')
+  t.strictEquals(typeof globalTime1, 'number', 'mark method returns number')
+  t.strictEquals(typeof globalTime3, 'number', 'negative number as argument to elapsed method returns number')
+  t.strictEquals(typeof globalTime4, 'string', 'zero as argument to elapsed method returns string')
+  t.strictEquals(typeof globalTime5, 'string', 'positive number as argument to elapsed method returns string')
+  t.strictEquals(typeof globalTime6, 'string', 'default behaviour of elapsed method is to return string')
+
   t.end()
 })
 
