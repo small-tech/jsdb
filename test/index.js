@@ -275,14 +275,17 @@ test('table replacement', async t => {
   ]
 
   let db = JSDB.open(databasePath, { deleteIfExists: true })
+  console.log(people[0].constructor.name)
 
   db.people = people
 
   // Attempting to replace the table without first deleting it should throw.
-  t.throws(() => db.people = people, 'attempting to replace a table without first deleting it throws')
+  t.throws(() => db.people = people, 'attempting to replace table without first deleting it throws')
 
   // To replace a table, we must first delete the current one and then set the new object.
   await db.people.delete()
+
+  console.log(people[0].constructor.name)
 
   // Now it should be safe to recreate the table.
   db.people = people
@@ -738,6 +741,15 @@ test('JSDB', t => {
 })
 
 
+function testSerialisation (t, name, value) {
+  let serialisedValue
+  let deserialisedValue
+  t.doesNotThrow(() => serialisedValue = JSDF.serialise(value, 'deserialisedValue'), `${name}: serialisation does not throw`)
+  t.doesNotThrow(() => eval(serialisedValue), `${name}: serialised value does not throw on deserialisation`)
+  t.strictEquals(JSON.stringify(deserialisedValue), JSON.stringify(value), `${name}: deserialised value matches original value`)
+}
+
+
 test('JSDF', t => {
 
   // undefined key
@@ -746,29 +758,61 @@ test('JSDF', t => {
   // null key
   t.throws(() => JSDF.serialise('something', null), 'null key throws as expected')
 
-  // undefined value
-  const undefinedValue = JSDF.serialise(undefined, 'undefinedValue')
-  t.strictEquals(undefinedValue, 'undefinedValue = undefined;\n', 'undefined serialises correctly')
-
-  // null value
-  const nullValue = JSDF.serialise(null, 'nullValue')
-  t.strictEquals(nullValue, 'nullValue = null;\n', 'null serialises correctly')
+  testSerialisation(t, 'undefined', undefined)
+  testSerialisation(t, 'null', null)
 
   // Number
-  t.strictEquals(JSDF.serialise(-1, 'negativeNumber'), 'negativeNumber = -1;\n', 'negative integer serialises correctly')
-  t.strictEquals(JSDF.serialise(0, 'zero'), 'zero = 0;\n', 'zero serialises correctly')
-  t.strictEquals(JSDF.serialise(1, 'positiveNumber'), 'positiveNumber = 1;\n', 'positive integer serialises correctly')
-  t.strictEquals(JSDF.serialise(Math.PI, 'float'), `float = ${Math.PI};\n`, 'floating point number serialises correctly')
-  t.strictEquals(JSDF.serialise(NaN, 'notANumber'), 'notANumber = NaN;\n', 'NaN serialises correctly')
-  t.strictEquals(JSDF.serialise(Infinity, 'infinity'), 'infinity = Infinity;\n', 'Infinity serialises correctly')
-  t.strictEquals(JSDF.serialise(-Infinity, 'negativeInfinity'), 'negativeInfinity = -Infinity;\n', '-Infinity serialises correctly')
+  testSerialisation(t, 'negative number', -1)
+  testSerialisation(t, 'positive number', 1)
+  testSerialisation(t, 'zero', 0)
+  testSerialisation(t, 'floating-point number', Math.PI)
+  testSerialisation(t, 'NaN', NaN)
+  testSerialisation(t, 'Infinity', Infinity)
+  testSerialisation(t, '-Infinity', -Infinity)
 
+  testSerialisation(t, 'Boolean (true)', true)
+  testSerialisation(t, 'Boolean (false)', false)
 
-  // Date
-  const theDateThisTestWasWritten = JSDF.serialise(new Date(2020, 10, 16), 'theDateThisTestWasWritten')
-  t.strictEquals(theDateThisTestWasWritten, "theDateThisTestWasWritten = new Date('2020-11-16T00:00:00.000Z');\n", 'Date serialises correctly')
+  testSerialisation(t, 'String', 'Hello')
+  testSerialisation(t, 'String with single quotes', "'Hello'")
+  testSerialisation(t, 'String with double quotes', '"Hello"')
+  testSerialisation(t, 'String with backticks', "`Hello`")
+  testSerialisation(t, 'String with newlines', `Hello\nthere!`)
+  testSerialisation(t, 'String with emoji', '😎👍')
 
+  testSerialisation(t, 'Empty object', {})
+  testSerialisation(t, 'Object with properties', {x: 1, y: 2, z: 3})
+  testSerialisation(t, 'Deep object', {x: {y: {z: 'deep'}}})
 
+  // testSerialisation(t, 'Bound object', {hello: 'there'}.bind())
+
+  testSerialisation(t, 'Object with array', {x: {y: {z: [1,2,3]}}})
+
+  testSerialisation(t, 'Date', new Date())
+
+  // Custom object.
+
+  class CustomObject {
+    x = 1
+    y = 2
+    sum() {
+      return this.x + this.y
+    }
+  }
+
+  const customObject = new CustomObject()
+
+  // Tests custom object being deserialised in an environment where the custom
+  // class does NOT exist (which should result in a regular object being created).
+  testSerialisation(t, 'Custom object', customObject)
+
+  // Tests custom object being deserialised in an environment where the custom
+  // class does exist.
+  let deserialisedCustomObject
+  const serialisedCustomObject = JSDF.serialise(customObject, 'deserialisedCustomObject')
+  eval(serialisedCustomObject)
+
+  t.strictEquals(deserialisedCustomObject.sum(), 3, 'custom object is deserialised as instance of correct class when class exists')
 
   t.end()
 })

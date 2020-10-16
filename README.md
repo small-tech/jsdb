@@ -150,7 +150,7 @@ Just because it’s JavaScript, it doesn’t mean that you can throw anything in
   - `Number`
   - `Boolean`
   - `String`
-  - `Object` (and `bound Object`)
+  - `Object`
   - `Array`
   - `Date`
   - `Symbol`
