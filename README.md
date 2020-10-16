@@ -703,16 +703,21 @@ const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
   - The time complexity of reads and writes are both O(1).
   - Reads are fast (take fraction of a millisecond and are about an order of magnitude slower than direct memory reads).
   - Writes are fast (in the order of a couple of milliseconds on tests on a dev machine).
+  - Initial table load time and full table write/compaction times are O(N) and increase linearly as your table size grows.
 
-## Limits
+## Suggested limits
+
+  - Break up your database into multiple tables whenever possible.
+  - Keep your table sizes under 100MB.
+
+## Hard limits
 
   - Your database size is limited by available memory.
-  - If your database size is larger than > 1GB, you should start your node process with a larger heap size than the default (~1.4GB). E.g., to set aside 8GB of heap space:
+  - If your database size is larger than > ~1.3GB, you should start your node process with a larger heap size than the default (~1.4GB). E.g., to set aside 8GB of heap space:
 
   ```
   node --max-old-space-size=8192 why-is-my-database-so-large-i-hope-im-not-doing-anything-shady.js
   ```
-
 ## Memory Usage
 
 The reason JSDB is fast is because it keeps the whole database in memory. Also, to provide a transparent persistence and query API, it maintains a parallel object structure of proxies. This means that the amount of memory used will be multiples of the size of your database on disk and exhibits O(N) memory complexity.
@@ -723,11 +728,13 @@ For example, here’s just one sample from a development laptop using the simple
 
 | Number of records | Table size on disk | Memory used | Initial load time | Full table write/compaction time |
 | ----------------- | ------------------ | ----------- | ----------------- | -------------------------------- |
-| 1,000             | 2.5MB              | 15.8MB      | 41.6ms            | 2.7 seconds                      |
-| 10,000            | 25MB               | 121.4MB     | 380.2ms           | 26 seconds                       |
-| 100,000           | 244MB              | 1.2GB       | 5.5 seconds       | 4.6 minutes                      |
+| 1,000             | 2.5MB              | 15.8MB      | 85ms              | 45ms                             |
+| 10,000            | 25MB               | 121.4MB     | 845ms             | 400ms                            |
+| 100,000           | 250MB              | 1.2GB       | 11 seconds        | 4.9 seconds                      |
 
 (The baseline app used about 14.6MB without any table in memory. The memory used column subtracts that from the total reported memory so as not to skew the smaller dataset results.)
+
+Note: For tables > 500GB, compaction is turned off and a line-by-line streaming load strategy is implemented. If you foresee your tables being this large, you (a) are probably doing something nasty (and won’t mind me pointing it out if you’re not) and (b) should turn off compaction from the start for best performance. Keeping compaction off from the start will decrease initial table load times. Again, don’t use this to invade people’s privacy or profile them.
 
 ## Developing
 

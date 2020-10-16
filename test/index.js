@@ -120,7 +120,7 @@ test('basic persistence', t => {
       //
       // Update two properties within the same stack frame.
       //
-      expectedWriteCount = 2
+      expectedWriteCount = 3
 
       db.people[0].age = 43
       db.people[1].age = 33
@@ -130,11 +130,11 @@ test('basic persistence', t => {
     // Second time the listener is called:
     //
 
-    if (actualWriteCount === 2) {
-      t.strictEquals(expectedWriteCount, actualWriteCount, 'write 2: expected number of writes has taken place')
-      t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 2: original object and data in table are same after property update')
+    if (actualWriteCount === 3) {
+      t.strictEquals(expectedWriteCount, actualWriteCount, 'write 3: expected number of writes has taken place')
+      t.strictEquals(JSON.stringify(db.people), JSON.stringify(people), 'write 3: original object and data in table are same after property update')
       const updatedTable = loadTable('db', 'people')
-      t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 2: persisted table matches in-memory table after property update')
+      t.strictEquals(JSON.stringify(updatedTable), JSON.stringify(db.people), 'write 3: persisted table matches in-memory table after property update')
 
       db.people.removeListener('persist', tableListener)
 
