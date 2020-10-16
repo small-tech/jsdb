@@ -39,6 +39,10 @@ eval(serialisedPeople)
 
 folks[1].introduceYourself()
 
+console.log('\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+console.log('! This is expected to throw an error :) !')
+console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+
 // Should throw:
 // Error: You cannot store objects of type Function in JSDB.
 const naughty = [
