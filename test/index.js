@@ -275,7 +275,6 @@ test('table replacement', async t => {
   ]
 
   let db = JSDB.open(databasePath, { deleteIfExists: true })
-  console.log(people[0].constructor.name)
 
   db.people = people
 
@@ -284,8 +283,6 @@ test('table replacement', async t => {
 
   // To replace a table, we must first delete the current one and then set the new object.
   await db.people.delete()
-
-  console.log(people[0].constructor.name)
 
   // Now it should be safe to recreate the table.
   db.people = people
@@ -652,12 +649,20 @@ test('Basic queries', t => {
 
 
 test('Time', t => {
+
+  const labelTime1 = Time.mark('label1')
+  const labelTime2 = Time.elapsed('label1', -1)
+
   const globalTime1 = Time.mark()
   const globalTime2 = Time.mark()
   const globalTime3 = Time.elapsed('global', -1)
   const globalTime4 = Time.elapsed('global', 0)
   const globalTime5 = Time.elapsed('global', 1)
   const globalTime6 = Time.elapsed()
+
+  const globalTime7 = Time.elapsed('global', -1)
+
+  const labelTime3 = Time.elapsed('label1', -1)
 
   t.ok(globalTime2 > globalTime1, 'global time marks are in expected order')
 
@@ -666,6 +671,9 @@ test('Time', t => {
   t.strictEquals(typeof globalTime4, 'string', 'zero as argument to elapsed method returns string')
   t.strictEquals(typeof globalTime5, 'string', 'positive number as argument to elapsed method returns string')
   t.strictEquals(typeof globalTime6, 'string', 'default behaviour of elapsed method is to return string')
+
+  t.ok(labelTime2 < labelTime3, 'label1 durations are in expected order')
+  t.ok(labelTime3 > globalTime7, 'global and label1 durations are in expected order')
 
   t.end()
 })
