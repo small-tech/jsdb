@@ -800,6 +800,11 @@ test('JSDF', t => {
   testSerialisation(t, 'String with newlines', `Hello\nthere!`)
   testSerialisation(t, 'String with emoji', '😎👍')
 
+  // Security
+
+  testSerialisation(t, 'String injection attempt 1 fails as expected', "${console.log('You’ve been hacked!')}")
+  testSerialisation(t, 'String injection attempt 2 fails as expected', "\\${console.log('You’ve been hacked!')}")
+
   //
   // Plain objects.
   //
