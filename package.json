@@ -2,29 +2,42 @@
   "name": "@small-tech/jsdb",
   "version": "1.0.0",
   "description": "A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.",
-  "main": "index.js",
-  "scripts": {
-    "test": "tape test/*.js | tap-spec",
-    "coverage": "nyc tape test/*.js | tap-nyc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://source.small-tech.org/site.js/lib/jsdb"
-  },
   "keywords": [
+    "js",
     "javascript",
     "database",
+    "JSDB",
+    "JSQL",
+    "JSDF",
     "transparent",
-    "small",
-    "web",
+    "small web",
+    "small tech",
     "in-memory",
     "in-process",
+    "append-only",
     "proxy",
     "transaction log",
     "streaming",
     "metaprogramming"
   ],
-  "author": "Aral Balkan",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js | tap-spec",
+    "coverage": "nyc tape test/*.js | tap-nyc"
+  },
+  "funding": {
+    "type": "foundation",
+    "url": "https://small-tech.org/fund-us/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://source.small-tech.org/site.js/lib/jsdb"
+  },
+  "author": {
+    "name": "Aral Balkan",
+    "email": "aral@small-tech.org",
+    "url": "https://ar.al"
+  },
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "@jcbuisson/readlinesync": "^1.0.0",
