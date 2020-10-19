@@ -98,7 +98,15 @@ _[2]['name'] = `Osky`;
 
 ## It’s just JavaScript!
 
-Given that a JSDF file is just JavaScript, and includes a [UMD](https://github.com/umdjs/umd)-like declaration in its header (the first two lines), you can simply `require()` it as a module in Node.js or even load it in a script tag.
+Given that a JSDF file is just JavaScript.
+
+The first line is a single assignment of all the data that existed in the table when it was created or last loaded.
+
+The second line is a [UMD](https://github.com/umdjs/umd)-style declaration.
+
+Any changes to the table within the last session that it was open are written, one statement per line, starting with the third line.
+
+Since the format contains a UMD-style declaration, you can simply `require()` a JSDF file as a module in Node.js or even load it using a script tag.
 
 For example, create an _index.html_ file with the following content in the same folder as the other script and serve it locally using [Site.js](https://sitejs.org) and you will see the data printed out in your browser:
 
@@ -262,7 +270,7 @@ globalThis._ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 33 }, { name: 
 (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
 ```
 
-Ah, that is neater. You can see that Laura’s record is created with the correct age from the outset and Oskar’s name is set to its final value of Osky from the outset.
+Ah, that is neater. Laura’s record is created with the correct age and Oskar’s name is set to its final value from the outset. And it all happens on the first line, in a single assignment. Any new changes will, just as before, be added starting with the third line.
 
 (You can find these examples in the `examples/basic` folder of the source code.)
 
@@ -363,7 +371,7 @@ Here are a couple of facts to dispel the magic behind what’s going on:
   - What we call a _database_ in JSDB is just a regular directory on your file system.
   - Inside that directory, you can have zero or more tables.
   - A table is a JSDF file.
-  - A JSDF file is a sequence of JavaScript statements that creates a data object (either an object or an array). It is an append-only log that is compacted at load. JSDF files are valid JavaScript files and should run correctly under any JavaScript interpreter.
+  - A JSDF file is a sequence of JavaScript statements that creates a data object (either an object or an array). It is an append-only transaction log that is compacted at load. JSDF files are valid JavaScript files and should run correctly under any JavaScript interpreter.
   - When you open a database, you get a Proxy instance back, not an instance of JSDB.
   - Similarly, when you reference a table or the data within it, you are referencing proxy objects, not the table instance or the data itself.
 
@@ -394,7 +402,7 @@ Given that a core goal for JSDB is to be transparent, you will mostly feel like 
           {name: 'Ed Snowden', age: 37}
         ]
 
-        // This is NOT.
+        // This is NOT OK.
         try {
           db.people = [
             {name: 'Someone else', age: 100}
