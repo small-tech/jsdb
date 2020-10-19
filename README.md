@@ -195,7 +195,7 @@ You can find these examples in the `examples/custom-data-types` folder of the so
 
 If you try to add an instance of an unsupported data type to a JSDB table, you will get a `TypeError`.
 
-The following data types are currently unsupported but support is planned for the future:
+The following data types are currently unsupported but may be supported in the future:
 
   - `Map` (and `WeakMap`)
   - `Set` (and `WeakSet`)
@@ -208,11 +208,13 @@ The following intrinsic objects are not supported as they don’t make sense to 
 
 ## Important security note
 
-Note that JSDF is __not__ a data exchange format. Since it contains JavaScript code that is run, you must only load JSDF files from a domain that you own and control and have a secure connection to.
+__JSDF is _not_ a data exchange format.__
+
+Since JSDF is made up of JavaScript code that is evaluated at run time, you must only load JSDF files from domains that you own and control and have a secure connection to.
 
 __Do not load in JSDF files from third parties.__
 
-If you want a data _exchange_ format, use [JSON](https://www.json.org/json-en.html).
+If you need a data _exchange_ format, use [JSON](https://www.json.org/json-en.html).
 
 Rule of thumb:
 
