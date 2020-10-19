@@ -203,7 +203,7 @@ You can find these examples in the `examples/custom-data-types` folder of the so
 
 If you try to add an instance of an unsupported data type to a JSDB table, you will get a `TypeError`.
 
-The following data types are currently unsupported but may be supported in the future:
+The following data types are currently unsupported but might be supported in the future:
 
   - `Map` (and `WeakMap`)
   - `Set` (and `WeakSet`)
