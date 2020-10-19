@@ -1,35 +1,12 @@
 # JavaScript Database (JSDB)
 
-__Work in progress:__ A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.
-
-__Needless to say, this is not ready for use yet. But feel free to take a look around.__
-
-## Roadmap to version 1.0.0.
-
-  - [x] __Implement persistence.__ (15 Sept)
-  - [x]  ╰─ Add unit tests for persistence. (19 Sept)
-  - [x]  ╰─ Document persistence. (19 Sept)
-  - [x]  ╰─ Add persistence example. (19 Sept)
-  - [x] __Implement queries.__ (22 Sept)
-  - [x]  ╰─ Add queries example. (22 Sept)
-  - [x] __Refactor to implement persistence as append-only JavaScript transaction log and use streaming writes.__ (29 Sept)
-  - [x]  ╰─  Update documentation to reflect new persistence engine. (29 Sept)
-  - [x]  ╰─  Update examples to work with new persistence engine. (30 Sept)
-  - [x] __Continue working on queries.__ (1 Oct)
-  - [x]  ╰─ Add unit tests for queries. (1 Oct)
-  - [x]  ╰─ Document queries. (1 Oct)
-  - [x] __Bring code coverage back up to 100%.__ (2 Oct)
-  - [x] __Implement safety controls on instantiation and table replacement.__ (5 Oct)
-  - [x] __Implement JSDF serialiser__ (inc. support for custom objects, and Date, etc.) (16 Oct)
-  - [ ] __Integrate into [Site.js](https://sitejs.org)__ _(in progress)_
-  - [ ] __Use/test on upcoming small-web.org site__
-  - [ ] __Release version 1.0.0__
+A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.
 
 ## Use case
 
 A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) sites for basic public (e.g., anonymous comments on articles) or configuration data. Built for use in [Site.js](https://sitejs.org).
 
-__Not to farm people for their data.__ Surveillance capitalists can jog on now.
+__Not to farm people for their data.__ [Surveillance capitalists](https://ar.al/2020/01/01/in-2020-and-beyond-the-battle-to-save-personhood-and-democracy-requires-a-radical-overhaul-of-mainstream-technology/) can jog on now.
 
 
 ## Features
@@ -51,9 +28,11 @@ __Not to farm people for their data.__ Surveillance capitalists can jog on now.
 
   - __In-memory:__ all data is kept in memory and, [without tweaks, cannot exceed 1.4GB in size](https://www.the-data-wrangler.com/nodejs-memory-limits/). While JSDB will work with large datasets, that’s not its primary purpose and it’s definitely not here to help you farm people for their data, so please don’t use it for that. (If that’s what you want, quite literally every other database out there is for your use case so please use one of those instead.)
 
-  - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on a development laptop with an SSD drive) and as safe as we can make them (synchronous as the kernel level).
+  - __Streaming writes on update:__ writes are streamed to disk to an append-only transaction log as JavaScript statements and are both quick (in the single-digit miliseconds region on a development laptop with an SSD drive) and as safe as we can make them (synchronous at the kernel level).
 
   - __No schema, no migrations__: again, this is meant to be a very simple persistence, query, and observation layer for local server-side data. If you want schemas and migrations, take a look at nearly every other database out there.
+
+  Note: the limitations are also features, not bugs. This is a focused tool for a specific purpose. While feature requests are welcome, I do not foresee extending its application scope.
 
 
 ## Like this? Fund us!
@@ -150,6 +129,10 @@ Just because it’s JavaScript, it doesn’t mean that you can throw anything in
   - `Symbol`
   - [Custom data types](#custom-data-types) (see below).
 
+Additionally, `null` and `undefined` values will be persisted as-is.
+
+Strings are automatically sanitised to escape backticks, backslashes, and template placeholder tokens to avoid arbitrary code execution via JavaScript injection attacks.
+
 ### Custom data types
 
 Custom data types (instances of your own classes) are also supported.
@@ -231,7 +214,7 @@ __Do not load in JSDF files from third parties.__
 
 If you want a data _exchange_ format, use [JSON](https://www.json.org/json-en.html).
 
-Remember:
+Rule of thumb:
 
   - JSON is a terrible format for a database but a great format for data exchange.
   - JSDF is a terrible format for data exchange but a great format for a JavaScript database.
