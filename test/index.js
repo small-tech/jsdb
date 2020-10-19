@@ -802,8 +802,9 @@ test('JSDF', t => {
 
   // Security
 
-  testSerialisation(t, 'String injection attempt 1 fails as expected', "${console.log('You’ve been hacked!')}")
-  testSerialisation(t, 'String injection attempt 2 fails as expected', "\\${console.log('You’ve been hacked!')}")
+  testSerialisation(t, 'String injection attempt 1 fails as expected', "${t.fail('Payload 1 delivered')}")
+  testSerialisation(t, 'String injection attempt 2 fails as expected', "\\${t.fail('Payload 2 delivered')}")
+  testSerialisation(t, 'String injection attempt 3 fails as expected', "` + t.fail('Payload 3 delivered') + `")
 
   //
   // Plain objects.
