@@ -249,9 +249,9 @@ Compaction is important for two reasons; during compaction:
   - Deleted data is actually deleted from disk. (Privacy.)
   - Old versions of updated data are actually removed. (Again, privacy.)
 
-Compaction will also reduce the size of your tables.
+Compaction may thus also reduce the size of your tables.
 
-That said, compaction is a relatively slow process that gets uniformly slower as the size of your database grows (it has O(N) time complexity as the whole database is recreated).
+Compaction is a relatively fast process but it does get uniformly slower as the size of your database grows (it has O(N) time complexity as the whole database is recreated).
 
 You do have the option to override the default behaviour and keep all history. You might want to do this, for example, if you’re creating a web app that lets you create a drawing and you want to play the drawing back stroke by stroke, etc.
 
