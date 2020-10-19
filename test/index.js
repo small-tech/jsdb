@@ -284,6 +284,9 @@ test('table replacement', async t => {
   // To replace a table, we must first delete the current one and then set the new object.
   await db.people.delete()
 
+  // After delete, the table should not exist
+  t.notOk(db.people, 'table is confirmed as deleted')
+
   // Now it should be safe to recreate the table.
   db.people = people
 
@@ -723,8 +726,6 @@ test ('Util', t => {
 test('JSDB', t => {
   const db = JSDB.open(databasePath, { deleteIfExists: true })
 
-  t.throws(() => { db.invalid = null      }, 'attempting to create null table throws')
-  t.throws(() => { db.invalid = undefined }, 'attempting to create undefined table throws')
   t.throws(() => { db.invalid = function(){} }, 'attempting to create table with function throws')
   t.throws(() => { db.invalid = Symbol('hello') }, 'attempting to create table with symbol throws')
   t.throws(() => { db.invalid = 'hello' }, 'attempting to create table with string throws')
