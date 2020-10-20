@@ -1,0 +1,10 @@
+<script src="db/episodes.js"></script>
+<h1>Lovecraft Country</h1>
+<p>Episodes and ratings from <a href='https://www.imdb.com/title/tt6905686/episodes?season=1'>IMDB</a>:</p>
+<ul>
+<script>
+  episodes.forEach(episode => {
+    document.write(`<li><strong>${episode.title}</strong> ⭐ ${episode.rating}</li>`)
+  })
+</script>
+</ul>
