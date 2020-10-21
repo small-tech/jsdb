@@ -716,8 +716,8 @@ During query execution, if the query throws (due to an injection attempt that as
 
 The relevant areas in the codebase are linked to below.
 
-  - Query sanitation code (QueryProxy class)
-  - Query sanitation code tests (test/index.js)
+  - [Query sanitation code (QueryProxy class)](https://github.com/small-tech/jsdb/blob/master/lib/QueryProxy.js#L44)
+  - [Query sanitation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L650)
 
 If you notice anything we’ve overlooked or if you have suggestions for improvements, [please open an issue](https://github.com/small-tech/jsdb/issues).
 
