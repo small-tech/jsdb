@@ -647,6 +647,35 @@ test('Basic queries', t => {
   // This should have restored the array to its previous state, after the push.
   t.strictEquals(JSON.stringify(completedQuery.get()), JSON.stringify(expectedResultsetAfterPush), 'defining a property on the resultset array works as expected')
 
+  //
+  // Query security.
+  // See: https://source.small-tech.org/site.js/lib/jsdb/-/issues/10
+  //
+
+  // Temporarily create a global reference to the current test so that the
+  // attack payloads can use it to fail the tests should they succeed.
+  globalThis.t = t
+
+  const queryInjectionAttackAttemptResult1 = db.cars.where('make === "something"; globalThis.t.fail("Query injection payload 1 delivered"); valueOf.make').is('something'
+).get()
+
+  const queryInjectionAttackAttemptResult2 = db.cars.where('make').is('\'+globalThis.t.fail("Query injection payload 2 delivered")+\'').get()
+
+  const queryInjectionAttackAttemptResult3 = db.cars.whereIsTrue('globalThis.t.fail("Query injection payload 3 delivered")').get()
+
+  const queryInjectionAttackAttemptResult4 = db.cars.whereIsTrue('valueOf.make === "something"; globalThis.t.fail("Query injection payload 4 delivered"); valueOf.make === \'something\'').get()
+
+  const queryInjectionAttackAttemptResult5 = db.cars.whereIsTrue('valueOf.make === `something`; globalThis.t.fail("Query injection payload 5 delivered"); valueOf.make === \'something\'').get()
+
+  // Remove the global reference to the test instance as it’s no longer necessary.
+  globalThis.t = null
+
+  t.ok(Array.isArray(queryInjectionAttackAttemptResult1) && queryInjectionAttackAttemptResult1.length === 0, '🔒 result of query injection attack attempt 1 is empty array as expected')
+  t.ok(Array.isArray(queryInjectionAttackAttemptResult2) && queryInjectionAttackAttemptResult2.length === 0, '🔒 result of query injection attack attempt 2 is empty array as expected')
+  t.ok(Array.isArray(queryInjectionAttackAttemptResult3) && queryInjectionAttackAttemptResult3.length === 0, '🔒 result of query injection attack attempt 3 is empty array as expected')
+  t.ok(Array.isArray(queryInjectionAttackAttemptResult4) && queryInjectionAttackAttemptResult4.length === 0, '🔒 result of query injection attack attempt 4 is empty array as expected')
+  t.ok(Array.isArray(queryInjectionAttackAttemptResult5) && queryInjectionAttackAttemptResult5.length === 0, '🔒 result of query injection attack attempt 5 is empty array as expected')
+
   t.end()
 })
 
@@ -803,9 +832,9 @@ test('JSDF', t => {
 
   // Security
 
-  testSerialisation(t, 'String injection attempt 1 fails as expected', "${t.fail('Payload 1 delivered')}")
-  testSerialisation(t, 'String injection attempt 2 fails as expected', "\\${t.fail('Payload 2 delivered')}")
-  testSerialisation(t, 'String injection attempt 3 fails as expected', "` + t.fail('Payload 3 delivered') + `")
+  testSerialisation(t, '🔒 String injection attempt 1 fails as expected', "${t.fail('Payload 1 delivered')}")
+  testSerialisation(t, '🔒 String injection attempt 2 fails as expected', "\\${t.fail('Payload 2 delivered')}")
+  testSerialisation(t, '🔒 String injection attempt 3 fails as expected', "` + t.fail('Payload 3 delivered') + `")
 
   //
   // Plain objects.
