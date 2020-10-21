@@ -139,7 +139,16 @@ Just because it’s JavaScript, it doesn’t mean that you can throw anything in
 
 Additionally, `null` and `undefined` values will be persisted as-is.
 
+### Security note regarding strings
+
 Strings are automatically sanitised to escape backticks, backslashes, and template placeholder tokens to avoid arbitrary code execution via JavaScript injection attacks.
+
+The relevant areas in the codebase are linked to below.
+
+  - [String sanitation code (JSDF class)](https://github.com/small-tech/jsdb/blob/master/lib/JSDF.js#L45)
+  - [String sanitation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L804)
+
+If you notice anything we’ve overlooked or if you have suggestions for improvements, [please open an issue](https://github.com/small-tech/jsdb/issues).
 
 ### Custom data types
 
@@ -684,6 +693,33 @@ const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
   { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive', 'AMAZING'] }
 ]
 ```
+
+### Security considerations with queries
+
+JSDB (as of version 1.1.0), attempts to sanitise your queries for you to avoid [Little Bobby Tables](https://xkcd.com/327/).
+
+The current sanitation strategy is two-fold and is executed at time of query execution:
+
+  1. Remove dangerous characters (statement terminators, etc.):
+    - Semi-colon (`;`)
+    - Backslash (`\`)
+    - Backtick (`\``)
+    - Plus sign (`+`)
+    - Dollar sign (`$`)
+    - Curly brackets (`{}`)
+
+    Reasoning: remove symbols that could be used to create valid code so that if our sieve (see below) doesn’t catch an attempt, the code will throw an error when executed, which we can catch and handle.
+
+  2. Use a sieve to remove expected input. If our sieve contains any leftover material, we immediately return an empty result set without executing the query.
+
+During query execution, if the query throws (due to an injection attempt that as been neutralised at Step 1 but made it through the sieve), we simply catch the error and return an empty result set.
+
+The relevant areas in the codebase are linked to below.
+
+  - Query sanitation code (QueryProxy class)
+  - Query sanitation code tests (test/index.js)
+
+If you notice anything we’ve overlooked or if you have suggestions for improvements, [please open an issue](https://github.com/small-tech/jsdb/issues).
 
 ## Performance characteristics
 
