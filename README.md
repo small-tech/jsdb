@@ -146,7 +146,7 @@ Strings are automatically sanitised to escape backticks, backslashes, and templa
 The relevant areas in the codebase are linked to below.
 
   - [String sanitation code (JSDF class)](https://github.com/small-tech/jsdb/blob/master/lib/JSDF.js#L45)
-  - [String sanitation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L804)
+  - [String sanitation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L833)
 
 If you notice anything we’ve overlooked or if you have suggestions for improvements, [please open an issue](https://github.com/small-tech/jsdb/issues).
 
@@ -701,18 +701,19 @@ JSDB (as of version 1.1.0), attempts to sanitise your queries for you to avoid [
 The current sanitation strategy is two-fold and is executed at time of query execution:
 
   1. Remove dangerous characters (statement terminators, etc.):
-    - Semi-colon (`;`)
-    - Backslash (`\`)
-    - Backtick (`\``)
-    - Plus sign (`+`)
-    - Dollar sign (`$`)
-    - Curly brackets (`{}`)
 
-    Reasoning: remove symbols that could be used to create valid code so that if our sieve (see below) doesn’t catch an attempt, the code will throw an error when executed, which we can catch and handle.
+      - Semi-colon (`;`)
+      - Backslash (`\`)
+      - Backtick (`\``)
+      - Plus sign (`+`)
+      - Dollar sign (`$`)
+      - Curly brackets (`{}`)
+
+      Reasoning: remove symbols that could be used to create valid code so that if our sieve (see below) doesn’t catch an attempt, the code will throw an error when executed, which we can catch and handle.
 
   2. Use a sieve to remove expected input. If our sieve contains any leftover material, we immediately return an empty result set without executing the query.
 
-During query execution, if the query throws (due to an injection attempt that as been neutralised at Step 1 but made it through the sieve), we simply catch the error and return an empty result set.
+During query execution, if the query throws (due to an injection attempt that was neutralised at Step 1 but made it through the sieve), we simply catch the error and return an empty result set.
 
 The relevant areas in the codebase are linked to below.
 
