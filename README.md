@@ -555,6 +555,8 @@ For more complex queries – for example, if you need to include parenthetical g
 
 When writing your custom JSQL query, prefix property names with `valueOf.`.
 
+Note that custom queries are inherently less safe as you are responsible for sanitising input at the application level to avoid leaking sensitive data. (Basic sanitisation to avoid arbitrary code execution is handled for you by JSDB). Make sure you read through the Security considerations with queries](#security-considerations-with-queries) section if you’re going to use custom queries.
+
 #### Example
 
 ```js
@@ -696,7 +698,9 @@ const carsThatAreRegal = db.cars.where('tags').includes('regal').get()
 
 ### Security considerations with queries
 
-JSDB (as of version 1.1.0), attempts to sanitise your queries for you to avoid [Little Bobby Tables](https://xkcd.com/327/).
+JSDB (as of version 1.1.0), attempts to carry out basic sanitisation of your queries for you to avoid [Little Bobby Tables](https://xkcd.com/327/).
+
+That said, you should still sanitise your queries at the application level, if you’re using custom queries via `whereIsTrue()`. Basic sanitisation will protect you from arbitrary code execution but it will not protect you from, for example, someone passing `|| valueOf.admin === true` to attempt to access private information. You should be vigilant in your sanitisation when using `whereIsTrue()` and stick to using `where()` whenever possible.
 
 The current sanitation strategy is two-fold and is executed at time of query execution:
 
