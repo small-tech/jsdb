@@ -375,16 +375,16 @@ test('Basic queries', t => {
   // Note: I know nothing about cars. This is randomly generated data. And I added the tags myself
   // ===== to test the includes operator on an array property.
   const cars = [
-    { make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia", tags: ['fun', 'sporty'] },
-    { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise", tags: ['regal', 'expensive'] },
-    { make: "Honda", model: "Element", year: 2004, colour: "Orange", tags: ['fun', 'affordable'] },
-    { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson", tags: ['sporty', 'expensive']},
-    { make: "Hyundai", model: "Santa Fe", year: 2009, colour: "Turquoise", tags: ['sensible', 'affordable'] },
-    { make: "Toyota", model: "Avalon", year: 2005, colour: "Khaki", tags: ['fun', 'affordable']},
-    { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson", tags: ['regal', 'expensive', 'fun']},
-    { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red", tags: ['fun', 'expensive', 'sporty']},
-    { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty']},
-    { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive', 'AMAZING'] }
+    { make: "Subaru", model: "Loyale", year: 1991, colour: "Fuscia", tags: ['fun', 'sporty'], own: true },
+    { make: "Chevrolet", model: "Suburban 1500", year: 2004, colour: "Turquoise", tags: ['regal', 'expensive'], own: false },
+    { make: "Honda", model: "Element", year: 2004, colour: "Orange", tags: ['fun', 'affordable'], own: false },
+    { make: "Subaru", model: "Impreza", year: 2011, colour: "Crimson", tags: ['sporty', 'expensive'], own: false},
+    { make: "Hyundai", model: "Santa Fe", year: 2009, colour: "Turquoise", tags: ['sensible', 'affordable'], own: false },
+    { make: "Toyota", model: "Avalon", year: 2005, colour: "Khaki", tags: ['fun', 'affordable'], own: false},
+    { make: "Mercedes-Benz", model: "600SEL", year: 1992, colour: "Crimson", tags: ['regal', 'expensive', 'fun'], own: true},
+    { make: "Jaguar", model: "XJ Series", year: 2004, colour: "Red", tags: ['fun', 'expensive', 'sporty'], own: true},
+    { make: "Isuzu", model: "Hombre Space", year: 2000, colour: "Yellow", tags: ['sporty'], own: false},
+    { make: "Lexus", model: "LX", year: 1997, colour: "Indigo", tags: ['regal', 'expensive', 'AMAZING'], own: false }
   ]
 
   db.cars = cars
@@ -402,9 +402,41 @@ test('Basic queries', t => {
   const carWhereYearIsEqualTo1991 = db.cars.where('year').isEqualTo(1991).getFirst()
   const carWhereYearEquals1991 = db.cars.where('year').equals(1991).getFirst()
 
+  // Test boolean values.
+  const carsIOwn = db.cars.where('own').is(true).get() // Note: I don’t actually own these cars ;)
+
   t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(cars[0]), 'is returns the expected result')
   t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(carWhereYearIsEqualTo1991), 'is and isEqualTo are aliases')
   t.strictEquals(JSON.stringify(carWhereYearIs1991), JSON.stringify(carWhereYearEquals1991), 'is and equals are aliases')
+
+  const expectedListOfCarsIOwn = JSON.stringify([
+    {
+      make: 'Subaru',
+      model: 'Loyale',
+      year: 1991,
+      colour: 'Fuscia',
+      tags: [ 'fun', 'sporty' ],
+      own: true
+    },
+    {
+      make: 'Mercedes-Benz',
+      model: '600SEL',
+      year: 1992,
+      colour: 'Crimson',
+      tags: [ 'regal', 'expensive', 'fun' ],
+      own: true
+    },
+    {
+      make: 'Jaguar',
+      model: 'XJ Series',
+      year: 2004,
+      colour: 'Red',
+      tags: [ 'fun', 'expensive', 'sporty' ],
+      own: true
+    }
+  ])
+
+  t.strictEquals(JSON.stringify(carsIOwn), expectedListOfCarsIOwn, 'boolean values in queries are handled properly')
 
   //
   // isNot, doesNotEqual
@@ -577,11 +609,11 @@ test('Basic queries', t => {
   t.strictEquals(complexCustomQueryResult.length, 5, 'complex custom query: returns 5 results')
 
   const expectedResult =  [
-    { make: 'Chevrolet', model: 'Suburban 1500', year: 2004, colour: 'Turquoise', tags: [ 'regal', 'expensive' ] },
-    { make: 'Honda', model: 'Element', year: 2004, colour: 'Orange', tags: [ 'fun', 'affordable' ] },
-    { make: 'Toyota', model: 'Avalon', year: 2005, colour: 'Khaki', tags: [ 'fun', 'affordable' ] },
-    { make: 'Mercedes-Benz', model: '600SEL', year: 1992, colour: 'Crimson', tags: [ 'regal', 'expensive', 'fun' ] },
-    { make: 'Lexus', model: 'LX', year: 1997, colour: 'Indigo', tags: [ 'regal', 'expensive', 'AMAZING' ] }
+    { make: 'Chevrolet', model: 'Suburban 1500', year: 2004, colour: 'Turquoise', tags: [ 'regal', 'expensive' ], own: false },
+    { make: 'Honda', model: 'Element', year: 2004, colour: 'Orange', tags: [ 'fun', 'affordable' ], own: false},
+    { make: 'Toyota', model: 'Avalon', year: 2005, colour: 'Khaki', tags: [ 'fun', 'affordable' ], own: false},
+    { make: 'Mercedes-Benz', model: '600SEL', year: 1992, colour: 'Crimson', tags: [ 'regal', 'expensive', 'fun' ], own: true },
+    { make: 'Lexus', model: 'LX', year: 1997, colour: 'Indigo', tags: [ 'regal', 'expensive', 'AMAZING' ], own: false}
   ]
 
   t.strictEquals(JSON.stringify(complexCustomQueryResult), JSON.stringify(expectedResult), 'complex custom query result is as expected')
@@ -665,7 +697,7 @@ test('Basic queries', t => {
 
   const queryInjectionAttackAttemptResult4 = db.cars.whereIsTrue('valueOf.make === "something"; globalThis.t.fail("Query injection payload 4 delivered"); valueOf.make === \'something\'').get()
 
-  const queryInjectionAttackAttemptResult5 = db.cars.whereIsTrue('valueOf.make === `something`; globalThis.t.fail("Query injection payload 5 delivered"); valueOf.make === \'something\'').get()
+  const queryInjectionAttackAttemptResult5 = db.cars.whereIsTrue('valueOf.make === `2`; globalThis.t.fail("Query injection payload 5 delivered"); valueOf.make === \'something\'').get()
 
   // Remove the global reference to the test instance as it’s no longer necessary.
   globalThis.t = null
