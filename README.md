@@ -704,7 +704,7 @@ The current sanitation strategy is two-fold and is executed at time of query exe
 
       - Semi-colon (`;`)
       - Backslash (`\`)
-      - Backtick (`\``)
+      - Backtick (`` ` ``)
       - Plus sign (`+`)
       - Dollar sign (`$`)
       - Curly brackets (`{}`)
