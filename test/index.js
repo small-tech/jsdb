@@ -23,6 +23,7 @@ const JSDB = require('..')
 const JSTable = require('../lib/JSTable')
 const JSDF = require('../lib/JSDF')
 const Time = require('../lib/Time')
+const QuerySanitiser = require('../lib/QuerySanitiser')
 const { needsToBeProxified, log } = require('../lib/Util')
 
 const { isProxy } = require('util').types
@@ -977,6 +978,32 @@ test('JSDF', t => {
   t.throws(() => JSDF.serialise(new SyntaxError(), '_'), 'Unsupported datatype (SyntaxError) throws')
   t.throws(() => JSDF.serialise(new TypeError(), '_'), 'Unsupported datatype (TypeError) throws')
   t.throws(() => JSDF.serialise(new URIError(), '_'), 'Unsupported datatype (URIError) throws')
+
+  t.end()
+})
+
+test ('QuerySanitiser', t => {
+  //
+  // Ensure that the composed regular expressions are as we expect them. If we change how queries
+  // work, these tests should fail even if the sanitiser is working correctly but that’s all right,
+  // we can just update the tests accordingly. That’s better than an unexpected change to the
+  // sanitisation code silently resulting in test succeeding because we weren’t looking for it.
+  //
+  const isSameRegExp = (regExp1, regExp2) => regExp1.source === regExp2.source && regExp1.flags === regExp2.flags
+
+  t.ok(isSameRegExp(QuerySanitiser.Disallowed.dangerousCharacters, /[;\\\+\`\{\}\$]/g), 'RegExp for disallowed dangerous characters is as expected')
+
+  t.ok(isSameRegExp(QuerySanitiser.Allowed.functionalOperationsCaseInsensitive, /valueOf\..+?\.toLowerCase()\.(startsWith|endsWith|includes|startsWithCaseInsensitive|endsWithCaseInsensitive|includesCaseInsensitive)\(.+?\)/g), 'RegExp for allowed functional operations (case insensitive) is as expected')
+
+  t.ok(isSameRegExp(QuerySanitiser.Allowed.functionalOperations, /valueOf\..+?\.(startsWith|endsWith|includes|startsWithCaseInsensitive|endsWithCaseInsensitive|includesCaseInsensitive)\(.+?\)/g), 'RegExp for allowed functional operations is as expected')
+
+  t.ok(isSameRegExp(QuerySanitiser.Allowed.relationalOperations, /valueOf\.[^\.]+?\s?(===|!==|>|>=|<|<=)\s?([\d\._]+\s?|'.+?'|".+?"|false|true)/g), 'RegExp for allowed relational operations is as expected')
+
+  t.ok(isSameRegExp(QuerySanitiser.Allowed.logicalOr, /\|\|/g), 'RegExp for allowed logical OR is as expected')
+
+  t.ok(isSameRegExp(QuerySanitiser.Allowed.logicalAnd, /\&\&/g), 'RegExp for allowed logical AND is as expected')
+
+  t.ok(isSameRegExp(QuerySanitiser.Allowed.allowedCharacters, /['"\(\)\s]/g), 'RegExp for allowed characters is as expected')
 
   t.end()
 })
