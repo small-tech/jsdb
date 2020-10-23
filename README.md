@@ -145,8 +145,8 @@ Strings are automatically sanitised to escape backticks, backslashes, and templa
 
 The relevant areas in the codebase are linked to below.
 
-  - [String sanitation code (JSDF class)](https://github.com/small-tech/jsdb/blob/master/lib/JSDF.js#L45)
-  - [String sanitation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L833)
+  - [String sanitisation code (JSDF class)](https://github.com/small-tech/jsdb/blob/master/lib/JSDF.js#L45)
+  - [String sanitisation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L866)
 
 If you notice anything we’ve overlooked or if you have suggestions for improvements, [please open an issue](https://github.com/small-tech/jsdb/issues).
 
@@ -702,7 +702,7 @@ JSDB (as of version 1.1.0), attempts to carry out basic sanitisation of your que
 
 That said, you should still sanitise your queries at the application level, if you’re using custom queries via `whereIsTrue()`. Basic sanitisation will protect you from arbitrary code execution but it will not protect you from, for example, someone passing `|| valueOf.admin === true` to attempt to access private information. You should be vigilant in your sanitisation when using `whereIsTrue()` and stick to using `where()` whenever possible.
 
-The current sanitation strategy is two-fold and is executed at time of query execution:
+The current sanitisation strategy is two-fold and is executed at time of query execution:
 
   1. Remove dangerous characters (statement terminators, etc.):
 
@@ -721,8 +721,9 @@ During query execution, if the query throws (due to an injection attempt that wa
 
 The relevant areas in the codebase are linked to below.
 
-  - [Query sanitation code (QueryProxy class)](https://github.com/small-tech/jsdb/blob/master/lib/QueryProxy.js#L44)
-  - [Query sanitation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L650)
+  - [Query sanitisation code (QueryProxy class)](https://github.com/small-tech/jsdb/blob/master/lib/QueryProxy.js#L43)
+  - [Query sanitisation code (QuerySanitiser class)](https://github.com/small-tech/jsdb/blob/master/lib/QuerySanitiser.js)
+  - [Query sanitisation code tests (test/index.js)](https://github.com/small-tech/jsdb/blob/master/test/index.js#L683)
 
 If you notice anything we’ve overlooked or if you have suggestions for improvements, [please open an issue](https://github.com/small-tech/jsdb/issues).
 
