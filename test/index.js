@@ -991,7 +991,7 @@ test ('QuerySanitiser', t => {
   //
   const isSameRegExp = (regExp1, regExp2) => regExp1.source === regExp2.source && regExp1.flags === regExp2.flags
 
-  t.ok(isSameRegExp(QuerySanitiser.Disallowed.dangerousCharacters, /[;\\\+\`\{\}\$]/g), 'RegExp for disallowed dangerous characters is as expected')
+  t.ok(isSameRegExp(QuerySanitiser.Disallowed.dangerousCharacters, /[;\\\+\`\{\}\[\]\$]/g), 'RegExp for disallowed dangerous characters is as expected')
 
   t.ok(isSameRegExp(QuerySanitiser.Allowed.functionalOperationsCaseInsensitive, /valueOf\..+?\.toLowerCase()\.(startsWith|endsWith|includes|startsWithCaseInsensitive|endsWithCaseInsensitive|includesCaseInsensitive)\(.+?\)/g), 'RegExp for allowed functional operations (case insensitive) is as expected')
 
