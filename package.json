@@ -42,7 +42,8 @@
   "dependencies": {
     "@jcbuisson/readlinesync": "^1.0.0",
     "decache": "^4.6.0",
-    "fs-extra": "^9.0.1"
+    "fs-extra": "^9.0.1",
+    "vm2": "^3.9.2"
   },
   "devDependencies": {
     "nyc": "^15.1.0",
