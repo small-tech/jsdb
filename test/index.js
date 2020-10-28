@@ -700,6 +700,9 @@ test('Basic queries', t => {
 
   const queryInjectionAttackAttemptResult5 = db.cars.whereIsTrue('valueOf.make === `2`; globalThis.t.fail("Query injection payload 5 delivered"); valueOf.make === \'something\'').get()
 
+  // This should trigger a syntax error at function creation.
+  const queryInjectionAttackAttemptResult6 = db.cars.whereIsTrue('valueOf.make === 1.2.3').get()
+
   // Remove the global reference to the test instance as it’s no longer necessary.
   globalThis.t = null
 
@@ -708,6 +711,7 @@ test('Basic queries', t => {
   t.ok(Array.isArray(queryInjectionAttackAttemptResult3) && queryInjectionAttackAttemptResult3.length === 0, '🔒 result of query injection attack attempt 3 is empty array as expected')
   t.ok(Array.isArray(queryInjectionAttackAttemptResult4) && queryInjectionAttackAttemptResult4.length === 0, '🔒 result of query injection attack attempt 4 is empty array as expected')
   t.ok(Array.isArray(queryInjectionAttackAttemptResult5) && queryInjectionAttackAttemptResult5.length === 0, '🔒 result of query injection attack attempt 5 is empty array as expected')
+  t.ok(Array.isArray(queryInjectionAttackAttemptResult6) && queryInjectionAttackAttemptResult6.length === 0, '🔒 result of query injection attack attempt 6 is empty array as expected')
 
   t.end()
 })
@@ -737,7 +741,7 @@ test('Time', t => {
   t.strictEquals(typeof globalTime5, 'string', 'positive number as argument to elapsed method returns string')
   t.strictEquals(typeof globalTime6, 'string', 'default behaviour of elapsed method is to return string')
 
-  t.ok(labelTime2 < labelTime3, 'label1 durations are in expected order')
+  t.ok(labelTime1 < globalTime1, 'label1 and global start times are in expected order')
   t.ok(labelTime3 > globalTime7, 'global and label1 durations are in expected order')
 
   t.end()
@@ -868,6 +872,8 @@ test('JSDF', t => {
   testSerialisation(t, '🔒 String injection attempt 1 fails as expected', "${t.fail('Payload 1 delivered')}")
   testSerialisation(t, '🔒 String injection attempt 2 fails as expected', "\\${t.fail('Payload 2 delivered')}")
   testSerialisation(t, '🔒 String injection attempt 3 fails as expected', "` + t.fail('Payload 3 delivered') + `")
+  testSerialisation(t, '🔒 String injection attempt 3 fails as expected', "' + t.fail('Payload 4 delivered') + '")
+  testSerialisation(t, '🔒 String injection attempt 3 fails as expected', "\" + t.fail('Payload 5 delivered') + \"")
 
   //
   // Plain objects.
