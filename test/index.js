@@ -145,7 +145,7 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceBeforeCompaction = `
-        globalThis._ = [ { name: \`aral\`, age: 44 }, { name: \`laura\`, age: 34 } ];
+        globalThis._ = [ { 'name': \`aral\`, 'age': 44 }, { 'name': \`laura\`, 'age': 34 } ];
         (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
         _[0]['age'] = 21;
         _[0]['age'] = 43;
@@ -173,7 +173,7 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceAfterCompaction = `
-        globalThis._ = [ { name: \`aral\`, age: 43 }, { name: \`laura\`, age: 33 } ];
+        globalThis._ = [ { 'name': \`aral\`, 'age': 43 }, { 'name': \`laura\`, 'age': 33 } ];
         (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
       `
 
@@ -332,7 +332,7 @@ test('concurrent updates', t => {
 
     const expectedChanges = [
       `_['darkMode'] = \`always-on\`;\n`,
-      `_['colours'] = { red: \`#AA0000\`, green: \`#00AA00\`, magenta: \`#AA00AA\` };\n`,
+      `_['colours'] = { 'red': \`#AA0000\`, 'green': \`#00AA00\`, 'magenta': \`#AA00AA\` };\n`,
       'delete _[\'colours\'];\n'
     ]
 
@@ -882,6 +882,12 @@ test('JSDF', t => {
   testSerialisation(t, 'Empty object', {})
   testSerialisation(t, 'Object with properties', {x: 1, y: 2, z: 3})
   testSerialisation(t, 'Deep object', {x: {y: {z: 'deep'}}})
+
+  // Object with non-alphanumerical characters in the key.
+  // See https://github.com/small-tech/jsdb/issues/4
+  testSerialisation(t, 'Object with non-alphanumerical characters in key', {
+    "@context": ["https://www.w3.org/ns/activitystreams"],
+  })
 
   //
   // Arrays.
