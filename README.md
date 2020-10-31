@@ -254,6 +254,8 @@ const db = JSDB.open('db')
 console.log(db.people.where('age').isLessThan(21).get())
 ```
 
+Note that you can only run queries on arrays. Attempting to run them on plain or custom objects (that are not subclasses of `Array`) will result in a `TypeError`. Furthermore, queries only make sense when used on arrays of objects. Running a query on an array of simple data types will not throw an error but will return an empty result set.
+
 For details, see the [JSQL Reference](#jsql-reference) section.
 
 

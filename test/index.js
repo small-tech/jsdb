@@ -373,6 +373,17 @@ test('Basic queries', t => {
 
   const db = JSDB.open(databasePath, { deleteIfExists: true })
 
+  //
+  // Queries can only be performed on arrays.
+  //
+
+  db.objectTableForQueryTest = {}
+
+  t.throws(() => { db.objectTableForQueryTest.where('something') }, 'attempt to start a where query on object table throws')
+  t.throws(() => { db.objectTableForQueryTest.whereIsTrue('something') }, 'attempt to start a whereIsTrue query on object table throws')
+
+
+
   // Note: I know nothing about cars. This is randomly generated data. And I added the tags myself
   // ===== to test the includes operator on an array property.
   const cars = [
@@ -389,6 +400,12 @@ test('Basic queries', t => {
   ]
 
   db.cars = cars
+
+  //
+  // Error checking.
+  //
+  t.throws(() => { cars[0].where('something') }, 'attempt to start where query on object child of array table throws')
+  t.throws(() => { cars[0].whereIsTrue('something') }, 'attempt to start whereIsTrue query on object child of array table throws')
 
   //
   // Relational operators.
