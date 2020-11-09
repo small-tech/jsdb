@@ -59,7 +59,7 @@ Here’s a quick example to whet your appetite:
 const JSDB = require('@small-tech/jsdb')
 
 // Create your database in the test folder.
-// (This is where your JSON files – “tables” – will be saved.)
+// (This is where your JSDF files – “tables” – will be saved.)
 //
 const db = JSDB.open('db')
 
