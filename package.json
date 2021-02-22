@@ -21,6 +21,7 @@
     "metaprogramming"
   ],
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "tape test/*.js | tap-spec",
     "coverage": "nyc tape test/*.js | tap-nyc"

@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - Unreleased; work-in-progress
+
+### Breaking changes
+
+  - Uses EcmaScript Modules (ESM). (Requires Node 12 or later.)
+  - JSDB.open() is now asynchronous.
+
+### Changed
+
+  - No longer using private class fields as they cause issues with bundlers like esbuild.
+
 ## [1.1.5] - 2020-10-31
 
 ### Improved

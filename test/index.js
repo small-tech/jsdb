@@ -2,7 +2,7 @@
 //
 // JSDB tests.
 //
-// Copyright ⓒ 2020 Aral Balkan. Licensed under AGPLv3 or later.
+// Copyright ⓒ 2020-2021 Aral Balkan. Licensed under AGPLv3 or later.
 // Shared with ♥ by the Small Technology Foundation.
 //
 // Like this? Fund us!

@@ -1,8 +1,10 @@
-const JSDB = require('../..')
+import JSDB from '../../index.js'
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
-const db = JSDB.open('db')
+const db = await JSDB.open('db')
+
+console.log(db)
 
 // Create test/people.json with some data.
 if (!db.people) {
