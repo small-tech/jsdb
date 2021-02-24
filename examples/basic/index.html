@@ -1,9 +1,14 @@
-<script src="db/people.js" type="module"></script>
 <h1>People</h1>
-<ul>
-<script>
+<ul id='people'></ul>
+
+<script type="module">
+  import { _ as people } from '/db/people.js'
+
+  const peopleList = document.getElementById('people')
+
   people.forEach(person => {
-    document.write(`<li>${person.name} (${person.age} years old)</li>`)
+    const li = document.createElement('li')
+    li.innerText = `${person.name} (${person.age} years old)`
+    peopleList.appendChild(li)
   })
 </script>
-</ul>
