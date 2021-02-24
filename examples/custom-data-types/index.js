@@ -1,4 +1,4 @@
-const JSDB = require('../../')
+import JSDB from '../../index.js'
 
 class Person {
   constructor (name = 'Jane Doe') {
