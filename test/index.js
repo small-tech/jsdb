@@ -39,8 +39,9 @@ function loadTable (databaseName, tableName) {
   const lines = new LineByLine(tablePath)
 
   // Create the correct root object of the object graph and assign it to const _.
-  const initialData = lines.next().toString('utf-8').replace('export const _ = ', '')
-  const _ = eval(initialData)
+  const initialData = lines.next().toString('utf-8').replace('export const ', '')
+  let _
+  eval(initialData)
 
   // Load in and evaluate the rest of the operations.
   let line
@@ -146,8 +147,7 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceBeforeCompaction = `
-        globalThis._ = [ { 'name': \`aral\`, 'age': 44 }, { 'name': \`laura\`, 'age': 34 } ];
-        (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+        export const _ = [ { 'name': \`aral\`, 'age': 44 }, { 'name': \`laura\`, 'age': 34 } ];
         _[0]['age'] = 21;
         _[0]['age'] = 43;
         _[1]['age'] = 33;
@@ -174,8 +174,7 @@ test('basic persistence', t => {
       //
 
       const expectedTableSourceAfterCompaction = `
-        globalThis._ = [ { 'name': \`aral\`, 'age': 43 }, { 'name': \`laura\`, 'age': 33 } ];
-        (function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+        export const _ = [ { 'name': \`aral\`, 'age': 43 }, { 'name': \`laura\`, 'age': 33 } ];
       `
 
       const actualTableSourceAfterCompaction = loadTableSource('db', 'people')
