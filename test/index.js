@@ -10,44 +10,44 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-"use strict";
-
 process.env['QUIET'] = true
 
-const test = require('tape')
+import test from 'tape'
 
-const fs = require('fs-extra')
-const path = require('path')
+import fs from 'fs-extra'
+import path from 'path'
 
-const JSDB = require('..')
-const JSTable = require('../lib/JSTable')
-const JSDF = require('../lib/JSDF')
-const Time = require('../lib/Time')
-const QuerySanitiser = require('../lib/QuerySanitiser')
-const { needsToBeProxified, log } = require('../lib/Util')
+import JSDB from '../index.js'
+import JSTable from '../lib/JSTable.js'
+import JSDF from '../lib/JSDF.js'
+import Time from '../lib/Time.js'
+import QuerySanitiser from '../lib/QuerySanitiser.js'
+import { needsToBeProxified, log } from '../lib/Util.js'
 
-const { isProxy } = require('util').types
+import { types } from 'util'
+const isProxy = types.isProxy
 
-const readlineSync = require('@jcbuisson/readlinesync')
-const { debugPort } = require('process')
+import LineByLine from 'n-readlines'
+import { debugPort } from 'process'
 
+// Implement __dirname functionality for ESM.
+const __dirname = new URL('.', import.meta.url).pathname
 
 function loadTable (databaseName, tableName) {
+
   const tablePath = path.join(__dirname, databaseName, `${tableName}.js`)
+  const lines = new LineByLine(tablePath)
 
-  // Load the table line by line. We don’t use require here as we don’t want it getting cached.
-  const lines = readlineSync(tablePath)
+  // Create the correct root object of the object graph and assign it to const _.
+  const initialData = lines.next().toString('utf-8').replace('export const _ = ', '')
+  const _ = eval(initialData)
 
-  // Handle the header manually.
-  eval(lines.next().value) // Create the correct root object of the object graph and assign it to variable _.
-  lines.next()             // Skip the require() statement in the header.
-
-  // Load in the rest of the data.
-  for (let line of lines) {
-    eval(line)
+  // Load in and evaluate the rest of the operations.
+  let line
+  while (line = lines.next()) {
+    eval(line.toString('utf-8'))
   }
 
-  // Note: _ is dynamically generated via the loaded file.
   return _
 }
 
@@ -94,6 +94,7 @@ test('basic persistence', t => {
   t.ok(fs.existsSync(expectedTablePath), 'table is created')
 
   const createdTable = loadTable('db', 'people')
+
   t.strictEquals(JSON.stringify(createdTable), JSON.stringify(db.people), 'persisted table matches in-memory table')
 
   //
