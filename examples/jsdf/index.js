@@ -1,5 +1,5 @@
-const JSDF = require('../../lib/JSDF')
-const faker = require('faker')
+import JSDF from '../../lib/JSDF.js'
+import faker from 'faker'
 
 const card = faker.helpers.createCard()
 
@@ -35,8 +35,8 @@ console.timeLog('serialise custom objects')
 
 console.log(serialisedPeople)
 
+let folks
 eval(serialisedPeople)
-
 folks[1].introduceYourself()
 
 console.log('\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')

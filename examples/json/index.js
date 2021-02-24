@@ -1,5 +1,5 @@
-const fs = require('fs')
-const JSDB = require('../..')
+import fs from 'fs'
+import JSDB from '../../index.js'
 
 const db = JSDB.open('db')
 
