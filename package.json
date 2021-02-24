@@ -23,7 +23,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "tape-es test/*.js | tap-spec",
+    "test": "tape-es 'test/index.js' -t 1 | tap-spec",
     "coverage": "nyc tape test/*.js | tap-nyc"
   },
   "funding": {
@@ -48,6 +48,7 @@
     "nyc": "^15.1.0",
     "tap-nyc": "^1.0.3",
     "tap-spec": "^5.0.0",
-    "tape": "^5.0.1"
+    "tape": "^5.2.0",
+    "tape-es": "^1.2.11"
   }
 }
