@@ -4,14 +4,14 @@ import JSDB from '../../index.js'
 // (This is where your JSON files – “tables” – will be saved.)
 const db = await JSDB.open('db')
 
-console.log(db)
-
 // Create test/people.json with some data.
 if (!db.people) {
   db.people = [
     {name: 'Aral', age: 43},
     {name: 'Laura', age: 34}
   ]
+
+  console.log('>>>', db)
 
   // Correct Laura’s age. (This will automatically update db/people.js)
   db.people[1].age = 33

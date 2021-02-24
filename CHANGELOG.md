@@ -9,9 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Breaking changes
 
   - Uses EcmaScript Modules (ESM). (Requires Node 12 or later.)
-  - JSDB.open() is now asynchronous.
+  - JSDF now uses only ESM format.
 
 ### Changed
+
+  - For regular/smaller data sets (under 500MB), JSDB now reads the file in synchronously and evals it, instead of using `require()`, as before. (I chose not to use a dynamic`import()` as it is asynchronous.)
 
   - No longer using private class fields as they cause issues with bundlers like esbuild.
 
