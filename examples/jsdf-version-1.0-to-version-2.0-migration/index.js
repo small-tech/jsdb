@@ -10,7 +10,7 @@ const tableVersion1 = fs.readFileSync('./db-version-1.0/people.js', 'utf-8')
 // Split the string into an array of lines for convenience.
 //
 // Note: for much larger tables, you will want to use a module like
-// n-readlines to read individual lines from your tables.
+// node-readlines to read individual lines from your tables.
 // See the load() method in lib/JSTable.js for an example of the
 // approach you would take.
 const tableLines = tableVersion1.split('\n')
