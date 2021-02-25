@@ -24,7 +24,8 @@
   "type": "module",
   "scripts": {
     "test": "node test/index.js | npx tap-spec",
-    "coverage": "npx c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | npx tap-nyc"
+    "coverage": "npx c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | npx tap-nyc",
+    "build": "npx esbuild index.js --bundle --platform=node --format=esm --outfile=dist/index.js"
   },
   "funding": {
     "type": "foundation",
