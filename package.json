@@ -41,11 +41,11 @@
   },
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "fs-extra": "^9.0.1",
     "n-readlines": "^1.0.1"
   },
   "devDependencies": {
     "c8": "^7.6.0",
+    "esbuild": "^0.8.52",
     "tap-nyc": "^1.0.3",
     "tap-spec": "^5.0.0",
     "tape": "^5.2.0"
