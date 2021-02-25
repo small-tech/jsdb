@@ -4,9 +4,9 @@ A transparent, in-memory, streaming write-on-update JavaScript database for the 
 
 ## Use case
 
-A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) sites for basic public (e.g., anonymous comments on articles) or configuration data. Built for use in [Site.js](https://sitejs.org).
+A small and simple data layer for basic persistence and querying. Built for us in [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) places and used in [Site.js](https://sitejs.org) and [Place](https://github.com/small-tech/place).
 
-__Not to farm people for their data.__ [Surveillance capitalists](https://ar.al/2020/01/01/in-2020-and-beyond-the-battle-to-save-personhood-and-democracy-requires-a-radical-overhaul-of-mainstream-technology/) can jog on now.
+__This is not for you to farm people for their data.__ [Surveillance capitalists](https://ar.al/2020/01/01/in-2020-and-beyond-the-battle-to-save-personhood-and-democracy-requires-a-radical-overhaul-of-mainstream-technology/) can jog on now.
 
 
 ## Features
@@ -22,7 +22,7 @@ __Not to farm people for their data.__ [Surveillance capitalists](https://ar.al/
 
   - __Small Data:__ this is for small data, not Big Data™.
 
-  - __For Node.js:__ will not work in the browser. (Although data tables are plain JavaScript files and can be loaded in the browser.)
+  - __For Node.js:__ will not work in the browser. (Although data tables are plain ECMAScript Modules (ESM; es6 modules) and can be loaded in the browser.)
 
   - __Runs on untrusted nodes:__ this is for data kept on untrusted nodes (servers). Use it judiciously if you must for public data, configuration data, etc. If you want to store personal data or model human communication, consider end-to-end encrypted and peer-to-peer replicating data structures instead to protect privacy and freedom of speech. Keep an eye on the work taking place around the [Hypercore Protocol](https://hypercore-protocol.org/).
 
@@ -42,9 +42,7 @@ __Not to farm people for their data.__ [Surveillance capitalists](https://ar.al/
 We exist in part thanks to patronage by people like you. If you share [our vision](https://small-tech.org/about/#small-technology) and want to support our work, please [become a patron or donate to us](https://small-tech.org/fund-us) today and help us continue to exist.
 
 
-## To install
-
-Currently, you need to clone or install from this repo as this is a work-in-progress and no releases have been made yet to npm.
+## Installation
 
 ```
 npm i github:small-tech/jsdb
@@ -83,6 +81,8 @@ if (!db.people) {
 ```
 
 After running the above script, take a look at the resulting database table in the `./db/people.js` file.
+
+(Note: all examples assume that your Node.js project has `"type": "module"` set in its `package.json` file and uses ESM modules. Adapt accordingly if you’re using CommonJS. Not that as of version 2.0.0, JSDF files are output in ESM, not CommonJS/UMD format.)
 
 ## JavaScript Data Format (JSDF)
 
@@ -124,7 +124,7 @@ For example, create an _index.html_ file with the following content in the same 
 </script>
 ```
 
-__Note:__ Version 1 of the JSDF format, in the earlier CommonJS version of JSDB, used a [UMD](https://github.com/umdjs/umd)-style declaration. Please use the 1.x branch of if that’s what you’d prefer.)
+__Note:__ This is version 2.0 of the JSDF format. Version 1.0 of the format was used in the earlier (CommonJS) version of JSDB and contained a [UMD](https://github.com/umdjs/umd)-style declaration. Please use the `jsdf-1.0` branch if that’s what you’d prefer but that branch will see no further development. Migrating from version 1.0 to 2.0 is simple but is not handled automatically for you by JSDB for performance reasons. For a basic example, see [examples/jsdf-version-1.0-to-version-2.0-migration](https://github.com/small-tech/jsdb/tree/esm/examples/jsdf-version-1.0-to-version-2.0-migration).)
 
 
 ## Supported and unsupported data types.
