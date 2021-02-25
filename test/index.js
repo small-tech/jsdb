@@ -14,7 +14,7 @@ process.env['QUIET'] = true
 
 import test from 'tape'
 
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 
 import JSDB from '../index.js'
