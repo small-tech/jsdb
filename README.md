@@ -780,6 +780,8 @@ Please open an issue before starting to work on pull requests.
 
 For code coverage, run `npm run coverage`.
 
+(Note: `lib/LineByLine.js` is excluded from coverage as it is the inlined version of [n-readlines](https://github.com/nacholibre/node-readlines). The tests for it can be found as part of that library.)
+
 ## Ideas for post 2.0.0.
 
   - [ ] __Implement [transactions](https://github.com/small-tech/jsdb/issues/1).__

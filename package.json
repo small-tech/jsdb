@@ -24,7 +24,7 @@
   "type": "module",
   "scripts": {
     "test": "node test/index.js | npx tap-spec",
-    "coverage": "npx c8 node test/index.js | npx tap-nyc"
+    "coverage": "npx c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | npx tap-nyc"
   },
   "funding": {
     "type": "foundation",
@@ -40,9 +40,7 @@
     "url": "https://ar.al"
   },
   "license": "AGPL-3.0-or-later",
-  "dependencies": {
-    "n-readlines": "^1.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "c8": "^7.6.0",
     "esbuild": "^0.8.52",

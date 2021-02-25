@@ -22,13 +22,8 @@ import JSTable from '../lib/JSTable.js'
 import JSDF from '../lib/JSDF.js'
 import Time from '../lib/Time.js'
 import QuerySanitiser from '../lib/QuerySanitiser.js'
+import LineByLine from '../lib/LineByLine.js'
 import { needsToBeProxified, log } from '../lib/Util.js'
-
-import { types } from 'util'
-const isProxy = types.isProxy
-
-import LineByLine from 'n-readlines'
-import { debugPort } from 'process'
 
 // Implement __dirname functionality for ESM.
 const __dirname = new URL('.', import.meta.url).pathname
