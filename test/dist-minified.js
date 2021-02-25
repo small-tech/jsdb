@@ -13,7 +13,7 @@
 process.env['QUIET'] = true
 
 import test from 'tape'
-import JSDB from '../dist/jsdb.js'
+import JSDB from '../dist/jsdb.min.js'
 
 import fs from 'fs'
 import path from 'path'

@@ -25,8 +25,10 @@
   "scripts": {
     "test": "node test/index.js | npx tap-spec",
     "test-dist": "node test/dist.js | npx tap-spec",
+    "test-dist-minified": "node test/dist-minified.js | npx tap-spec",
     "coverage": "npx c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | npx tap-nyc",
-    "build": "npx esbuild index.js --bundle --platform=node --format=esm --outfile=dist/index.js"
+    "build": "npx esbuild index.js --bundle --platform=node --format=esm --outfile=dist/jsdb.js",
+    "build-minified": "npx esbuild index.js --bundle --minify --platform=node --format=esm --outfile=dist/jsdb.min.js"
   },
   "funding": {
     "type": "foundation",
