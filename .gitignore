@@ -3,5 +3,4 @@ node_modules
 db
 report*.json
 coverage
-examples/distribution-version
 dist
