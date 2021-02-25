@@ -770,9 +770,11 @@ For example, here’s just one sample from a development laptop using the simple
 
 Note: For tables > 500GB, compaction is turned off and a line-by-line streaming load strategy is implemented. If you foresee your tables being this large, you (a) are probably doing something nasty (and won’t mind me pointing it out if you’re not) and (b) should turn off compaction from the start for best performance. Keeping compaction off from the start will decrease initial table load times. Again, don’t use this to invade people’s privacy or profile them.
 
-## Developing
+## Development
 
 Please open an issue before starting to work on pull requests.
+
+### Testing
 
 1. Clone this repository.
 2. `npm i`
@@ -780,7 +782,21 @@ Please open an issue before starting to work on pull requests.
 
 For code coverage, run `npm run coverage`.
 
-(Note: `lib/LineByLine.js` is excluded from coverage as it is the inlined version of [n-readlines](https://github.com/nacholibre/node-readlines). The tests for it can be found as part of that library.)
+__Note:__ `lib/LineByLine.js` is excluded from coverage as it is the inlined version of [n-readlines](https://github.com/nacholibre/node-readlines). The tests for it can be found as part of that library.
+
+Also, as JSDB has no runtime dependencies, you only have to run `npm i` if you want to run the test or make a distribution build.
+
+### Building
+
+You can now build a 32KB distribution version of the module:
+
+```sh
+npm run build
+```
+
+Find the distribution build in `dist/index.js`.
+
+To run the tests on the distribution build, use `npm run test-dist`.
 
 ## Ideas for post 2.0.0.
 

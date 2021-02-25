@@ -14,10 +14,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
   - For regular/smaller data sets (under 500MB), JSDB now reads the file in synchronously and evals it, instead of using `require()`, as before. (I chose not to use a dynamic`import()` as it is asynchronous.)
+  - For larger data sets, we’re now using an inlined version of `n-readlines`.
+  - The module now has zero runtime dependencies.
 
-  - No longer using private class fields as they cause issues with bundlers like esbuild. TODO []
+### Added
 
-  - (Dev) Uses tape-es for tests.
+  - 32KB distribution version (run `npm run build` and find it in `dist/index.js`).
 
 ## [1.1.5] - 2020-10-31
 
