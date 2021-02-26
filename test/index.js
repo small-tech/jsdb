@@ -153,7 +153,7 @@ test('basic persistence', t => {
       t.strictEquals(dehydrate(actualTableSourceBeforeCompaction), dehydrate(expectedTableSourceBeforeCompaction), 'table source is as expected before compaction')
 
       //
-      // Table loading (require).
+      // Table loading (all at once).
       //
 
       const inMemoryStateOfPeopleTableFromOriginalDatabase = JSON.stringify(db.people)
