@@ -23,10 +23,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node test/index.js | npx tap-spec",
-    "test-dist": "node test/dist.js | npx tap-spec",
-    "test-dist-minified": "node test/dist-minified.js | npx tap-spec",
-    "coverage": "npx c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | npx tap-nyc",
+    "test": "node test/index.js | tap-monkey",
+    "test-dist": "node test/dist.js | tap-monkey",
+    "test-dist-minified": "node test/dist-minified.js | tap-monkey",
+    "coverage": "npx c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | tap-monkey",
     "build": "npx esbuild index.js --bundle --platform=node --format=esm --outfile=dist/jsdb.js",
     "build-minified": "npx esbuild index.js --bundle --minify --platform=node --format=esm --outfile=dist/jsdb.min.js"
   },
@@ -46,10 +46,9 @@
   "license": "AGPL-3.0-or-later",
   "dependencies": {},
   "devDependencies": {
+    "@small-tech/tap-monkey": "^1.0.0",
     "c8": "^7.6.0",
     "esbuild": "^0.8.52",
-    "tap-nyc": "^1.0.3",
-    "tap-spec": "^5.0.0",
     "tape": "^5.2.0"
   }
 }
