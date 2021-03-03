@@ -1,9 +1,9 @@
-const JSDB = require('../..')
-const { performance } = require('perf_hooks')
-const process = require('process')
-const Time = require('../../lib/Time')
+import JSDB from '../../index.js'
+import { performance } from 'perf_hooks'
+import process from 'process'
+import Time from '../../lib/Time.js'
 
-const faker = require('faker')
+import faker from 'faker'
 
 let generate = false
 let numberOfRecordsToGenerate = 1000
@@ -18,6 +18,7 @@ if (process.argv.length > 2) {
 }
 
 let db = null
+let s,e
 
 if (generate) {
   console.log(`Generating ${numberOfRecordsToGenerate} dummy records. Please wait…`)

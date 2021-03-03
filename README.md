@@ -1,12 +1,12 @@
 # JavaScript Database (JSDB)
 
-A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.
+A zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
 
 ## Use case
 
-A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) sites for basic public (e.g., anonymous comments on articles) or configuration data. Built for use in [Site.js](https://sitejs.org).
+A small and simple data layer for basic persistence and querying. Built for us in [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) places and used in [Site.js](https://sitejs.org) and [Place](https://github.com/small-tech/place).
 
-__Not to farm people for their data.__ [Surveillance capitalists](https://ar.al/2020/01/01/in-2020-and-beyond-the-battle-to-save-personhood-and-democracy-requires-a-radical-overhaul-of-mainstream-technology/) can jog on now.
+__This is not for you to farm people for their data.__ [Surveillance capitalists](https://ar.al/2020/01/01/in-2020-and-beyond-the-battle-to-save-personhood-and-democracy-requires-a-radical-overhaul-of-mainstream-technology/) can jog on now.
 
 
 ## Features
@@ -22,7 +22,7 @@ __Not to farm people for their data.__ [Surveillance capitalists](https://ar.al/
 
   - __Small Data:__ this is for small data, not Big Data™.
 
-  - __For Node.js:__ will not work in the browser. (Although data tables are plain JavaScript files and can be loaded in the browser.)
+  - __For Node.js:__ will not work in the browser. (Although data tables are plain ECMAScript Modules (ESM; es6 modules) and can be loaded in the browser.)
 
   - __Runs on untrusted nodes:__ this is for data kept on untrusted nodes (servers). Use it judiciously if you must for public data, configuration data, etc. If you want to store personal data or model human communication, consider end-to-end encrypted and peer-to-peer replicating data structures instead to protect privacy and freedom of speech. Keep an eye on the work taking place around the [Hypercore Protocol](https://hypercore-protocol.org/).
 
@@ -42,9 +42,7 @@ __Not to farm people for their data.__ [Surveillance capitalists](https://ar.al/
 We exist in part thanks to patronage by people like you. If you share [our vision](https://small-tech.org/about/#small-technology) and want to support our work, please [become a patron or donate to us](https://small-tech.org/fund-us) today and help us continue to exist.
 
 
-## To install
-
-Currently, you need to clone or install from this repo as this is a work-in-progress and no releases have been made yet to npm.
+## Installation
 
 ```
 npm i github:small-tech/jsdb
@@ -56,7 +54,7 @@ npm i github:small-tech/jsdb
 Here’s a quick example to whet your appetite:
 
 ```js
-const JSDB = require('@small-tech/jsdb')
+import JSDB from '@small-tech/jsdb'
 
 // Create your database in the test folder.
 // (This is where your JSDF files – “tables” – will be saved.)
@@ -84,13 +82,14 @@ if (!db.people) {
 
 After running the above script, take a look at the resulting database table in the `./db/people.js` file.
 
+(Note: all examples assume that your Node.js project has `"type": "module"` set in its `package.json` file and uses ESM modules. Adapt accordingly if you’re using CommonJS. Not that as of version 2.0.0, JSDF files are output in ESM, not CommonJS/UMD format.)
+
 ## JavaScript Data Format (JSDF)
 
-JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is a plain JavaScript file that comprises an append-only transaction log that creates the table in memory. For our example, it looks like this:
+JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is a plain JavaScript file in the form of an ECMAScript Module (ESM; es6 module) that comprises an append-only transaction log which creates the table in memory. For our example, it looks like this:
 
 ```js
-globalThis._ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 34 } ];
-(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof mo;
+export const _ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 34 } ];
 _[1]['age'] = 33;
 _[2] = { name: `Oskar`, age: 8 };
 _[2]['name'] = `Osky`;
@@ -98,29 +97,35 @@ _[2]['name'] = `Osky`;
 
 ## It’s just JavaScript!
 
-Given that a JSDF file is just JavaScript.
+A JSDF file is just JavaScript. Specifically, it is an ECMAScript Module (ESM; es6 module).
 
-The first line is a single assignment of all the data that existed in the table when it was created or last loaded.
+The first line is a single assignment/export of all the data that existed in the table when it was created or last loaded.
 
-The second line is a [UMD](https://github.com/umdjs/umd)-style declaration.
-
-Any changes to the table within the last session that it was open are written, one statement per line, starting with the third line.
+Any changes to the table made during the last session that it was open are written, one statement per line, starting with the second line.
 
 Since the format contains a UMD-style declaration, you can simply `require()` a JSDF file as a module in Node.js or even load it using a script tag.
 
 For example, create an _index.html_ file with the following content in the same folder as the other script and serve it locally using [Site.js](https://sitejs.org) and you will see the data printed out in your browser:
 
 ```html
-<script src="db/people.js"></script>
 <h1>People</h1>
-<ul>
-<script>
+<ul id='people'></ul>
+
+<script type="module">
+  import { _ as people } from '/db/people.js'
+
+  const peopleList = document.getElementById('people')
+
   people.forEach(person => {
-    document.write(`<li>${person.name} (${person.age} years old)</li>`)
+    const li = document.createElement('li')
+    li.innerText = `${person.name} (${person.age} years old)`
+    peopleList.appendChild(li)
   })
 </script>
-</ul>
 ```
+
+__Note:__ This is version 2.0 of the JSDF format. Version 1.0 of the format was used in the earlier (CommonJS) version of JSDB and contained a [UMD](https://github.com/umdjs/umd)-style declaration. Please use the `jsdf-1.0` branch if that’s what you’d prefer but that branch will see no further development. Migrating from version 1.0 to 2.0 is simple but is not handled automatically for you by JSDB for performance reasons. For a basic example, see [examples/jsdf-version-1.0-to-version-2.0-migration](https://github.com/small-tech/jsdb/tree/esm/examples/jsdf-version-1.0-to-version-2.0-migration).)
+
 
 ## Supported and unsupported data types.
 
@@ -161,7 +166,7 @@ During deserialisation, if the class in question exists in memory, your object w
 e.g.,
 
 ```js
-const JSDB = require('@small-tech/jsdb')
+import JSDB from '@small-tech/jsdb'
 
 class Person {
   constructor (name = 'Jane Doe') {
@@ -190,8 +195,7 @@ db.people[1].introduceYourself()
 If you look in the created `db/people.js` file, this time you’ll see:
 
 ```js
-globalThis._ = [ Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Aral` })), Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Laura` })) ];
-(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+export const _ = [ Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Aral` })), Object.create(typeof Person === 'function' ? Person.prototype : {}, Object.getOwnPropertyDescriptors({ name: `Laura` })) ];
 ```
 
 If you were to load the database in an environment where the `Person` class does not exist, you will get a regular object back.
@@ -199,7 +203,7 @@ If you were to load the database in an environment where the `Person` class does
 To test this, you can run the following code:
 
 ```js
-const JSDB = require('@small-tech/jsdb')
+import JSDB from '@small-tech/jsdb'
 const db = JSDB.open('db')
 
 // Prints out { name: 'Laura' }
@@ -245,7 +249,7 @@ In the browser-based example, above, you loaded the data in directly. When you d
 To test out JSQL, open a Node.js command-line interface (run `node`) from the directory that your scripts are in and enter the following commands:
 
 ```js
-const JSDB = require('@small-tech/jsdb')
+import JSDB from '@small-tech/jsdb'
 
 // This will load test database with the people table we created earlier.
 const db = JSDB.open('db')
@@ -277,8 +281,7 @@ You do have the option to override the default behaviour and keep all history. Y
 Now that you’ve loaded the file back, look at the `./db/people.js` JSDF file again to see how it looks after compaction:
 
 ```js
-globalThis._ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 33 }, { name: `Osky`, age: 8 } ];
-(function () { if (typeof define === 'function' && define.amd) { define([], globalThis._); } else if (typeof module === 'object' && module.exports) { module.exports = globalThis._ } else { globalThis.people = globalThis._ } })();
+export const _ = [ { name: `Aral`, age: 43 }, { name: `Laura`, age: 33 }, { name: `Osky`, age: 8 } ];
 ```
 
 Ah, that is neater. Laura’s record is created with the correct age and Oskar’s name is set to its final value from the outset. And it all happens on the first line, in a single assignment. Any new changes will, just as before, be added starting with the third line.
@@ -333,8 +336,8 @@ Given a JSON data file of spoken languages by country in the following format:
 The following code will load in the file, populate a JSDB table with it, and perform a query on it:
 
 ```js
-const fs = require('fs')
-const JSDB = require('@small-tech/jsdb')
+import fs from 'fs'
+import JSDB from '@small-tech/jsdb'
 
 const db = JSDB.open('db')
 
@@ -382,7 +385,7 @@ Here are a couple of facts to dispel the magic behind what’s going on:
   - What we call a _database_ in JSDB is just a regular directory on your file system.
   - Inside that directory, you can have zero or more tables.
   - A table is a JSDF file.
-  - A JSDF file is a sequence of JavaScript statements that creates a data object (either an object or an array). It is an append-only transaction log that is compacted at load. JSDF files are valid JavaScript files and should run correctly under any JavaScript interpreter.
+  - A JSDF file is an ECMAScript Module (ESM; es6 module) that exports a root data structure (either an object or an array) that may or may not contain data and a sequence of JavaScript statements that mutate it. It is an append-only transaction log that is compacted at load. JSDF files are valid JavaScript files and should import and run correctly under any JavaScript interpreter that supports ESM.
   - When you open a database, you get a Proxy instance back, not an instance of JSDB.
   - Similarly, when you reference a table or the data within it, you are referencing proxy objects, not the table instance or the data itself.
 
@@ -767,9 +770,11 @@ For example, here’s just one sample from a development laptop using the simple
 
 Note: For tables > 500GB, compaction is turned off and a line-by-line streaming load strategy is implemented. If you foresee your tables being this large, you (a) are probably doing something nasty (and won’t mind me pointing it out if you’re not) and (b) should turn off compaction from the start for best performance. Keeping compaction off from the start will decrease initial table load times. Again, don’t use this to invade people’s privacy or profile them.
 
-## Developing
+## Development
 
 Please open an issue before starting to work on pull requests.
+
+### Testing
 
 1. Clone this repository.
 2. `npm i`
@@ -777,7 +782,23 @@ Please open an issue before starting to work on pull requests.
 
 For code coverage, run `npm run coverage`.
 
-## Ideas for post 1.0.0.
+__Note:__ `lib/LineByLine.js` is excluded from coverage as it is the inlined version of [n-readlines](https://github.com/nacholibre/node-readlines). The tests for it can be found as part of that library.
+
+Also, as JSDB has no runtime dependencies, you only have to run `npm i` if you want to run the test or make a distribution build.
+
+### Building
+
+You can now build a 32KB distribution version of the module:
+
+```sh
+npm run build
+```
+
+Find the distribution build in `dist/index.js`.
+
+To run the tests on the distribution build, use `npm run test-dist`.
+
+## Ideas for post 2.0.0.
 
   - [ ] __Implement [transactions](https://github.com/small-tech/jsdb/issues/1).__
   - [ ]  ╰─ Ensure 100% code coverage for transactions.
@@ -804,4 +825,4 @@ We exist in part thanks to patronage by people like you. If you share [our visio
 
 ## Copyright
 
-&copy; 2020 [Aral Balkan](https://ar.al), [Small Technology Foundation](https://small-tech.org).
+&copy; 2020-2021 [Aral Balkan](https://ar.al), [Small Technology Foundation](https://small-tech.org).

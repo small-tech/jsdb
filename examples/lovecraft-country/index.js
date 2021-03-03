@@ -1,4 +1,4 @@
-const JSDB = require('../..')
+import JSDB from '../../index.js'
 
 // Open your database (creating it if it doesn’t exist)
 // It will be stored in a directory called “db”.

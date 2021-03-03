@@ -1,4 +1,4 @@
-const JSDB = require('../..')
+import JSDB from '../../index.js'
 
 const db = JSDB.open('db')
 

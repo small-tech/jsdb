@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// JSDB tests.
+// JSDB tests (for the distribution build).
 //
 // Copyright ⓒ 2020-2021 Aral Balkan. Licensed under AGPLv3 or later.
 // Shared with ♥ by the Small Technology Foundation.
@@ -13,15 +13,11 @@
 process.env['QUIET'] = true
 
 import test from 'tape'
+import JSDB from '../dist/jsdb.min.js'
 
 import fs from 'fs'
 import path from 'path'
-
-import JSDB from '../index.js'
-import JSTable from '../lib/JSTable.js'
-import JSDF from '../lib/JSDF.js'
 import Time from '../lib/Time.js'
-import QuerySanitiser from '../lib/QuerySanitiser.js'
 import LineByLine from '../lib/LineByLine.js'
 import { needsToBeProxified, log } from '../lib/Util.js'
 
@@ -153,7 +149,7 @@ test('basic persistence', t => {
       t.strictEquals(dehydrate(actualTableSourceBeforeCompaction), dehydrate(expectedTableSourceBeforeCompaction), 'table source is as expected before compaction')
 
       //
-      // Table loading (all at once).
+      // Table loading (require).
       //
 
       const inMemoryStateOfPeopleTableFromOriginalDatabase = JSON.stringify(db.people)
@@ -176,33 +172,7 @@ test('basic persistence', t => {
 
       t.strictEquals(dehydrate(actualTableSourceAfterCompaction), dehydrate(expectedTableSourceAfterCompaction), 'compaction works as expected')
 
-      //
-      // Table loading (line-by-line).
-      //
       await db.close()
-
-      const tablePath = path.join(databasePath, 'people.js')
-      const peopleTable = new JSTable(tablePath)
-
-      // Add another entry so we can test line-by-line loading for subsequent updates/changes.
-      peopleTable.push({name: 'osky', age: 8})
-
-      // Note: __table__ is for internal use only.
-      await peopleTable.__table__.close()
-
-      const tableSourceAfterClose = loadTableSource('db', 'people')
-
-      const peopleTableAfterPushInMemory = JSON.stringify(peopleTable)
-      const peopleTableLoadedLineByLine = new JSTable(tablePath, null, { alwaysUseLineByLineLoads: true })
-
-      const tableSourceAfterLoad = loadTableSource('db', 'people')
-
-      t.strictEquals(JSON.stringify(peopleTableLoadedLineByLine), peopleTableAfterPushInMemory, 'line-by-line loaded data matches previous state of the in-memory table')
-
-      t.strictEquals(tableSourceAfterLoad, tableSourceAfterClose, 'compaction is disabled for line-by-line load as expected')
-
-      // Note: __table__ is for internal use only.
-      await peopleTableLoadedLineByLine.__table__.close()
 
       t.end()
     }
@@ -212,55 +182,6 @@ test('basic persistence', t => {
   // Update a property
   let expectedWriteCount = 1
   db.people[0].age = 21
-})
-
-
-test('table decaching on close', async t => {
-  // Create the table initially with an empty array.
-  const messagesTablePath = path.join(databasePath, 'messages.js')
-  let messagesTable = new JSTable(messagesTablePath, [])
-
-  // Populate it with a couple of messages.
-  const message1 = {nickname: 'Aral', text: 'Hello! :)'}
-  const message2 = {nickname: 'Laura', text: 'Hey! :)'}
-  messagesTable.push(message1)
-  messagesTable.push(message2)
-
-  // Note: __table__ is for internal use only.
-  await messagesTable.__table__.close()
-
-  // Reopen the messages table. This will load the table in using require(), which is cached.
-  messagesTable = new JSTable(messagesTablePath)
-
-  t.strictEquals(JSON.stringify(messagesTable[0]), JSON.stringify(message1), 'first load: the first messages is as expected')
-  t.strictEquals(JSON.stringify(messagesTable[1]), JSON.stringify(message2), 'first load: the second messages is as expected')
-  t.strictEquals(messagesTable.length, 2, 'first load: the number of messages is as expected')
-
-  // Now, lets add two more messages.
-  const message3 = {nickname: 'Laura', text: 'So what’s up?'}
-  const message4 = {nickname: 'Aral', text: 'Nothing much, just wanted to say “hi!”'}
-  messagesTable.push(message3)
-  messagesTable.push(message4)
-
-  // Note: __table__ is for internal use only.
-  await messagesTable.__table__.close()
-
-  // Now, let’s reopen the messages table a second time. If decaching is working,
-  // a fresh copy with our latest messages will be returned. If it is not working
-  // properly, then the last two messages will be lost and the table will be returned
-  // from the require cache.
-  messagesTable = new JSTable(messagesTablePath)
-
-  t.strictEquals(JSON.stringify(messagesTable[0]), JSON.stringify(message1), 'second load: the first messages is as expected')
-  t.strictEquals(JSON.stringify(messagesTable[1]), JSON.stringify(message2), 'second load: the second messages is as expected')
-  t.strictEquals(JSON.stringify(messagesTable[2]), JSON.stringify(message3), 'second load: the third messages is as expected')
-  t.strictEquals(JSON.stringify(messagesTable[3]), JSON.stringify(message4), 'second load: the fourth messages is as expected')
-  t.strictEquals(messagesTable.length, 4, 'second load: the number of messages is as expected')
-
-  // Note: __table__ is for internal use only.
-  await messagesTable.__table__.close()
-
-  t.end()
 })
 
 
@@ -824,210 +745,6 @@ test('JSDB', t => {
 
   // Attempting to instantiate the JSDB class directly throws.
   t.throws(() => { new JSDB('someBasePath') }, 'Attempting to instantiate the JSDB class directly throws.')
-
-  t.end()
-})
-
-
-function testSerialisation (t, name, value) {
-  let serialisedValue
-  let deserialisedValue
-  t.doesNotThrow(() => serialisedValue = JSDF.serialise(value, 'deserialisedValue'), `${name}: serialisation does not throw`)
-  t.doesNotThrow(() => eval(serialisedValue), `${name}: serialised value does not throw on deserialisation`)
-  t.strictEquals(JSON.stringify(deserialisedValue), JSON.stringify(value), `${name}: deserialised value matches original value`)
-}
-
-
-test('JSDF', t => {
-
-  // undefined key.
-  t.throws(() => JSDF.serialise('something', undefined), 'undefined key throws as expected')
-
-  // null key.
-  t.throws(() => JSDF.serialise('something', null), 'null key throws as expected')
-
-  testSerialisation(t, 'undefined', undefined)
-  testSerialisation(t, 'null', null)
-
-  //
-  // Number.
-  //
-
-  testSerialisation(t, 'negative number', -1)
-  testSerialisation(t, 'zero', 0)
-  testSerialisation(t, 'positive number', 1)
-  testSerialisation(t, 'floating-point number', Math.PI)
-  testSerialisation(t, 'NaN', NaN)
-  testSerialisation(t, 'Infinity', Infinity)
-  testSerialisation(t, '-Infinity', -Infinity)
-
-  //
-  // Boolean.
-  //
-
-  testSerialisation(t, 'Boolean (true)', true)
-  testSerialisation(t, 'Boolean (false)', false)
-
-  //
-  // String.
-  //
-
-  testSerialisation(t, 'String', 'Hello')
-  testSerialisation(t, 'String with single quotes', "'Hello'")
-  testSerialisation(t, 'String with double quotes', '"Hello"')
-  testSerialisation(t, 'String with backticks', "`Hello`")
-  testSerialisation(t, 'String with newlines', `Hello\nthere!`)
-  testSerialisation(t, 'String with emoji', '😎👍')
-
-  // Security
-
-  testSerialisation(t, '🔒 String injection attempt 1 fails as expected', "${t.fail('Payload 1 delivered')}")
-  testSerialisation(t, '🔒 String injection attempt 2 fails as expected', "\\${t.fail('Payload 2 delivered')}")
-  testSerialisation(t, '🔒 String injection attempt 3 fails as expected', "` + t.fail('Payload 3 delivered') + `")
-  testSerialisation(t, '🔒 String injection attempt 3 fails as expected', "' + t.fail('Payload 4 delivered') + '")
-  testSerialisation(t, '🔒 String injection attempt 3 fails as expected', "\" + t.fail('Payload 5 delivered') + \"")
-
-  //
-  // Plain objects.
-  //
-
-  testSerialisation(t, 'Empty object', {})
-  testSerialisation(t, 'Object with properties', {x: 1, y: 2, z: 3})
-  testSerialisation(t, 'Deep object', {x: {y: {z: 'deep'}}})
-
-  // Object with non-alphanumerical characters in the key.
-  // See https://github.com/small-tech/jsdb/issues/4
-  testSerialisation(t, 'Object with non-alphanumerical characters in key', {
-    "@context": ["https://www.w3.org/ns/activitystreams"],
-  })
-
-  //
-  // Arrays.
-  //
-
-  testSerialisation(t, 'Empty array', [])
-  testSerialisation(t, 'Array with items', [1,2,3])
-  testSerialisation(t, 'Deep array', ['easy as', [1,2,3], [[[['a'], 'b'], 'c']]])
-
-  //
-  // Date.
-  //
-
-  testSerialisation(t, 'Date', new Date())
-
-  //
-  // Symbol.
-  //
-
-  testSerialisation(t, 'Symbol', Symbol.for('hello'))
-
-  // Custom object.
-
-  class CustomObject {
-    x = 1
-    y = 2
-    sum() {
-      return this.x + this.y
-    }
-  }
-
-  const customObject = new CustomObject()
-
-  // Tests custom object being deserialised in an environment where the custom
-  // class does NOT exist (which should result in a regular object being created).
-  testSerialisation(t, 'Custom object', customObject)
-
-  // Tests custom object being deserialised in an environment where the custom
-  // class does exist.
-  let deserialisedCustomObject
-  const serialisedCustomObject = JSDF.serialise(customObject, 'deserialisedCustomObject')
-  eval(serialisedCustomObject)
-
-  t.strictEquals(deserialisedCustomObject.sum(), 3, 'custom object is deserialised as instance of correct class when class exists')
-
-  //
-  // Mixed objects.
-  //
-  testSerialisation(t, 'Object with array', {x: {y: {z: [1,2,3]}}})
-  testSerialisation(t, 'Array with object', [{x: 1, y: 2, z: 3}])
-  testSerialisation(t, 'Mixed types', [undefined, null,  1, 0, -1, Math.PI, NaN, Infinity, -Infinity, true, false, 'Hello', "'Hello'", '"Hello"', '`Hello`', `Hello\nthere!`], '😎👍', {}, {x: 1, y: 2, z: 3}, {x: {y: {z: 'deep'}}}, [], [1,2,3],  ['easy as', [1,2,3], [[[['a'], 'b'], 'c']]], new Date(), customObject, {x: {y: {z: [1,2,3]}}}, [{x: 1, y: 2, z: 3}])
-
-  //
-  // Unsupported objects.
-  //
-
-  //
-  // Might be supported in the future.
-  //
-
-  t.throws(() => JSDF.serialise(new Map(), '_'), 'Unsupported datatype (Map) throws')
-  t.throws(() => JSDF.serialise(new Set(), '_'), 'Unsupported datatype (Set) throws')
-
-  t.throws(() => JSDF.serialise(new WeakMap(), '_'), 'Unsupported datatype (WeakMap) throws')
-  t.throws(() => JSDF.serialise(new WeakSet(), '_'), 'Unsupported datatype (WeakSet) throws')
-
-  // Note TypedArray is not included as it is never directly exposed
-  // (See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)
-  t.throws(() => JSDF.serialise(new ArrayBuffer(), '_'), 'Unsupported datatype (ArrayBuffer) throws')
-  t.throws(() => JSDF.serialise(new Float32Array(), '_'), 'Unsupported datatype (Float32Array) throws')
-  t.throws(() => JSDF.serialise(new Float64Array(), '_'), 'Unsupported datatype (Float64Array) throws')
-  t.throws(() => JSDF.serialise(new Int8Array(), '_'), 'Unsupported datatype (Int8Array) throws')
-  t.throws(() => JSDF.serialise(new Int16Array(), '_'), 'Unsupported datatype (Int16Array) throws')
-  t.throws(() => JSDF.serialise(new Int32Array(), '_'), 'Unsupported datatype (Int32Array) throws')
-  t.throws(() => JSDF.serialise(new Uint8Array(), '_'), 'Unsupported datatype (Uint8Array) throws')
-  t.throws(() => JSDF.serialise(new Uint16Array(), '_'), 'Unsupported datatype (Uint16Array) throws')
-  t.throws(() => JSDF.serialise(new Uint32Array(), '_'), 'Unsupported datatype (Uint32Array) throws')
-  t.throws(() => JSDF.serialise(new Uint8ClampedArray(), '_'), 'Unsupported datatype (Uint8ClampedArray) throws')
-
-  //
-  // Does not make sense to support.
-  //
-
-  t.throws(() => JSDF.serialise(new DataView(new ArrayBuffer()), '_'), 'Unsupported datatype (DataView) throws')
-  t.throws(() => JSDF.serialise(new Function(), '_'), 'Unsupported datatype (Function) throws')
-  t.throws(() => JSDF.serialise(new Promise((resolve, reject) => resolve()), '_'), 'Unsupported datatype (Promise) throws')
-  t.throws(() => JSDF.serialise(new RegExp(), '_'), 'Unsupported datatype (RegExp) throws')
-
-  // Generators.
-  function* generator () { yield 1 }
-  const generatorInstance = generator()
-
-  t.throws(() => JSDF.serialise(generator, '_'), 'Unsupported datatype (GeneratorFunction) throws')
-  t.throws(() => JSDF.serialise(generatorInstance, '_'), 'Unsupported datatype (generator instance) throws')
-
-  t.throws(() => JSDF.serialise(new Error(), '_'), 'Unsupported datatype (Error) throws')
-  t.throws(() => JSDF.serialise(new EvalError(), '_'), 'Unsupported datatype (EvalError) throws')
-  t.throws(() => JSDF.serialise(new RangeError(), '_'), 'Unsupported datatype (RangeError) throws')
-  t.throws(() => JSDF.serialise(new ReferenceError(), '_'), 'Unsupported datatype (ReferenceError) throws')
-  t.throws(() => JSDF.serialise(new SyntaxError(), '_'), 'Unsupported datatype (SyntaxError) throws')
-  t.throws(() => JSDF.serialise(new TypeError(), '_'), 'Unsupported datatype (TypeError) throws')
-  t.throws(() => JSDF.serialise(new URIError(), '_'), 'Unsupported datatype (URIError) throws')
-
-  t.end()
-})
-
-test ('QuerySanitiser', t => {
-  //
-  // Ensure that the composed regular expressions are as we expect them. If we change how queries
-  // work, these tests should fail even if the sanitiser is working correctly but that’s all right,
-  // we can just update the tests accordingly. That’s better than an unexpected change to the
-  // sanitisation code silently resulting in test succeeding because we weren’t looking for it.
-  //
-  const isSameRegExp = (regExp1, regExp2) => regExp1.source === regExp2.source && regExp1.flags === regExp2.flags
-
-  t.ok(isSameRegExp(QuerySanitiser.Disallowed.dangerousCharacters, /[;\\\+\`\{\}\[\]\$]/g), 'RegExp for disallowed dangerous characters is as expected')
-
-  t.ok(isSameRegExp(QuerySanitiser.Allowed.functionalOperationsCaseInsensitive, /valueOf\..+?\.toLowerCase()\.(startsWith|endsWith|includes|startsWithCaseInsensitive|endsWithCaseInsensitive|includesCaseInsensitive)\(.+?\)/g), 'RegExp for allowed functional operations (case insensitive) is as expected')
-
-  t.ok(isSameRegExp(QuerySanitiser.Allowed.functionalOperations, /valueOf\..+?\.(startsWith|endsWith|includes|startsWithCaseInsensitive|endsWithCaseInsensitive|includesCaseInsensitive)\(.+?\)/g), 'RegExp for allowed functional operations is as expected')
-
-  t.ok(isSameRegExp(QuerySanitiser.Allowed.relationalOperations, /valueOf\.[^\.]+?\s?(===|!==|>|>=|<|<=)\s?([\d\._]+\s?|'.+?'|".+?"|false|true)/g), 'RegExp for allowed relational operations is as expected')
-
-  t.ok(isSameRegExp(QuerySanitiser.Allowed.logicalOr, /\|\|/g), 'RegExp for allowed logical OR is as expected')
-
-  t.ok(isSameRegExp(QuerySanitiser.Allowed.logicalAnd, /\&\&/g), 'RegExp for allowed logical AND is as expected')
-
-  t.ok(isSameRegExp(QuerySanitiser.Allowed.allowedCharacters, /['"\(\)\s]/g), 'RegExp for allowed characters is as expected')
 
   t.end()
 })
