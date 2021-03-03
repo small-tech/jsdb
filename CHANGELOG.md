@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - Unreleased; work-in-progress
+## [2.0.0] - 2021-03-01
 
 ### Breaking changes
 
@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-  - For regular/smaller data sets (under 500MB), JSDB now reads the file in synchronously and evals it, instead of using `require()`, as before. (I chose not to use a dynamic`import()` as it is asynchronous.)
+  - For regular/smaller data sets (under 500MB), JSDB now reads the file in synchronously and evals it, instead of using `require()`, as before. (I chose not to use a dynamic `import()` as it is asynchronous.)
   - For larger data sets, we’re now using an inlined version of `n-readlines`.
   - The module now has zero runtime dependencies.
 

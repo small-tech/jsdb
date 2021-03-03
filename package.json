@@ -1,7 +1,7 @@
 {
   "name": "@small-tech/jsdb",
   "version": "2.0.0",
-  "description": "A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.",
+  "description": "A zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.",
   "keywords": [
     "js",
     "javascript",
@@ -9,6 +9,10 @@
     "JSDB",
     "JSQL",
     "JSDF",
+    "zero dependency",
+    "ESM",
+    "ECMAScript Modules",
+    "es6 modules",
     "transparent",
     "small web",
     "small tech",
@@ -26,9 +30,9 @@
     "test": "node test/index.js | tap-monkey",
     "test-dist": "node test/dist.js | tap-monkey",
     "test-dist-minified": "node test/dist-minified.js | tap-monkey",
-    "coverage": "npx c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | tap-monkey",
-    "build": "npx esbuild index.js --bundle --platform=node --format=esm --outfile=dist/jsdb.js",
-    "build-minified": "npx esbuild index.js --bundle --minify --platform=node --format=esm --outfile=dist/jsdb.min.js"
+    "coverage": "c8 --exclude='lib/LineByLine.js' --exclude='test/**' node test/index.js | tap-monkey",
+    "build": "esbuild index.js --bundle --platform=node --format=esm --outfile=dist/jsdb.js",
+    "build-minified": "esbuild index.js --bundle --minify --platform=node --format=esm --outfile=dist/jsdb.min.js"
   },
   "funding": {
     "type": "foundation",

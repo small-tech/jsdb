@@ -1,6 +1,6 @@
 # JavaScript Database (JSDB)
 
-A transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
+A zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database for the Small Web that persists to a JavaScript transaction log.
 
 ## Use case
 
