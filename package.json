@@ -40,15 +40,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://source.small-tech.org/site.js/lib/jsdb"
+    "url": "https://github.com/small-tech/jsdb.git"
   },
+  "homepage": "https://github.com/small-tech/jsdb",
+  "bugs": "https://github.com/small-tech/jsdb/issues",
   "author": {
     "name": "Aral Balkan",
     "email": "aral@small-tech.org",
     "url": "https://ar.al"
   },
   "license": "AGPL-3.0-or-later",
-  "dependencies": {},
   "devDependencies": {
     "@small-tech/tap-monkey": "^1.1.1",
     "c8": "^7.6.0",
