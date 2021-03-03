@@ -1,6 +1,6 @@
 {
   "name": "@small-tech/jsdb",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A zero-dependency, transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.",
   "keywords": [
     "js",
@@ -25,6 +25,9 @@
     "metaprogramming"
   ],
   "main": "index.js",
+  "files": [
+    "lib"
+  ],
   "type": "module",
   "scripts": {
     "test": "node test/index.js | tap-monkey",
