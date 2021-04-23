@@ -2,3 +2,5 @@ node_modules
 .nyc_output
 db
 report*.json
+coverage
+dist
