@@ -833,6 +833,24 @@ test('JSDB', t => {
   t.end()
 })
 
+test('.cjs', async t => {
+  // Note: we need to create a new instance of JSDB for the options to have an effect.
+  const newDatabasePath = path.join(__dirname, 'db2')
+
+  const db = JSDB.open(newDatabasePath, { deleteIfExists: true, cjs: true })
+  db.commonjs = {works: true}
+  t.true(fs.existsSync(path.join(newDatabasePath, 'commonjs.cjs')), '.cjs table created')
+  await db.close()
+
+  // We don’t really need to specify { cjs: true } here as we have already
+  // opened this database path in this session but we do so anyway for clarity of intent.
+  const db2 = JSDB.open(newDatabasePath, { cjs: true })
+  t.strictEquals(db.commonjs.works, true, 'read from .cjs table')
+  await db.close()
+
+  t.end()
+})
+
 
 function testSerialisation (t, name, value) {
   let serialisedValue

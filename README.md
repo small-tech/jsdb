@@ -86,6 +86,28 @@ if (!db.people) {
 
 After running the above script, take a look at the resulting database table in the `./db/people.js` file.
 
+### .js vs .cjs
+
+__As of version 1.2.0,__ you can choose to have JSDB write to `.cjs` files instead of the default `.js` ones.
+
+One reason you might want to do this is if you are including JSDB in a Node project that has `type="module"` set in its `package.json` file. In such projects, JSDB will throw a runtime error while attempting to `require` a `.js` file (as `.js` files default to be interpreted as ESM modules). To do so, pass an `options` object as the second argument with its `cjs` property set to `true`:
+
+```js
+const db = JSDB.open('db', {cjs: true})
+```
+
+This will ensure that any databases will be created using `.cjs` extensions. Note that JSDB will not migrate your existing files for you. Do not mix usage of `.js` and `.cjs` table files within your project unless you like headaches.
+
+The other alternative is to create a dummy `package.json` file inside your database directory and have its `type` set to `commonjs`. i.e,
+
+```json
+{
+  "type": "commonjs"
+}
+```
+
+Of course, if your whole project is in ESM, you can use the new default branch (version 2.x+) of JSDB which is pure ESM.
+
 ## JavaScript Data Format (JSDF)
 
 JSDB tables are written into JavaScript Data Format (JSDF) files. A JSDF file is a plain JavaScript file that comprises an append-only transaction log that creates the table in memory. For our example, it looks like this:

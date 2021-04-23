@@ -1,6 +1,7 @@
 node_modules
 .nyc_output
 db
+db2
 report*.json
 coverage
 dist

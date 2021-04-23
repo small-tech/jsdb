@@ -2,7 +2,7 @@ const JSDB = require('../..')
 
 // Create your database in the test folder.
 // (This is where your JSON files – “tables” – will be saved.)
-const db = JSDB.open('db')
+const db = JSDB.open('db', {cjs: true})
 
 // Create test/people.json with some data.
 if (!db.people) {
