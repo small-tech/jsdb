@@ -82,7 +82,7 @@ if (!db.people) {
 
 After running the above script, take a look at the resulting database table in the `./db/people.js` file.
 
-(Note: all examples assume that your Node.js project has `"type": "module"` set in its `package.json` file and uses ESM modules. Adapt accordingly if you’re using CommonJS. Not that as of version 2.0.0, JSDF files are output in ESM, not CommonJS/UMD format.)
+(Note: all examples assume that your Node.js project has `"type": "module"` set in its `package.json` file and uses ESM modules. Adapt accordingly if you’re using CommonJS with the older 1.x branch. Not that as of version 2.0.0, JSDF files are output in ESM, not CommonJS/UMD format.)
 
 ## JavaScript Data Format (JSDF)
 
@@ -124,7 +124,7 @@ For example, create an _index.html_ file with the following content in the same 
 </script>
 ```
 
-__Note:__ This is version 2.0 of the JSDF format. Version 1.0 of the format was used in the earlier (CommonJS) version of JSDB and contained a [UMD](https://github.com/umdjs/umd)-style declaration. Please use the `jsdf-1.0` branch if that’s what you’d prefer but that branch will see no further development. Migrating from version 1.0 to 2.0 is simple but is not handled automatically for you by JSDB for performance reasons. For a basic example, see [examples/jsdf-version-1.0-to-version-2.0-migration](https://github.com/small-tech/jsdb/tree/esm/examples/jsdf-version-1.0-to-version-2.0-migration).
+__Note:__ This is version 2.0 of the JSDF format. Version 1.0 of the format was used in the earlier 1.x (CommonJS) version of JSDB and contained a [UMD](https://github.com/umdjs/umd)-style declaration. Please use the `1.x` branch if that’s what you’d prefer. That branch will continue to be maintained for as long as it is being used in [Site.js](https://sitejs.org) Migrating from version 1.0 to 2.0 is simple but is not handled automatically for you by JSDB for performance reasons. For a basic example, see [examples/jsdf-version-1.0-to-version-2.0-migration](https://github.com/small-tech/jsdb/tree/esm/examples/jsdf-version-1.0-to-version-2.0-migration).
 
 
 ## Supported and unsupported data types.
