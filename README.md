@@ -2,6 +2,8 @@
 
 A transparent, in-memory, streaming write-on-update JavaScript database for Small Web applications that persists to a JavaScript transaction log.
 
+___Note:__ This is the older, 1.x CommonJS branch. See the default branch for the newer ESM version. This version will continue to be supported for as long as it is used in [Site.js](https://sitejs.org)._
+
 ## Use case
 
 A data layer for simple [Small Web](https://ar.al/2020/08/07/what-is-the-small-web/) sites for basic public (e.g., anonymous comments on articles) or configuration data. Built for use in [Site.js](https://sitejs.org).
