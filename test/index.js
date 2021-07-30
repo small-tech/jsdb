@@ -165,6 +165,23 @@ test('basic persistence', t => {
       t.strictEquals(JSON.stringify(db.people), inMemoryStateOfPeopleTableFromOriginalDatabase, 'loaded data matches previous state of the in-memory table')
 
       //
+      // Test loading in of multiline string.
+      // Issue: https://github.com/small-tech/jsdb/issues/10
+      //
+
+      db.stringTest = {
+        multiline: `
+          a
+          multiline
+          string
+        `
+      }
+
+      await db.close()
+
+      t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in multiline string does not throw')
+
+      //
       // Table compaction.
       //
 
