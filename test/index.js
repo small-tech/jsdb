@@ -182,6 +182,17 @@ test('basic persistence', t => {
       t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in multiline string does not throw')
 
       //
+      // A hexadecimal string starting with a number used as a hash key.
+      //
+      const hex = '0a17ceb403339ce6e39ad3b2273ccd18'
+      db.hexTest = {}
+      db.hexTest[hex] = 'this should work'
+
+      await db.close()
+
+      t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in hash key that’s hexadecimal string starting with number does not throw')
+
+      //
       // Table compaction.
       //
 
