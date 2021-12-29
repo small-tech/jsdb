@@ -907,9 +907,6 @@ test('JSDF', t => {
   testSerialisation(t, 'String with newlines', `Hello\nthere!`)
   testSerialisation(t, 'String with emoji', '😎👍')
 
-  // String with hexadecimal value that starts with a digit.
-  testSerialisation(t, 'Object with hex value key that starts with a digit', {'0a17ceb403339ce6e39ad3b2273ccd18': 'Should not throw'})
-
   // Security
 
   testSerialisation(t, '🔒 String injection attempt 1 fails as expected', "${t.fail('Payload 1 delivered')}")
@@ -931,6 +928,15 @@ test('JSDF', t => {
   testSerialisation(t, 'Object with non-alphanumerical characters in key', {
     "@context": ["https://www.w3.org/ns/activitystreams"],
   })
+
+  // Object with hexadecimal value that starts with digit.
+  // See https://source.small-tech.org/site.js/lib/jsdb/-/issues/13
+  testSerialisation(t, 'Object with hex value key that starts with digit', {'0a17ceb403339ce6e39ad3b2273ccd18': 'Should not throw'})
+
+  testSerialisation(t, 'Object with string key that starts with zero', {'0001': 'Should not throw'})
+  const mixedArray = [1,2]
+  mixedArray['0001'] = 'Probably not a great idea but it still shouldn’t throw'
+  testSerialisation(t, 'Mixed array', mixedArray)
 
   //
   // Arrays.
