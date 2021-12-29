@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2021-12-29
+
+### Fixed
+
+  - (Backported from 2.0.5) Improve algorithm that decides when to quote or not quote object keys when serialising them to handle object/array key edge cases (like strings that start with a number or contain all digits and have left padding, etc.) (#13)
+
 ## [1.2.0] - 2021-04-23
 
 ### Added

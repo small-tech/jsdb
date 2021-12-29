@@ -924,6 +924,20 @@ test('JSDF', t => {
     "@context": ["https://www.w3.org/ns/activitystreams"],
   })
 
+  // Object with hexadecimal value that starts with digit.
+  // See https://source.small-tech.org/site.js/lib/jsdb/-/issues/13
+  testSerialisation(t, 'Object with hex value key that starts with digit', {'0a17ceb403339ce6e39ad3b2273ccd18': 'Should not throw'})
+
+  testSerialisation(t, 'Object with floating point key', {3.14: 'Pi'})
+  testSerialisation(t, 'Object with floating point key as string', {'3.14': 'Pi'})
+  testSerialisation(t, 'Object with hexadecimal key', {0xBEEF: 'Is cows'})
+  testSerialisation(t, 'Object with hexadecimal key as string', {'0xBEEF': 'Is cows'})
+  testSerialisation(t, 'Object with floating point key as string with left padding', {'03.14': 'Pi'})
+  testSerialisation(t, 'Object with string key that starts with zero', {'0001': 'Should not throw'})
+  const mixedArray = [1,2]
+  mixedArray['0001'] = 'Probably not a great idea but it still shouldn’t throw'
+  testSerialisation(t, 'Mixed array', mixedArray)
+
   //
   // Arrays.
   //

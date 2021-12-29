@@ -46,12 +46,11 @@ We exist in part thanks to patronage by people like you. If you share [our visio
 
 ## To install
 
-Currently, you need to clone or install from this repo as this is a work-in-progress and no releases have been made yet to npm.
+Install using the `cjs` tag on npm to get the latest release in this branch:
 
 ```
-npm i github:small-tech/jsdb
+npm i github:small-tech/jsdb@cjs
 ```
-
 
 ## Usage
 
