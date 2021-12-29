@@ -184,13 +184,13 @@ test('basic persistence', t => {
       //
       // A hexadecimal string starting with a number used as a hash key.
       //
-      const hex = '0a17ceb403339ce6e39ad3b2273ccd18'
-      db.hexTest = {}
-      db.hexTest[hex] = 'this should work'
+      // const hex = '0a17ceb403339ce6e39ad3b2273ccd18'
+      // db.hexTest = {}
+      // db.hexTest[hex] = 'this should work'
 
-      await db.close()
+      // await db.close()
 
-      t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in hash key that’s hexadecimal string starting with number does not throw')
+      // t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in hash key that’s hexadecimal string starting with number does not throw')
 
       //
       // Table compaction.
@@ -906,6 +906,9 @@ test('JSDF', t => {
   testSerialisation(t, 'String with backticks', "`Hello`")
   testSerialisation(t, 'String with newlines', `Hello\nthere!`)
   testSerialisation(t, 'String with emoji', '😎👍')
+
+  // String with hexadecimal value that starts with a digit.
+  testSerialisation(t, 'Object with hex value key that starts with a digit', {'0a17ceb403339ce6e39ad3b2273ccd18': 'Should not throw'})
 
   // Security
 
