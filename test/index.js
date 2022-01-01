@@ -157,6 +157,21 @@ test('basic persistence', t => {
       t.strictEquals(dehydrate(actualTableSourceBeforeCompaction), dehydrate(expectedTableSourceBeforeCompaction), 'table source is as expected before compaction')
 
       //
+      // Copy of complex time (e.g., Date) from one table to another.
+      // (To ensure we are correctly forwarding a bound reference to the original
+      // data type’s .toJSON() method to the serialiser.)
+      // See https://source.small-tech.org/site.js/lib/jsdb/-/issues/14
+      //
+      db.firstTable = {
+        date: new Date()
+      }
+
+      db.secondTable = []
+
+      const date = db.firstTable.date
+      t.doesNotThrow(() => db.secondTable.push (date), 'copying complex data type from one table to another does not throw')
+
+      //
       // Table loading (require).
       //
 
