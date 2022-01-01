@@ -182,7 +182,7 @@ test('basic persistence', t => {
       t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in multiline string does not throw')
 
       //
-      // Copy of complex time (e.g., Date) from one table to another.
+      // Copy of complex data type (e.g., Date) from one table to another.
       // (To ensure we are correctly forwarding a bound reference to the original
       // data type’s .toJSON() method to the serialiser.)
       // See https://source.small-tech.org/site.js/lib/jsdb/-/issues/14
