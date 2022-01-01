@@ -182,15 +182,19 @@ test('basic persistence', t => {
       t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in multiline string does not throw')
 
       //
-      // A hexadecimal string starting with a number used as a hash key.
+      // Copy of complex time (e.g., Date) from one table to another.
+      // (To ensure we are correctly forwarding a bound reference to the original
+      // data type’s .toJSON() method to the serialiser.)
+      // See https://source.small-tech.org/site.js/lib/jsdb/-/issues/14
       //
-      // const hex = '0a17ceb403339ce6e39ad3b2273ccd18'
-      // db.hexTest = {}
-      // db.hexTest[hex] = 'this should work'
+      db.firstTable = {
+        date: new Date()
+      }
 
-      // await db.close()
+      db.secondTable = []
 
-      // t.doesNotThrow(() => db = JSDB.open(databasePath), 'loading in hash key that’s hexadecimal string starting with number does not throw')
+      const date = db.firstTable.date
+      t.doesNotThrow(() => db.secondTable.push (date), 'copying complex data type from one table to another does not throw')
 
       //
       // Table compaction.
