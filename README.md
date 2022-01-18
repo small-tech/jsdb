@@ -77,6 +77,12 @@ if (!db.people) {
 
   // Update Oskar’s name to use his nickname. (This will automatically update db/people.js)
   db.people[2].name = 'Osky'
+  
+  // Adding another person to the family
+  db.people.push({name: 'Donald', age: 74})
+  
+  // Removing is done with mutable operations like .pop and .splice
+  db.people.pop()
 }
 ```
 
