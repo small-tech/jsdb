@@ -45,7 +45,7 @@ We exist in part thanks to patronage by people like you. If you share [our visio
 ## Installation
 
 ```
-npm i github:small-tech/jsdb
+npm i @small-tech/jsdb
 ```
 
 
